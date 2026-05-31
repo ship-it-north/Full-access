@@ -1,16 +1,984 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>FyltrMedia — AI Automation for Dental Clinics & Businesses</title>
-    <meta name="description" content="FyltrMedia builds AI automation systems for dental clinics and businesses. Book AI appointment systems, patient reactivation, chatbots, and workflow automation." />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.jsx"></script>
-  </body>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FYLTR Media — AI Automation for Dental Clinics & Businesses</title>
+  <meta name="description" content="AI-powered automation for dental clinics and growing businesses. Cut costs, reclaim hours, and grow without hiring." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --blue:   #00d4ff;
+      --purple: #7b2fff;
+      --bg:     #0a0a0f;
+      --bg2:    #0d0d18;
+      --glass:  rgba(255,255,255,0.04);
+      --border: rgba(255,255,255,0.08);
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: #fff;
+      overflow-x: hidden;
+    }
+
+    /* ── UTILITIES ── */
+    .container { max-width: 1200px; margin: 0 auto; padding: 0 24px; }
+
+    .text-gradient {
+      background: linear-gradient(135deg, var(--blue), var(--purple));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .glass {
+      background: var(--glass);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid var(--border);
+    }
+
+    .btn-primary {
+      display: inline-block;
+      padding: 14px 32px;
+      border-radius: 12px;
+      font-weight: 700;
+      font-size: 1rem;
+      color: #fff;
+      background: linear-gradient(135deg, var(--blue), var(--purple));
+      text-decoration: none;
+      cursor: pointer;
+      border: none;
+      font-family: inherit;
+      transition: box-shadow .3s, transform .2s;
+    }
+    .btn-primary:hover { box-shadow: 0 0 35px rgba(0,212,255,.45); transform: translateY(-2px); }
+
+    .btn-ghost {
+      display: inline-block;
+      padding: 14px 32px;
+      border-radius: 12px;
+      font-weight: 700;
+      font-size: 1rem;
+      color: #fff;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.15);
+      text-decoration: none;
+      cursor: pointer;
+      transition: border-color .3s, background .3s, transform .2s;
+    }
+    .btn-ghost:hover { border-color: rgba(0,212,255,.4); background: rgba(255,255,255,0.08); transform: translateY(-2px); }
+
+    .badge {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 7px 16px; border-radius: 999px;
+      font-size: .8rem; font-weight: 600; letter-spacing: .05em;
+    }
+    .badge-blue   { border: 1px solid rgba(0,212,255,.3);   background: rgba(0,212,255,.08);   color: var(--blue); }
+    .badge-purple { border: 1px solid rgba(123,47,255,.3);  background: rgba(123,47,255,.08);  color: var(--purple); }
+    .dot { width: 7px; height: 7px; border-radius: 50%; background: currentColor; animation: blink 2s infinite; }
+
+    /* ── ANIMATIONS ── */
+    @keyframes blink      { 0%,100%{opacity:1} 50%{opacity:.35} }
+    @keyframes float      { 0%,100%{transform:translateY(0) rotate(var(--r,0deg))} 50%{transform:translateY(-14px) rotate(var(--r,0deg))} }
+    @keyframes floatSlow  { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-8px)} }
+    @keyframes fadeUp     { from{opacity:0;transform:translateY(32px)} to{opacity:1;transform:translateY(0)} }
+    @keyframes glowPulse  { 0%,100%{box-shadow:0 0 20px rgba(0,212,255,.3),inset 0 0 20px rgba(0,212,255,.05)} 50%{box-shadow:0 0 45px rgba(123,47,255,.4),inset 0 0 45px rgba(123,47,255,.08)} }
+    @keyframes spinBorder { 0%{--ba:0deg} 100%{--ba:360deg} }
+    @property --ba { syntax:'<angle>'; initial-value:0deg; inherits:false; }
+
+    .fade-up { opacity: 0; animation: fadeUp .8s ease forwards; }
+    .d1 { animation-delay: .1s; }
+    .d2 { animation-delay: .25s; }
+    .d3 { animation-delay: .4s; }
+    .d4 { animation-delay: .55s; }
+    .d5 { animation-delay: .72s; }
+
+    /* ── REVEAL ON SCROLL ── */
+    .reveal { opacity: 0; transform: translateY(28px); transition: opacity .7s ease, transform .7s ease; }
+    .reveal.visible { opacity: 1; transform: none; }
+
+    /* ══════════════ NAVBAR ══════════════ */
+    #navbar {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      padding: 20px 0; transition: all .35s;
+    }
+    #navbar.scrolled {
+      background: rgba(10,10,15,.88);
+      backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border);
+      padding: 12px 0;
+    }
+    .nav-inner { display: flex; align-items: center; justify-content: space-between; }
+    .logo { font-size: 1.2rem; font-weight: 900; text-decoration: none; letter-spacing: -.02em; }
+
+    .nav-links { display: flex; align-items: center; gap: 32px; list-style: none; }
+    .nav-links a {
+      color: rgba(255,255,255,.6); text-decoration: none;
+      font-size: .88rem; font-weight: 500;
+      position: relative; transition: color .2s;
+    }
+    .nav-links a::after {
+      content:''; position:absolute; bottom:-3px; left:0;
+      width:0; height:1px;
+      background: linear-gradient(90deg, var(--blue), var(--purple));
+      transition: width .3s;
+    }
+    .nav-links a:hover { color:#fff; }
+    .nav-links a:hover::after { width:100%; }
+
+    .nav-cta {
+      padding: 9px 22px; border-radius: 10px;
+      background: linear-gradient(135deg, var(--blue), var(--purple));
+      color: #fff; font-weight: 700; font-size: .85rem;
+      text-decoration: none; transition: box-shadow .3s;
+    }
+    .nav-cta:hover { box-shadow: 0 0 25px rgba(0,212,255,.4); }
+
+    .hamburger { display:none; flex-direction:column; gap:5px; background:none; border:none; cursor:pointer; padding:4px; }
+    .hamburger span { display:block; width:24px; height:2px; background:#fff; border-radius:2px; transition:all .3s; }
+    .hamburger.open span:nth-child(1) { transform:rotate(45deg) translate(5px,5px); }
+    .hamburger.open span:nth-child(2) { opacity:0; }
+    .hamburger.open span:nth-child(3) { transform:rotate(-45deg) translate(5px,-5px); }
+
+    .mobile-menu { display:none; flex-direction:column; gap:4px; padding:16px 24px; background:rgba(10,10,15,.96); border-top:1px solid var(--border); }
+    .mobile-menu.open { display:flex; }
+    .mobile-menu a { color:rgba(255,255,255,.7); text-decoration:none; font-weight:500; padding:10px 0; border-bottom:1px solid rgba(255,255,255,.05); transition:color .2s; }
+    .mobile-menu a:hover { color:#fff; }
+    .mobile-cta { margin-top:6px !important; text-align:center; border-radius:10px; background:linear-gradient(135deg,var(--blue),var(--purple)); color:#fff !important; font-weight:700; border:none !important; }
+
+    @media(max-width:768px) { .nav-links,.nav-cta-wrap{display:none} .hamburger{display:flex} }
+
+    /* ══════════════ HERO ══════════════ */
+    #hero { position:relative; min-height:100vh; display:flex; align-items:center; overflow:hidden; }
+
+    #particles-canvas { position:absolute; inset:0; z-index:0; width:100%; height:100%; }
+
+    .orb { position:absolute; border-radius:50%; filter:blur(100px); pointer-events:none; }
+    .orb1 { width:400px;height:400px;top:8%;left:4%;  background:rgba(0,212,255,.1);  animation:floatSlow 9s ease-in-out infinite; }
+    .orb2 { width:500px;height:500px;bottom:4%;right:4%; background:rgba(123,47,255,.08); animation:floatSlow 11s ease-in-out infinite reverse; }
+    .orb3 { width:700px;height:350px;top:50%;left:50%;transform:translate(-50%,-50%); background:rgba(123,47,255,.04);filter:blur(80px); }
+
+    .hero-inner { position:relative;z-index:2;width:100%;padding:140px 0 80px; }
+    .hero-grid {
+      display:grid; grid-template-columns:1fr 1fr; gap:60px; align-items:center;
+    }
+    @media(max-width:900px){ .hero-grid{grid-template-columns:1fr} .hero-right{display:none} }
+
+    .hero-left h1 {
+      font-size: clamp(2.4rem,5vw,4.2rem);
+      font-weight:900; line-height:1.06; letter-spacing:-.03em; margin-bottom:20px;
+    }
+    .typing-row { height:44px; display:flex; align-items:center; margin-bottom:20px; }
+    .typing-prefix { font-size:1.2rem; font-weight:600; color:rgba(255,255,255,.5); }
+    .typing-text   { font-size:1.2rem; font-weight:700; color:var(--blue); margin-left:8px; }
+    .cursor        { display:inline-block; color:var(--blue); animation:blink 1s infinite; }
+
+    .hero-sub { font-size:1.05rem;line-height:1.7;color:rgba(255,255,255,.55);max-width:500px;margin-bottom:36px; }
+    .hero-btns { display:flex; flex-wrap:wrap; gap:14px; margin-bottom:48px; }
+    .proof-row { display:flex; flex-wrap:wrap; align-items:center; gap:20px; }
+    .proof-item { display:flex; align-items:center; gap:8px; }
+    .proof-num   { font-weight:900; font-size:1rem; color:var(--blue); }
+    .proof-label { font-size:.85rem; color:rgba(255,255,255,.4); }
+    .proof-sep   { width:1px; height:16px; background:rgba(255,255,255,.12); }
+
+    /* Floating shapes */
+    .hero-right { position:relative; height:540px; }
+    .shape { position:absolute; border:1px solid; border-radius:inherit; animation:float 7s ease-in-out infinite; }
+    .shape-inner { width:100%;height:100%;border-radius:inherit; background:linear-gradient(135deg,rgba(0,212,255,.05),rgba(123,47,255,.05)); display:flex;align-items:center;justify-content:center; }
+    .shape-glyph { font-size:2.2rem; opacity:.55; }
+
+    .sh1 { --r:20deg;width:180px;height:180px;border-color:rgba(0,212,255,.35);border-radius:28px;top:8%;right:8%; animation-duration:7s; }
+    .sh2 { width:110px;height:110px;border-color:rgba(123,47,255,.45);border-radius:50%;top:42%;left:4%; animation-duration:5s;animation-delay:-.8s; }
+    .sh3 { --r:-15deg;width:75px;height:75px;border-color:rgba(0,212,255,.28);border-radius:14px;bottom:18%;right:22%; animation-duration:8s;animation-delay:-.4s; }
+    .sh4 { width:46px;height:46px;border-color:rgba(123,47,255,.38);border-radius:50%;top:18%;left:32%; animation-duration:4s;animation-delay:-1s; }
+    .sh5 { width:240px;height:240px;border-color:rgba(123,47,255,.12);border-radius:50%;top:50%;left:50%;transform:translate(-50%,-50%); animation-duration:9s;animation-delay:-.5s; }
+
+    .center-orb {
+      position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+      width:260px;height:260px;border-radius:50%;
+      background:radial-gradient(circle at 40% 40%,rgba(0,212,255,.15),rgba(123,47,255,.1) 60%,transparent 80%);
+      border:1px solid rgba(0,212,255,.2);
+      animation:glowPulse 4s ease-in-out infinite;
+      display:flex;align-items:center;justify-content:center;
+    }
+    .center-glyph { font-size:3.2rem; animation:floatSlow 4s ease-in-out infinite; }
+
+    /* ══════════════ SECTIONS COMMON ══════════════ */
+    section { padding: 96px 0; }
+    .section-header { text-align:center; margin-bottom:60px; }
+    .section-header h2 { font-size:clamp(2rem,4vw,3rem); font-weight:900; letter-spacing:-.03em; margin:12px 0 16px; }
+    .section-header p  { font-size:1rem; color:rgba(255,255,255,.5); max-width:560px; margin:0 auto; line-height:1.7; }
+
+    /* ══════════════ WHY AI ══════════════ */
+    #why { background:var(--bg); position:relative; overflow:hidden; }
+    .grid-tex {
+      position:absolute;inset:0;pointer-events:none;opacity:.025;
+      background-image:linear-gradient(rgba(0,212,255,1) 1px,transparent 1px),linear-gradient(90deg,rgba(0,212,255,1) 1px,transparent 1px);
+      background-size:60px 60px;
+    }
+    .why-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:24px; }
+    @media(max-width:768px){ .why-grid{grid-template-columns:1fr} }
+
+    .why-card {
+      border-radius:20px; padding:32px;
+      position:relative; overflow:hidden; cursor:default;
+      transition:transform .35s, box-shadow .35s;
+    }
+    .why-card:hover { transform:translateY(-8px); }
+
+    .card-glow { position:absolute;inset:0;border-radius:20px;opacity:0;transition:opacity .4s;pointer-events:none; }
+    .glow-b  { box-shadow:0 0 55px rgba(0,212,255,.18),inset 0 0 55px rgba(0,212,255,.04); }
+    .glow-p  { box-shadow:0 0 55px rgba(123,47,255,.18),inset 0 0 55px rgba(123,47,255,.04); }
+    .why-card:hover .card-glow { opacity:1; }
+
+    .card-icon { width:58px;height:58px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:1.5rem;margin-bottom:20px; }
+    .icon-b { background:rgba(0,212,255,.1);  border:1px solid rgba(0,212,255,.25); }
+    .icon-p { background:rgba(123,47,255,.1); border:1px solid rgba(123,47,255,.25); }
+
+    .card-stat  { font-size:2.8rem; font-weight:900; line-height:1; margin-bottom:8px; }
+    .stat-b  { color:var(--blue);   text-shadow:0 0 28px rgba(0,212,255,.55); }
+    .stat-p  { color:var(--purple); text-shadow:0 0 28px rgba(123,47,255,.55); }
+
+    .card-title { font-size:1rem;font-weight:700;color:#fff;margin-bottom:10px; }
+    .card-body  { font-size:.87rem;color:rgba(255,255,255,.5);line-height:1.65; }
+
+    .card-line { position:absolute;bottom:0;left:32px;right:32px;height:1px;opacity:0;transition:opacity .4s; }
+    .why-card:hover .card-line { opacity:1; }
+    .line-b { background:linear-gradient(90deg,transparent,var(--blue),transparent); }
+    .line-p { background:linear-gradient(90deg,transparent,var(--purple),transparent); }
+
+    /* ══════════════ SERVICES ══════════════ */
+    #services { background:linear-gradient(180deg,var(--bg) 0%,var(--bg2) 50%,var(--bg) 100%); position:relative; }
+    .svc-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:20px; }
+    @media(max-width:768px){ .svc-grid{grid-template-columns:1fr} }
+
+    .svc-card {
+      border-radius:20px; padding:28px; position:relative; overflow:hidden; cursor:pointer;
+      transition:transform .3s, box-shadow .3s, border-color .3s;
+    }
+    .svc-card:hover { transform:translateY(-4px); }
+    .svc-card.svc-b:hover { box-shadow:0 20px 60px rgba(0,212,255,.1);   border-color:rgba(0,212,255,.25) !important; }
+    .svc-card.svc-p:hover { box-shadow:0 20px 60px rgba(123,47,255,.1); border-color:rgba(123,47,255,.25) !important; }
+
+    .svc-top    { display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:14px; }
+    .svc-icon   { width:50px;height:50px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.4rem;flex-shrink:0; }
+    .svc-toggle { width:28px;height:28px;border-radius:50%;border:1px solid rgba(255,255,255,.12);display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,.4);font-size:1.1rem;flex-shrink:0;transition:transform .3s,border-color .3s; }
+    .svc-card.open .svc-toggle { transform:rotate(45deg); border-color:rgba(0,212,255,.4); }
+
+    .svc-title   { font-size:1rem;font-weight:700;color:#fff;margin-bottom:4px; }
+    .svc-tagline { font-size:.8rem;font-weight:600; }
+    .tag-b { color:var(--blue); }
+    .tag-p { color:var(--purple); }
+
+    .svc-body { max-height:0;overflow:hidden;transition:max-height .4s ease; }
+    .svc-card.open .svc-body { max-height:400px; }
+
+    .svc-desc { font-size:.87rem;color:rgba(255,255,255,.55);line-height:1.65;margin:14px 0 16px; }
+    .svc-feats { list-style:none;display:flex;flex-direction:column;gap:8px;margin-bottom:16px; }
+    .svc-feats li { display:flex;align-items:center;gap:8px;font-size:.84rem;color:rgba(255,255,255,.7); }
+    .feat-dot { width:6px;height:6px;border-radius:50%;flex-shrink:0; }
+    .fd-b { background:var(--blue);   box-shadow:0 0 6px var(--blue); }
+    .fd-p { background:var(--purple); box-shadow:0 0 6px var(--purple); }
+
+    .svc-link { font-size:.84rem;font-weight:700;text-decoration:none;transition:opacity .2s; }
+    .svc-link:hover { opacity:.7; }
+    .sl-b { color:var(--blue); }
+    .sl-p { color:var(--purple); }
+
+    .svc-bottom { position:absolute;bottom:0;left:0;right:0;height:1px; }
+    .svc-cta { text-align:center;margin-top:48px; }
+    .svc-cta p { color:rgba(255,255,255,.35);font-size:.9rem;margin-bottom:14px; }
+
+    /* ══════════════ RESULTS ══════════════ */
+    #results { background:var(--bg); position:relative; overflow:hidden; }
+    .results-tex {
+      position:absolute;inset:0;pointer-events:none;opacity:.02;
+      background-image:linear-gradient(rgba(123,47,255,1) 1px,transparent 1px),linear-gradient(90deg,rgba(123,47,255,1) 1px,transparent 1px);
+      background-size:80px 80px;
+    }
+    .stats-box {
+      border-radius:24px; display:grid; grid-template-columns:repeat(4,1fr);
+      gap:0; padding:48px; margin-bottom:64px;
+    }
+    @media(max-width:768px){ .stats-box{grid-template-columns:repeat(2,1fr);padding:28px 20px} }
+    @media(max-width:400px){ .stats-box{grid-template-columns:1fr} }
+
+    .stat-item { text-align:center; padding:8px; }
+    .stat-num   { font-size:clamp(2.4rem,5vw,3.4rem);font-weight:900;line-height:1;margin-bottom:6px; }
+    .stat-label { font-size:.9rem;font-weight:700;color:#fff;margin-bottom:4px; }
+    .stat-sub   { font-size:.76rem;color:rgba(255,255,255,.3); }
+
+    .testimonials { display:grid; grid-template-columns:repeat(3,1fr); gap:20px; }
+    @media(max-width:768px){ .testimonials{grid-template-columns:1fr} }
+
+    .testi-card { border-radius:20px;padding:28px;position:relative;transition:transform .3s; }
+    .testi-card:hover { transform:translateY(-4px); }
+    .testi-q    { font-size:4rem;font-weight:900;line-height:.8;margin-bottom:12px;opacity:.2; }
+    .testi-text { font-size:.87rem;color:rgba(255,255,255,.7);line-height:1.65;margin-bottom:20px;font-style:italic; }
+    .testi-auth { display:flex;align-items:center;gap:12px; }
+    .testi-ava  { width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.68rem;font-weight:900;color:#fff;flex-shrink:0; }
+    .ava-b  { background:linear-gradient(135deg,var(--blue),rgba(0,212,255,.5)); }
+    .ava-p  { background:linear-gradient(135deg,var(--purple),rgba(123,47,255,.5)); }
+    .testi-name { font-size:.87rem;font-weight:700;color:#fff; }
+    .testi-role { font-size:.75rem;color:rgba(255,255,255,.35); }
+    .testi-bot  { position:absolute;bottom:0;left:24px;right:24px;height:1px;opacity:0;transition:opacity .4s; }
+    .testi-card:hover .testi-bot { opacity:1; }
+
+    /* ══════════════ CONTACT ══════════════ */
+    #contact { background:linear-gradient(180deg,var(--bg) 0%,var(--bg2) 100%); position:relative; }
+    .contact-grid { display:grid;grid-template-columns:1fr 1fr;gap:40px;max-width:980px;margin:0 auto; }
+    @media(max-width:768px){ .contact-grid{grid-template-columns:1fr} }
+
+    .form-wrap {
+      border-radius:20px; padding:2px;
+      background:linear-gradient(var(--ba),var(--blue),var(--purple),var(--blue));
+      animation:spinBorder 4s linear infinite;
+    }
+    .form-inner { background:var(--bg); border-radius:18px; padding:32px; }
+
+    .form-success { text-align:center;padding:48px 0; }
+    .form-success .s-icon { font-size:3rem;margin-bottom:12px; }
+    .form-success h3 { font-size:1.5rem;font-weight:900;margin-bottom:8px; }
+    .form-success p  { color:rgba(255,255,255,.55); }
+
+    .fg { margin-bottom:18px; }
+    .fg label { display:block;font-size:.8rem;font-weight:600;color:rgba(255,255,255,.6);margin-bottom:7px; }
+    .fg input, .fg textarea {
+      width:100%;padding:12px 16px;border-radius:10px;
+      background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);
+      color:#fff;font-family:inherit;font-size:.88rem;
+      transition:border-color .2s,background .2s;outline:none;resize:none;
+    }
+    .fg input::placeholder, .fg textarea::placeholder { color:rgba(255,255,255,.22); }
+    .fg input:focus, .fg textarea:focus { border-color:rgba(0,212,255,.5);background:rgba(255,255,255,.08); }
+
+    .form-submit {
+      width:100%;padding:14px;border-radius:12px;
+      background:linear-gradient(135deg,var(--blue),var(--purple));
+      color:#fff;font-weight:700;font-size:1rem;
+      border:none;cursor:pointer;font-family:inherit;
+      transition:box-shadow .3s,opacity .2s;
+    }
+    .form-submit:hover { box-shadow:0 0 35px rgba(0,212,255,.4); }
+    .form-submit:disabled { opacity:.6;cursor:wait; }
+    .form-note  { text-align:center;font-size:.74rem;color:rgba(255,255,255,.22);margin-top:10px; }
+    .form-error { color:#ff6b6b;font-size:.82rem;margin-bottom:12px;display:none; }
+
+    .info-cards { display:flex;flex-direction:column;gap:14px; }
+    .info-card { border-radius:14px;padding:20px;display:flex;gap:14px;transition:border-color .3s; }
+    .info-card:hover { border-color:rgba(0,212,255,.2) !important; }
+    .info-icon  { font-size:1.4rem;flex-shrink:0;margin-top:2px; }
+    .info-title { font-size:.93rem;font-weight:700;color:#fff;margin-bottom:4px; }
+    .info-body  { font-size:.82rem;color:rgba(255,255,255,.45);line-height:1.6; }
+
+    .direct-box { border-radius:14px;padding:20px;border:1px solid rgba(0,212,255,.12); }
+    .direct-lbl { font-size:.7rem;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:rgba(255,255,255,.35);margin-bottom:7px; }
+    .direct-em  { color:var(--blue);font-weight:600;font-size:.9rem;text-decoration:none; }
+    .direct-em:hover { text-decoration:underline; }
+    .direct-rep { font-size:.75rem;color:rgba(255,255,255,.3);margin-top:3px; }
+
+    /* ══════════════ FOOTER ══════════════ */
+    footer { background:#060609;border-top:1px solid rgba(255,255,255,.05);padding:48px 0;position:relative; }
+    footer::before { content:'';position:absolute;top:0;left:50%;transform:translateX(-50%);width:600px;height:1px;background:linear-gradient(90deg,transparent,rgba(0,212,255,.28),transparent); }
+    .footer-in  { display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:24px;margin-bottom:28px; }
+    .footer-logo { font-size:1.1rem;font-weight:900;text-decoration:none;letter-spacing:-.02em; }
+    .footer-nav  { display:flex;flex-wrap:wrap;gap:24px;list-style:none; }
+    .footer-nav a { color:rgba(255,255,255,.35);text-decoration:none;font-size:.84rem;transition:color .2s; }
+    .footer-nav a:hover { color:rgba(255,255,255,.8); }
+    .footer-email { color:rgba(0,212,255,.6);font-size:.84rem;text-decoration:none;transition:color .2s; }
+    .footer-email:hover { color:var(--blue); }
+    .footer-bot   { border-top:1px solid rgba(255,255,255,.05);padding-top:24px;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px; }
+    .footer-copy  { font-size:.76rem;color:rgba(255,255,255,.2); }
+  </style>
+</head>
+<body>
+
+<!-- ══════════════════════════ NAVBAR ══════════════════════════ -->
+<nav id="navbar">
+  <div class="container nav-inner">
+    <a href="#" class="logo">
+      <span class="text-gradient">FYLTR</span>
+      <span style="color:rgba(255,255,255,.3);font-weight:300;margin:0 5px">|</span>
+      <span style="color:#fff">MEDIA</span>
+    </a>
+    <ul class="nav-links">
+      <li><a href="#why">Why AI</a></li>
+      <li><a href="#services">Services</a></li>
+      <li><a href="#results">Results</a></li>
+      <li><a href="#contact">Contact</a></li>
+    </ul>
+    <div class="nav-cta-wrap">
+      <a href="#contact" class="nav-cta">Book Free Call</a>
+    </div>
+    <button class="hamburger" id="ham" aria-label="Toggle menu">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+  <div class="mobile-menu" id="mob">
+    <a href="#why"      onclick="closeMob()">Why AI</a>
+    <a href="#services" onclick="closeMob()">Services</a>
+    <a href="#results"  onclick="closeMob()">Results</a>
+    <a href="#contact"  onclick="closeMob()">Contact</a>
+    <a href="#contact"  onclick="closeMob()" class="mobile-cta">Book Free Call</a>
+  </div>
+</nav>
+
+<!-- ══════════════════════════ HERO ══════════════════════════ -->
+<section id="hero">
+  <canvas id="particles-canvas"></canvas>
+  <div class="orb orb1"></div>
+  <div class="orb orb2"></div>
+  <div class="orb orb3"></div>
+
+  <div class="container hero-inner">
+    <div class="hero-grid">
+
+      <div class="hero-left">
+        <div class="badge badge-blue fade-up d1" style="margin-bottom:24px">
+          <span class="dot"></span>AI Automation · Dental &amp; Business
+        </div>
+        <h1 class="fade-up d2">
+          The Future of Your <span class="text-gradient">Practice</span><br>Starts Here
+        </h1>
+        <div class="typing-row fade-up d3">
+          <span class="typing-prefix">We help you</span>
+          <span class="typing-text" id="typing-text"></span>
+          <span class="cursor">|</span>
+        </div>
+        <p class="hero-sub fade-up d4">
+          We build AI-powered automation systems for dental clinics and growing businesses.
+          Cut costs, reclaim hours, and grow — without hiring a single extra person.
+        </p>
+        <div class="hero-btns fade-up d5">
+          <a href="#contact" class="btn-primary">Book a Free Call →</a>
+          <a href="#services" class="btn-ghost">See Our Services</a>
+        </div>
+        <div class="proof-row fade-up d5">
+          <div class="proof-item"><span class="proof-num">47+</span><span class="proof-label">Clients Automated</span></div>
+          <div class="proof-sep"></div>
+          <div class="proof-item"><span class="proof-num">10K+</span><span class="proof-label">Hours Saved</span></div>
+          <div class="proof-sep"></div>
+          <div class="proof-item"><span class="proof-num">3x</span><span class="proof-label">Average ROI</span></div>
+        </div>
+      </div>
+
+      <div class="hero-right">
+        <div class="center-orb"><div class="center-glyph">🤖</div></div>
+        <div class="shape sh1"><div class="shape-inner"><div class="shape-glyph">⚡</div></div></div>
+        <div class="shape sh2"><div class="shape-inner"><div class="shape-glyph">🦷</div></div></div>
+        <div class="shape sh3"><div class="shape-inner"></div></div>
+        <div class="shape sh4"><div class="shape-inner"></div></div>
+        <div class="shape sh5"><div class="shape-inner"></div></div>
+      </div>
+
+    </div>
+  </div>
+
+  <div style="position:absolute;bottom:28px;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:6px;color:rgba(255,255,255,.25);font-size:.68rem;font-weight:600;letter-spacing:.12em;text-transform:uppercase;animation:floatSlow 2.5s ease-in-out infinite">
+    <span>Scroll</span>
+    <div style="width:1px;height:34px;background:linear-gradient(to bottom,rgba(255,255,255,.25),transparent)"></div>
+  </div>
+</section>
+
+<!-- ══════════════════════════ WHY AI ══════════════════════════ -->
+<section id="why">
+  <div class="grid-tex"></div>
+  <div class="container" style="position:relative;z-index:1">
+
+    <div class="section-header reveal">
+      <div class="badge badge-purple" style="margin-bottom:16px"><span class="dot"></span>Why AI, Why Now</div>
+      <h2>The AI Shift Is <span class="text-gradient">Already Here</span></h2>
+      <p>This isn't a trend. It's a fundamental shift in how successful clinics and businesses operate. The question isn't if — it's how fast.</p>
+    </div>
+
+    <div class="why-grid">
+      <div class="why-card glass reveal">
+        <div class="card-glow glow-b"></div>
+        <div class="card-icon icon-b">⚡</div>
+        <div class="card-stat stat-b">3x</div>
+        <div class="card-title">Businesses using AI grow 3x faster</div>
+        <p class="card-body">Companies that integrate AI automation outpace competitors across every measurable metric — bookings, revenue, and retention.</p>
+        <div class="card-line line-b"></div>
+      </div>
+      <div class="why-card glass reveal" style="transition-delay:.12s">
+        <div class="card-glow glow-p"></div>
+        <div class="card-icon icon-p">🤖</div>
+        <div class="card-stat stat-p">80%</div>
+        <div class="card-title">80% of repetitive tasks can be automated today</div>
+        <p class="card-body">Appointment reminders, follow-ups, lead qualification, intake forms — all running 24/7 without an employee touching them.</p>
+        <div class="card-line line-p"></div>
+      </div>
+      <div class="why-card glass reveal" style="transition-delay:.24s">
+        <div class="card-glow glow-b"></div>
+        <div class="card-icon icon-b">🚀</div>
+        <div class="card-stat stat-b">Now</div>
+        <div class="card-title">Your competitors are already doing it</div>
+        <p class="card-body">The window to gain a first-mover advantage in your market is closing fast. The clinics that automate now will own their category.</p>
+        <div class="card-line line-b"></div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ══════════════════════════ SERVICES ══════════════════════════ -->
+<section id="services">
+  <div class="container" style="position:relative;z-index:1">
+
+    <div class="section-header reveal">
+      <div class="badge badge-blue" style="margin-bottom:16px"><span class="dot"></span>What We Build</div>
+      <h2>AI Systems That <span class="text-gradient">Run Your Growth</span></h2>
+      <p>Click any card to see what's inside. Every system is custom-built — no templates, no generic software.</p>
+    </div>
+
+    <div class="svc-grid">
+
+      <div class="svc-card svc-b glass reveal" onclick="toggleSvc(this)">
+        <div class="svc-top">
+          <div class="svc-icon icon-b">📅</div>
+          <div class="svc-toggle">+</div>
+        </div>
+        <div class="svc-title">AI Appointment Booking Automation</div>
+        <div class="svc-tagline tag-b">Fill your calendar on autopilot</div>
+        <div class="svc-body">
+          <p class="svc-desc">An intelligent booking system that handles scheduling, confirmations, and reminders 24/7 — without a receptionist. Patients book through SMS, webchat, or voice, and your calendar fills itself.</p>
+          <ul class="svc-feats">
+            <li><span class="feat-dot fd-b"></span>24/7 automated scheduling</li>
+            <li><span class="feat-dot fd-b"></span>SMS &amp; voice booking flows</li>
+            <li><span class="feat-dot fd-b"></span>Instant confirmations</li>
+            <li><span class="feat-dot fd-b"></span>No-show prevention reminders</li>
+          </ul>
+          <a href="#contact" class="svc-link sl-b" onclick="event.stopPropagation()">Get this service →</a>
+        </div>
+        <div class="svc-bottom" style="background:linear-gradient(90deg,transparent,rgba(0,212,255,.4),transparent)"></div>
+      </div>
+
+      <div class="svc-card svc-p glass reveal" style="transition-delay:.1s" onclick="toggleSvc(this)">
+        <div class="svc-top">
+          <div class="svc-icon icon-p">🔄</div>
+          <div class="svc-toggle">+</div>
+        </div>
+        <div class="svc-title">Patient Follow-Up &amp; Reactivation</div>
+        <div class="svc-tagline tag-p">Win back lapsed patients automatically</div>
+        <div class="svc-body">
+          <p class="svc-desc">Automated sequences that re-engage inactive patients, follow up post-appointment, request reviews, and nurture long-term loyalty — all personalized and hands-free.</p>
+          <ul class="svc-feats">
+            <li><span class="feat-dot fd-p"></span>Automated reactivation campaigns</li>
+            <li><span class="feat-dot fd-p"></span>Post-visit follow-up sequences</li>
+            <li><span class="feat-dot fd-p"></span>Review request automation</li>
+            <li><span class="feat-dot fd-p"></span>Loyalty &amp; recall reminders</li>
+          </ul>
+          <a href="#contact" class="svc-link sl-p" onclick="event.stopPropagation()">Get this service →</a>
+        </div>
+        <div class="svc-bottom" style="background:linear-gradient(90deg,transparent,rgba(123,47,255,.4),transparent)"></div>
+      </div>
+
+      <div class="svc-card svc-b glass reveal" style="transition-delay:.2s" onclick="toggleSvc(this)">
+        <div class="svc-top">
+          <div class="svc-icon icon-b">💬</div>
+          <div class="svc-toggle">+</div>
+        </div>
+        <div class="svc-title">AI Chatbots for Lead Capture</div>
+        <div class="svc-tagline tag-b">Convert visitors into booked appointments</div>
+        <div class="svc-body">
+          <p class="svc-desc">A trained AI assistant on your website and social profiles that answers questions, qualifies leads, and books consultations — capturing revenue that would otherwise slip away.</p>
+          <ul class="svc-feats">
+            <li><span class="feat-dot fd-b"></span>Trained on your services</li>
+            <li><span class="feat-dot fd-b"></span>Multi-platform deployment</li>
+            <li><span class="feat-dot fd-b"></span>Lead qualification logic</li>
+            <li><span class="feat-dot fd-b"></span>Direct CRM integration</li>
+          </ul>
+          <a href="#contact" class="svc-link sl-b" onclick="event.stopPropagation()">Get this service →</a>
+        </div>
+        <div class="svc-bottom" style="background:linear-gradient(90deg,transparent,rgba(0,212,255,.4),transparent)"></div>
+      </div>
+
+      <div class="svc-card svc-p glass reveal" style="transition-delay:.3s" onclick="toggleSvc(this)">
+        <div class="svc-top">
+          <div class="svc-icon icon-p">⚙️</div>
+          <div class="svc-toggle">+</div>
+        </div>
+        <div class="svc-title">Business Process Automation</div>
+        <div class="svc-tagline tag-p">Eliminate repetitive operational work</div>
+        <div class="svc-body">
+          <p class="svc-desc">We map your manual workflows and replace them with intelligent automations — from intake forms and insurance verification to internal reporting and staff notifications.</p>
+          <ul class="svc-feats">
+            <li><span class="feat-dot fd-p"></span>Workflow audit &amp; mapping</li>
+            <li><span class="feat-dot fd-p"></span>Custom automation builds</li>
+            <li><span class="feat-dot fd-p"></span>System integrations</li>
+            <li><span class="feat-dot fd-p"></span>Staff time savings tracking</li>
+          </ul>
+          <a href="#contact" class="svc-link sl-p" onclick="event.stopPropagation()">Get this service →</a>
+        </div>
+        <div class="svc-bottom" style="background:linear-gradient(90deg,transparent,rgba(123,47,255,.4),transparent)"></div>
+      </div>
+
+    </div>
+
+    <div class="svc-cta reveal">
+      <p>Not sure which system you need?</p>
+      <a href="#contact" class="btn-primary">Get a Free Audit →</a>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════ RESULTS ══════════════════════════ -->
+<section id="results">
+  <div class="results-tex"></div>
+  <div class="container" style="position:relative;z-index:1">
+
+    <div class="section-header reveal">
+      <div class="badge badge-blue" style="margin-bottom:16px"><span class="dot"></span>Real Results</div>
+      <h2>Numbers Don't <span class="text-gradient">Lie</span></h2>
+      <p>Every metric below comes from live client deployments. No projections. No estimates.</p>
+    </div>
+
+    <div class="stats-box glass reveal" id="stats-box">
+      <div class="stat-item">
+        <div class="stat-num" id="c1" style="color:var(--blue);text-shadow:0 0 40px rgba(0,212,255,.5)">0</div>
+        <div class="stat-label">Clients Automated</div>
+        <div class="stat-sub">Dental clinics and businesses fully live</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num" id="c2" style="color:var(--purple);text-shadow:0 0 40px rgba(123,47,255,.5)">0</div>
+        <div class="stat-label">Hours Saved</div>
+        <div class="stat-sub">Across all active clients per year</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num" id="c3" style="color:var(--blue);text-shadow:0 0 40px rgba(0,212,255,.5)">0</div>
+        <div class="stat-label">Average ROI</div>
+        <div class="stat-sub">Return on automation investment</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num" id="c4" style="color:var(--purple);text-shadow:0 0 40px rgba(123,47,255,.5)">0</div>
+        <div class="stat-label">Client Retention</div>
+        <div class="stat-sub">Clients who renew and expand</div>
+      </div>
+    </div>
+
+    <div class="testimonials">
+      <div class="testi-card glass reveal">
+        <div class="testi-q" style="color:var(--blue)">"</div>
+        <p class="testi-text">We went from 12 missed calls a week to zero. The AI books everything now and our front desk finally has time to focus on patients.</p>
+        <div class="testi-auth">
+          <div class="testi-ava ava-b">ST</div>
+          <div><div class="testi-name">Dr. Sophie Tremblay</div><div class="testi-role">Dental Clinic Owner, Montréal</div></div>
+        </div>
+        <div class="testi-bot" style="background:linear-gradient(90deg,transparent,var(--blue),transparent)"></div>
+      </div>
+      <div class="testi-card glass reveal" style="transition-delay:.12s">
+        <div class="testi-q" style="color:var(--purple)">"</div>
+        <p class="testi-text">I didn't believe automation could work for a small business. Three months in and we've saved over $8,000 in admin costs.</p>
+        <div class="testi-auth">
+          <div class="testi-ava ava-p">MB</div>
+          <div><div class="testi-name">Marc-André Beaudin</div><div class="testi-role">CEO, Service Company, Québec</div></div>
+        </div>
+        <div class="testi-bot" style="background:linear-gradient(90deg,transparent,var(--purple),transparent)"></div>
+      </div>
+      <div class="testi-card glass reveal" style="transition-delay:.24s">
+        <div class="testi-q" style="color:var(--blue)">"</div>
+        <p class="testi-text">The follow-up system alone reactivated 23 lapsed patients in the first month. Revenue we were just leaving on the table.</p>
+        <div class="testi-auth">
+          <div class="testi-ava ava-b">KL</div>
+          <div><div class="testi-name">Dr. Kevin Lavoie</div><div class="testi-role">Orthodontist, Laval</div></div>
+        </div>
+        <div class="testi-bot" style="background:linear-gradient(90deg,transparent,var(--blue),transparent)"></div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ══════════════════════════ CONTACT ══════════════════════════ -->
+<section id="contact">
+  <div class="container" style="position:relative;z-index:1">
+
+    <div class="section-header reveal">
+      <div class="badge badge-blue" style="margin-bottom:16px"><span class="dot"></span>Book a Free Strategy Call</div>
+      <h2>Let's Build Your <span class="text-gradient">AI System</span></h2>
+      <p>30-minute call. No pitch. Just a clear breakdown of what AI automation can do for your specific business.</p>
+    </div>
+
+    <div class="contact-grid">
+
+      <div class="reveal">
+        <div class="form-wrap">
+          <div class="form-inner">
+            <div id="form-success" class="form-success" style="display:none">
+              <div class="s-icon">🎉</div>
+              <h3>You're In</h3>
+              <p>We'll reach out within 24 hours to book your strategy call.</p>
+            </div>
+            <form id="cform">
+              <div class="fg">
+                <label>Full Name *</label>
+                <input type="text" name="name" placeholder="Dr. Sophie Tremblay" required>
+              </div>
+              <div class="fg">
+                <label>Email Address *</label>
+                <input type="email" name="email" placeholder="you@yourclinic.com" required>
+              </div>
+              <div class="fg">
+                <label>Business / Clinic Name <span style="color:rgba(255,255,255,.3)">(optional)</span></label>
+                <input type="text" name="company" placeholder="Clinique Tremblay">
+              </div>
+              <div class="fg">
+                <label>Biggest challenge? <span style="color:rgba(255,255,255,.3)">(optional)</span></label>
+                <textarea name="message" rows="3" placeholder="e.g. We miss too many calls, follow-up is inconsistent..."></textarea>
+              </div>
+              <div class="form-error" id="ferr">Something went wrong. Please try again or email us directly.</div>
+              <button type="submit" class="form-submit" id="fsub">Book My Free Strategy Call →</button>
+              <p class="form-note">No spam. No pressure. Just clarity on what's possible.</p>
+            </form>
+          </div>
+        </div>
+      </div>
+
+      <div class="info-cards reveal" style="transition-delay:.15s">
+        <div class="info-card glass">
+          <div class="info-icon">🕐</div>
+          <div>
+            <div class="info-title">30-Minute Call</div>
+            <p class="info-body">No fluff. We come prepared with ideas specific to your industry and business size.</p>
+          </div>
+        </div>
+        <div class="info-card glass">
+          <div class="info-icon">🔍</div>
+          <div>
+            <div class="info-title">Free Automation Audit</div>
+            <p class="info-body">We map your current workflow and show exactly which tasks can be automated and what it saves you.</p>
+          </div>
+        </div>
+        <div class="info-card glass">
+          <div class="info-icon">📈</div>
+          <div>
+            <div class="info-title">Custom Roadmap</div>
+            <p class="info-body">You leave with a clear plan — even if you choose not to work with us. That's how confident we are in the value.</p>
+          </div>
+        </div>
+        <div class="direct-box">
+          <div class="direct-lbl">Prefer to reach out directly?</div>
+          <a href="mailto:info@fyltrmedia.com" class="direct-em">info@fyltrmedia.com</a>
+          <p class="direct-rep">We respond within 24 hours.</p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════ FOOTER ══════════════════════════ -->
+<footer>
+  <div class="container">
+    <div class="footer-in">
+      <a href="#" class="footer-logo">
+        <span class="text-gradient">FYLTR</span>
+        <span style="color:rgba(255,255,255,.25);font-weight:300;margin:0 6px">|</span>
+        <span style="color:#fff">MEDIA</span>
+      </a>
+      <ul class="footer-nav">
+        <li><a href="#why">Why AI</a></li>
+        <li><a href="#services">Services</a></li>
+        <li><a href="#results">Results</a></li>
+        <li><a href="#contact">Contact</a></li>
+      </ul>
+      <a href="mailto:info@fyltrmedia.com" class="footer-email">info@fyltrmedia.com</a>
+    </div>
+    <div class="footer-bot">
+      <span class="footer-copy">© <span id="yr"></span> FYLTR Media. All rights reserved.</span>
+      <span class="footer-copy">AI Automation Agency · Québec, Canada</span>
+    </div>
+  </div>
+</footer>
+
+<!-- ══════════════════════════ JAVASCRIPT ══════════════════════════ -->
+<script>
+// Year
+document.getElementById('yr').textContent = new Date().getFullYear();
+
+// Navbar scroll
+const navbar = document.getElementById('navbar');
+window.addEventListener('scroll', () => {
+  navbar.classList.toggle('scrolled', window.scrollY > 40);
+}, { passive: true });
+
+// Mobile menu
+const ham = document.getElementById('ham');
+const mob = document.getElementById('mob');
+ham.addEventListener('click', () => {
+  ham.classList.toggle('open');
+  mob.classList.toggle('open');
+});
+function closeMob() {
+  ham.classList.remove('open');
+  mob.classList.remove('open');
+}
+
+// Typing animation
+const PHRASES = ['Automate Your Clinic', 'Convert More Patients', 'Scale Without Hiring'];
+let pi = 0, ci = 0, del = false, paused = false;
+const typEl = document.getElementById('typing-text');
+function type() {
+  if (paused) return;
+  const ph = PHRASES[pi];
+  if (!del && ci === ph.length) {
+    paused = true;
+    setTimeout(() => { del = true; paused = false; type(); }, 2200);
+    return;
+  }
+  if (del && ci === 0) { del = false; pi = (pi + 1) % PHRASES.length; }
+  ci += del ? -1 : 1;
+  typEl.textContent = ph.substring(0, ci);
+  setTimeout(type, del ? 45 : 95);
+}
+type();
+
+// Particle canvas
+(function() {
+  const cv  = document.getElementById('particles-canvas');
+  const ctx = cv.getContext('2d');
+  let W, H, pts = [];
+  const COLS = ['rgba(0,212,255,', 'rgba(123,47,255,', 'rgba(255,255,255,'];
+
+  function resize() {
+    W = cv.width  = cv.offsetWidth;
+    H = cv.height = cv.offsetHeight;
+  }
+  window.addEventListener('resize', resize, { passive: true });
+  resize();
+
+  function Pt() {
+    this.reset = function() {
+      this.x  = Math.random() * W;
+      this.y  = Math.random() * H;
+      this.r  = Math.random() * 1.5 + 0.4;
+      this.vx = (Math.random() - 0.5) * 0.38;
+      this.vy = (Math.random() - 0.5) * 0.38;
+      this.op = Math.random() * 0.38 + 0.06;
+      this.c  = COLS[Math.floor(Math.random() * COLS.length)];
+    };
+    this.reset();
+  }
+  for (let i = 0; i < 65; i++) pts.push(new Pt());
+
+  let mx = -9999, my = -9999;
+  cv.addEventListener('mousemove', e => {
+    const r = cv.getBoundingClientRect();
+    mx = e.clientX - r.left; my = e.clientY - r.top;
+  });
+
+  function draw() {
+    ctx.clearRect(0, 0, W, H);
+    // links
+    for (let i = 0; i < pts.length; i++) {
+      for (let j = i + 1; j < pts.length; j++) {
+        const dx = pts[i].x - pts[j].x, dy = pts[i].y - pts[j].y;
+        const d  = Math.hypot(dx, dy);
+        if (d < 140) {
+          ctx.beginPath();
+          ctx.strokeStyle = `rgba(0,212,255,${0.055*(1-d/140)})`;
+          ctx.lineWidth = 0.5;
+          ctx.moveTo(pts[i].x, pts[i].y);
+          ctx.lineTo(pts[j].x, pts[j].y);
+          ctx.stroke();
+        }
+      }
+    }
+    // dots
+    pts.forEach(p => {
+      const dx = p.x - mx, dy = p.y - my, d = Math.hypot(dx, dy);
+      if (d < 80 && d > 0) { p.x += dx/d * 1.4; p.y += dy/d * 1.4; }
+      p.x += p.vx; p.y += p.vy;
+      if (p.x < 0 || p.x > W) p.vx *= -1;
+      if (p.y < 0 || p.y > H) p.vy *= -1;
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+      ctx.fillStyle = p.c + p.op + ')';
+      ctx.fill();
+    });
+    requestAnimationFrame(draw);
+  }
+  draw();
+})();
+
+// Scroll reveal
+const revEls = document.querySelectorAll('.reveal');
+const revObs = new IntersectionObserver(entries => {
+  entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); revObs.unobserve(e.target); } });
+}, { threshold: 0.08, rootMargin: '0px 0px -50px 0px' });
+revEls.forEach(el => revObs.observe(el));
+
+// Animated counters
+const COUNTERS = [
+  { el: document.getElementById('c1'), target: 47,    suffix: '+',  fmt: false },
+  { el: document.getElementById('c2'), target: 10000, suffix: '+',  fmt: true  },
+  { el: document.getElementById('c3'), target: 3,     suffix: 'x',  fmt: false },
+  { el: document.getElementById('c4'), target: 98,    suffix: '%',  fmt: false },
+];
+let countersRan = false;
+const cObs = new IntersectionObserver(entries => {
+  if (!entries[0].isIntersecting || countersRan) return;
+  countersRan = true;
+  COUNTERS.forEach(({ el, target, suffix, fmt }) => {
+    let start = null;
+    const dur = 2000;
+    (function step(ts) {
+      if (!start) start = ts;
+      const p = Math.min((ts - start) / dur, 1);
+      const e = 1 - Math.pow(1 - p, 3);
+      const v = Math.floor(e * target);
+      el.textContent = (fmt ? v.toLocaleString() : v) + suffix;
+      if (p < 1) requestAnimationFrame(step);
+      else el.textContent = (fmt ? target.toLocaleString() : target) + suffix;
+    })(performance.now());
+  });
+}, { threshold: 0.3 });
+cObs.observe(document.getElementById('stats-box'));
+
+// Services expand/collapse
+function toggleSvc(card) {
+  const was = card.classList.contains('open');
+  document.querySelectorAll('.svc-card.open').forEach(c => c.classList.remove('open'));
+  if (!was) card.classList.add('open');
+}
+
+// Contact form
+document.getElementById('cform').addEventListener('submit', async function(e) {
+  e.preventDefault();
+  const btn = document.getElementById('fsub');
+  const err = document.getElementById('ferr');
+  btn.disabled = true;
+  btn.textContent = 'Sending…';
+  err.style.display = 'none';
+  try {
+    const res = await fetch('https://formspree.io/f/mdajebpz', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+      body: JSON.stringify({
+        name:    this.name.value,
+        email:   this.email.value,
+        company: this.company.value,
+        message: this.message.value,
+      }),
+    });
+    if (res.ok) {
+      this.style.display = 'none';
+      document.getElementById('form-success').style.display = 'block';
+    } else { throw 0; }
+  } catch {
+    err.style.display = 'block';
+    btn.disabled = false;
+    btn.textContent = 'Book My Free Strategy Call →';
+  }
+});
+</script>
+</body>
 </html>
