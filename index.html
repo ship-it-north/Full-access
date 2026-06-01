@@ -28,7 +28,18 @@
       overflow-x: hidden;
     }
 
-    /* ── UTILITIES ── */
+    /* ─── Three.js overlay canvas ─── */
+    #three-canvas {
+      position: fixed;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 4;
+      pointer-events: none;
+      mix-blend-mode: screen;
+    }
+
+    /* ─── UTILITIES ─── */
     .container { max-width: 1200px; margin: 0 auto; padding: 0 24px; }
 
     .text-gradient {
@@ -57,9 +68,10 @@
       cursor: pointer;
       border: none;
       font-family: inherit;
-      transition: box-shadow .3s, transform .2s;
+      transition: box-shadow .3s;
+      will-change: transform;
     }
-    .btn-primary:hover { box-shadow: 0 0 35px rgba(0,212,255,.45); transform: translateY(-2px); }
+    .btn-primary:hover { box-shadow: 0 0 40px rgba(0,212,255,.5); }
 
     .btn-ghost {
       display: inline-block;
@@ -72,40 +84,29 @@
       border: 1px solid rgba(255,255,255,0.15);
       text-decoration: none;
       cursor: pointer;
-      transition: border-color .3s, background .3s, transform .2s;
+      transition: border-color .3s, background .3s;
+      will-change: transform;
     }
-    .btn-ghost:hover { border-color: rgba(0,212,255,.4); background: rgba(255,255,255,0.08); transform: translateY(-2px); }
+    .btn-ghost:hover { border-color: rgba(0,212,255,.4); background: rgba(255,255,255,0.08); }
 
     .badge {
       display: inline-flex; align-items: center; gap: 8px;
       padding: 7px 16px; border-radius: 999px;
       font-size: .8rem; font-weight: 600; letter-spacing: .05em;
     }
-    .badge-blue   { border: 1px solid rgba(0,212,255,.3);   background: rgba(0,212,255,.08);   color: var(--blue); }
-    .badge-purple { border: 1px solid rgba(123,47,255,.3);  background: rgba(123,47,255,.08);  color: var(--purple); }
+    .badge-blue   { border: 1px solid rgba(0,212,255,.3);  background: rgba(0,212,255,.08);  color: var(--blue); }
+    .badge-purple { border: 1px solid rgba(123,47,255,.3); background: rgba(123,47,255,.08); color: var(--purple); }
     .dot { width: 7px; height: 7px; border-radius: 50%; background: currentColor; animation: blink 2s infinite; }
 
-    /* ── ANIMATIONS ── */
-    @keyframes blink      { 0%,100%{opacity:1} 50%{opacity:.35} }
-    @keyframes float      { 0%,100%{transform:translateY(0) rotate(var(--r,0deg))} 50%{transform:translateY(-14px) rotate(var(--r,0deg))} }
-    @keyframes floatSlow  { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-8px)} }
-    @keyframes fadeUp     { from{opacity:0;transform:translateY(32px)} to{opacity:1;transform:translateY(0)} }
-    @keyframes glowPulse  { 0%,100%{box-shadow:0 0 20px rgba(0,212,255,.3),inset 0 0 20px rgba(0,212,255,.05)} 50%{box-shadow:0 0 45px rgba(123,47,255,.4),inset 0 0 45px rgba(123,47,255,.08)} }
+    /* ─── ANIMATIONS (decorative only — GSAP handles reveals) ─── */
+    @keyframes blink     { 0%,100%{opacity:1} 50%{opacity:.3} }
+    @keyframes float     { 0%,100%{transform:translateY(0) rotate(var(--r,0deg))} 50%{transform:translateY(-14px) rotate(var(--r,0deg))} }
+    @keyframes floatSlow { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-9px)} }
+    @keyframes glowPulse { 0%,100%{box-shadow:0 0 22px rgba(0,212,255,.3),inset 0 0 22px rgba(0,212,255,.05)} 50%{box-shadow:0 0 50px rgba(123,47,255,.45),inset 0 0 50px rgba(123,47,255,.08)} }
     @keyframes spinBorder { 0%{--ba:0deg} 100%{--ba:360deg} }
     @property --ba { syntax:'<angle>'; initial-value:0deg; inherits:false; }
 
-    .fade-up { opacity: 0; animation: fadeUp .8s ease forwards; }
-    .d1 { animation-delay: .1s; }
-    .d2 { animation-delay: .25s; }
-    .d3 { animation-delay: .4s; }
-    .d4 { animation-delay: .55s; }
-    .d5 { animation-delay: .72s; }
-
-    /* ── REVEAL ON SCROLL ── */
-    .reveal { opacity: 0; transform: translateY(28px); transition: opacity .7s ease, transform .7s ease; }
-    .reveal.visible { opacity: 1; transform: none; }
-
-    /* ══════════════ NAVBAR ══════════════ */
+    /* ─── NAVBAR ─── */
     #navbar {
       position: fixed; top: 0; left: 0; right: 0; z-index: 100;
       padding: 20px 0; transition: all .35s;
@@ -122,8 +123,7 @@
     .nav-links { display: flex; align-items: center; gap: 32px; list-style: none; }
     .nav-links a {
       color: rgba(255,255,255,.6); text-decoration: none;
-      font-size: .88rem; font-weight: 500;
-      position: relative; transition: color .2s;
+      font-size: .88rem; font-weight: 500; position: relative; transition: color .2s;
     }
     .nav-links a::after {
       content:''; position:absolute; bottom:-3px; left:0;
@@ -135,10 +135,12 @@
     .nav-links a:hover::after { width:100%; }
 
     .nav-cta {
+      display: inline-block;
       padding: 9px 22px; border-radius: 10px;
       background: linear-gradient(135deg, var(--blue), var(--purple));
       color: #fff; font-weight: 700; font-size: .85rem;
       text-decoration: none; transition: box-shadow .3s;
+      will-change: transform;
     }
     .nav-cta:hover { box-shadow: 0 0 25px rgba(0,212,255,.4); }
 
@@ -156,90 +158,86 @@
 
     @media(max-width:768px) { .nav-links,.nav-cta-wrap{display:none} .hamburger{display:flex} }
 
-    /* ══════════════ HERO ══════════════ */
+    /* ─── HERO ─── */
     #hero { position:relative; min-height:100vh; display:flex; align-items:center; overflow:hidden; }
-
     #particles-canvas { position:absolute; inset:0; z-index:0; width:100%; height:100%; }
 
     .orb { position:absolute; border-radius:50%; filter:blur(100px); pointer-events:none; }
-    .orb1 { width:400px;height:400px;top:8%;left:4%;  background:rgba(0,212,255,.1);  animation:floatSlow 9s ease-in-out infinite; }
-    .orb2 { width:500px;height:500px;bottom:4%;right:4%; background:rgba(123,47,255,.08); animation:floatSlow 11s ease-in-out infinite reverse; }
+    .orb1 { width:420px;height:420px;top:8%;left:4%;  background:rgba(0,212,255,.1);  animation:floatSlow 9s ease-in-out infinite; will-change:transform; }
+    .orb2 { width:520px;height:520px;bottom:4%;right:4%; background:rgba(123,47,255,.08); animation:floatSlow 11s ease-in-out infinite reverse; will-change:transform; }
     .orb3 { width:700px;height:350px;top:50%;left:50%;transform:translate(-50%,-50%); background:rgba(123,47,255,.04);filter:blur(80px); }
 
-    .hero-inner { position:relative;z-index:2;width:100%;padding:140px 0 80px; }
-    .hero-grid {
-      display:grid; grid-template-columns:1fr 1fr; gap:60px; align-items:center;
-    }
+    .hero-inner { position:relative; z-index:2; width:100%; padding:140px 0 80px; }
+    .hero-grid  { display:grid; grid-template-columns:1fr 1fr; gap:60px; align-items:center; }
     @media(max-width:900px){ .hero-grid{grid-template-columns:1fr} .hero-right{display:none} }
 
-    .hero-left h1 {
-      font-size: clamp(2.4rem,5vw,4.2rem);
-      font-weight:900; line-height:1.06; letter-spacing:-.03em; margin-bottom:20px;
-    }
-    .typing-row { height:44px; display:flex; align-items:center; margin-bottom:20px; }
-    .typing-prefix { font-size:1.2rem; font-weight:600; color:rgba(255,255,255,.5); }
-    .typing-text   { font-size:1.2rem; font-weight:700; color:var(--blue); margin-left:8px; }
-    .cursor        { display:inline-block; color:var(--blue); animation:blink 1s infinite; }
+    .hero-left h1 { font-size:clamp(2.4rem,5vw,4.2rem); font-weight:900; line-height:1.06; letter-spacing:-.03em; margin-bottom:20px; }
+    .typing-row   { height:44px; display:flex; align-items:center; margin-bottom:20px; }
+    .typing-prefix{ font-size:1.2rem; font-weight:600; color:rgba(255,255,255,.5); }
+    .typing-text  { font-size:1.2rem; font-weight:700; color:var(--blue); margin-left:8px; }
+    .cursor       { display:inline-block; color:var(--blue); animation:blink 1s infinite; }
 
-    .hero-sub { font-size:1.05rem;line-height:1.7;color:rgba(255,255,255,.55);max-width:500px;margin-bottom:36px; }
-    .hero-btns { display:flex; flex-wrap:wrap; gap:14px; margin-bottom:48px; }
-    .proof-row { display:flex; flex-wrap:wrap; align-items:center; gap:20px; }
+    .hero-sub   { font-size:1.05rem; line-height:1.7; color:rgba(255,255,255,.55); max-width:500px; margin-bottom:36px; }
+    .hero-btns  { display:flex; flex-wrap:wrap; gap:14px; margin-bottom:48px; }
+    .proof-row  { display:flex; flex-wrap:wrap; align-items:center; gap:20px; }
     .proof-item { display:flex; align-items:center; gap:8px; }
     .proof-num   { font-weight:900; font-size:1rem; color:var(--blue); }
     .proof-label { font-size:.85rem; color:rgba(255,255,255,.4); }
     .proof-sep   { width:1px; height:16px; background:rgba(255,255,255,.12); }
 
-    /* Floating shapes */
+    /* Floating shape frames */
     .hero-right { position:relative; height:540px; }
-    .shape { position:absolute; border:1px solid; border-radius:inherit; animation:float 7s ease-in-out infinite; }
-    .shape-inner { width:100%;height:100%;border-radius:inherit; background:linear-gradient(135deg,rgba(0,212,255,.05),rgba(123,47,255,.05)); display:flex;align-items:center;justify-content:center; }
-    .shape-glyph { font-size:2.2rem; opacity:.55; }
+    .shape      { position:absolute; border:1px solid; animation:float 7s ease-in-out infinite; }
+    .shape-inner{ width:100%; height:100%; border-radius:inherit; background:linear-gradient(135deg,rgba(0,212,255,.04),rgba(123,47,255,.04)); display:flex; align-items:center; justify-content:center; }
+    .shape-glyph{ font-size:2rem; opacity:.5; }
 
-    .sh1 { --r:20deg;width:180px;height:180px;border-color:rgba(0,212,255,.35);border-radius:28px;top:8%;right:8%; animation-duration:7s; }
-    .sh2 { width:110px;height:110px;border-color:rgba(123,47,255,.45);border-radius:50%;top:42%;left:4%; animation-duration:5s;animation-delay:-.8s; }
-    .sh3 { --r:-15deg;width:75px;height:75px;border-color:rgba(0,212,255,.28);border-radius:14px;bottom:18%;right:22%; animation-duration:8s;animation-delay:-.4s; }
-    .sh4 { width:46px;height:46px;border-color:rgba(123,47,255,.38);border-radius:50%;top:18%;left:32%; animation-duration:4s;animation-delay:-1s; }
-    .sh5 { width:240px;height:240px;border-color:rgba(123,47,255,.12);border-radius:50%;top:50%;left:50%;transform:translate(-50%,-50%); animation-duration:9s;animation-delay:-.5s; }
+    .sh1 { --r:20deg; width:180px;height:180px; border-color:rgba(0,212,255,.3);  border-radius:28px; top:8%;right:8%;  animation-duration:7s; }
+    .sh2 { width:110px; height:110px; border-color:rgba(123,47,255,.4); border-radius:50%; top:42%;left:4%;  animation-duration:5s; animation-delay:-.8s; }
+    .sh3 { --r:-15deg; width:75px;height:75px; border-color:rgba(0,212,255,.25); border-radius:14px; bottom:18%;right:22%; animation-duration:8s; animation-delay:-.4s; }
+    .sh4 { width:46px; height:46px; border-color:rgba(123,47,255,.35); border-radius:50%; top:18%;left:32%; animation-duration:4s; animation-delay:-1s; }
+    .sh5 { width:240px;height:240px; border-color:rgba(123,47,255,.1); border-radius:50%; top:50%;left:50%;transform:translate(-50%,-50%); animation-duration:9s; animation-delay:-.5s; }
 
-    .center-orb {
-      position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
-      width:260px;height:260px;border-radius:50%;
-      background:radial-gradient(circle at 40% 40%,rgba(0,212,255,.15),rgba(123,47,255,.1) 60%,transparent 80%);
-      border:1px solid rgba(0,212,255,.2);
-      animation:glowPulse 4s ease-in-out infinite;
-      display:flex;align-items:center;justify-content:center;
-    }
-    .center-glyph { font-size:3.2rem; animation:floatSlow 4s ease-in-out infinite; }
+    .center-orb  { position:absolute;top:50%;left:50%;transform:translate(-50%,-50%); width:260px;height:260px;border-radius:50%; background:radial-gradient(circle at 40% 40%,rgba(0,212,255,.15),rgba(123,47,255,.1) 60%,transparent 80%); border:1px solid rgba(0,212,255,.2); animation:glowPulse 4s ease-in-out infinite; display:flex;align-items:center;justify-content:center; }
+    .center-glyph{ font-size:3.2rem; animation:floatSlow 4s ease-in-out infinite; }
 
-    /* ══════════════ SECTIONS COMMON ══════════════ */
+    /* ─── SECTION COMMON ─── */
     section { padding: 96px 0; }
     .section-header { text-align:center; margin-bottom:60px; }
     .section-header h2 { font-size:clamp(2rem,4vw,3rem); font-weight:900; letter-spacing:-.03em; margin:12px 0 16px; }
     .section-header p  { font-size:1rem; color:rgba(255,255,255,.5); max-width:560px; margin:0 auto; line-height:1.7; }
 
-    /* ══════════════ WHY AI ══════════════ */
+    /* Accent line under section h2 */
+    .accent-line {
+      width: 0; height: 3px;
+      background: linear-gradient(90deg, var(--blue), var(--purple));
+      border-radius: 3px;
+      margin: 0 auto 16px;
+    }
+
+    /* ─── WHY AI ─── */
     #why { background:var(--bg); position:relative; overflow:hidden; }
     .grid-tex {
-      position:absolute;inset:0;pointer-events:none;opacity:.025;
+      position:absolute; inset:0; pointer-events:none; opacity:.025;
       background-image:linear-gradient(rgba(0,212,255,1) 1px,transparent 1px),linear-gradient(90deg,rgba(0,212,255,1) 1px,transparent 1px);
       background-size:60px 60px;
+      will-change: transform;
     }
     .why-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:24px; }
     @media(max-width:768px){ .why-grid{grid-template-columns:1fr} }
 
     .why-card {
-      border-radius:20px; padding:32px;
-      position:relative; overflow:hidden; cursor:default;
-      transition:transform .35s, box-shadow .35s;
+      border-radius:20px; padding:32px; position:relative; overflow:hidden;
+      cursor:default; transition:box-shadow .35s;
+      will-change: transform;
+      transform-style: preserve-3d;
     }
-    .why-card:hover { transform:translateY(-8px); }
+    .why-card:hover .card-glow { opacity:1; }
 
     .card-glow { position:absolute;inset:0;border-radius:20px;opacity:0;transition:opacity .4s;pointer-events:none; }
     .glow-b  { box-shadow:0 0 55px rgba(0,212,255,.18),inset 0 0 55px rgba(0,212,255,.04); }
     .glow-p  { box-shadow:0 0 55px rgba(123,47,255,.18),inset 0 0 55px rgba(123,47,255,.04); }
-    .why-card:hover .card-glow { opacity:1; }
 
-    .card-icon { width:58px;height:58px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:1.5rem;margin-bottom:20px; }
+    .card-icon  { width:58px;height:58px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:1.5rem;margin-bottom:20px; }
     .icon-b { background:rgba(0,212,255,.1);  border:1px solid rgba(0,212,255,.25); }
     .icon-p { background:rgba(123,47,255,.1); border:1px solid rgba(123,47,255,.25); }
 
@@ -249,22 +247,21 @@
 
     .card-title { font-size:1rem;font-weight:700;color:#fff;margin-bottom:10px; }
     .card-body  { font-size:.87rem;color:rgba(255,255,255,.5);line-height:1.65; }
-
-    .card-line { position:absolute;bottom:0;left:32px;right:32px;height:1px;opacity:0;transition:opacity .4s; }
+    .card-line  { position:absolute;bottom:0;left:32px;right:32px;height:1px;opacity:0;transition:opacity .4s; }
     .why-card:hover .card-line { opacity:1; }
     .line-b { background:linear-gradient(90deg,transparent,var(--blue),transparent); }
     .line-p { background:linear-gradient(90deg,transparent,var(--purple),transparent); }
 
-    /* ══════════════ SERVICES ══════════════ */
+    /* ─── SERVICES ─── */
     #services { background:linear-gradient(180deg,var(--bg) 0%,var(--bg2) 50%,var(--bg) 100%); position:relative; }
     .svc-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:20px; }
     @media(max-width:768px){ .svc-grid{grid-template-columns:1fr} }
 
     .svc-card {
-      border-radius:20px; padding:28px; position:relative; overflow:hidden; cursor:pointer;
-      transition:transform .3s, box-shadow .3s, border-color .3s;
+      border-radius:20px; padding:28px; position:relative; overflow:hidden;
+      cursor:pointer; transition:box-shadow .3s, border-color .3s;
+      will-change: transform;
     }
-    .svc-card:hover { transform:translateY(-4px); }
     .svc-card.svc-b:hover { box-shadow:0 20px 60px rgba(0,212,255,.1);   border-color:rgba(0,212,255,.25) !important; }
     .svc-card.svc-p:hover { box-shadow:0 20px 60px rgba(123,47,255,.1); border-color:rgba(123,47,255,.25) !important; }
 
@@ -275,8 +272,7 @@
 
     .svc-title   { font-size:1rem;font-weight:700;color:#fff;margin-bottom:4px; }
     .svc-tagline { font-size:.8rem;font-weight:600; }
-    .tag-b { color:var(--blue); }
-    .tag-p { color:var(--purple); }
+    .tag-b { color:var(--blue); } .tag-p { color:var(--purple); }
 
     .svc-body { max-height:0;overflow:hidden;transition:max-height .4s ease; }
     .svc-card.open .svc-body { max-height:400px; }
@@ -287,31 +283,26 @@
     .feat-dot { width:6px;height:6px;border-radius:50%;flex-shrink:0; }
     .fd-b { background:var(--blue);   box-shadow:0 0 6px var(--blue); }
     .fd-p { background:var(--purple); box-shadow:0 0 6px var(--purple); }
-
     .svc-link { font-size:.84rem;font-weight:700;text-decoration:none;transition:opacity .2s; }
     .svc-link:hover { opacity:.7; }
-    .sl-b { color:var(--blue); }
-    .sl-p { color:var(--purple); }
-
+    .sl-b { color:var(--blue); } .sl-p { color:var(--purple); }
     .svc-bottom { position:absolute;bottom:0;left:0;right:0;height:1px; }
     .svc-cta { text-align:center;margin-top:48px; }
     .svc-cta p { color:rgba(255,255,255,.35);font-size:.9rem;margin-bottom:14px; }
 
-    /* ══════════════ RESULTS ══════════════ */
+    /* ─── RESULTS ─── */
     #results { background:var(--bg); position:relative; overflow:hidden; }
     .results-tex {
-      position:absolute;inset:0;pointer-events:none;opacity:.02;
+      position:absolute; inset:0; pointer-events:none; opacity:.02;
       background-image:linear-gradient(rgba(123,47,255,1) 1px,transparent 1px),linear-gradient(90deg,rgba(123,47,255,1) 1px,transparent 1px);
       background-size:80px 80px;
+      will-change: transform;
     }
-    .stats-box {
-      border-radius:24px; display:grid; grid-template-columns:repeat(4,1fr);
-      gap:0; padding:48px; margin-bottom:64px;
-    }
+    .stats-box { border-radius:24px; display:grid; grid-template-columns:repeat(4,1fr); gap:0; padding:48px; margin-bottom:64px; }
     @media(max-width:768px){ .stats-box{grid-template-columns:repeat(2,1fr);padding:28px 20px} }
     @media(max-width:400px){ .stats-box{grid-template-columns:1fr} }
 
-    .stat-item { text-align:center; padding:8px; }
+    .stat-item  { text-align:center; padding:8px; }
     .stat-num   { font-size:clamp(2.4rem,5vw,3.4rem);font-weight:900;line-height:1;margin-bottom:6px; }
     .stat-label { font-size:.9rem;font-weight:700;color:#fff;margin-bottom:4px; }
     .stat-sub   { font-size:.76rem;color:rgba(255,255,255,.3); }
@@ -319,8 +310,11 @@
     .testimonials { display:grid; grid-template-columns:repeat(3,1fr); gap:20px; }
     @media(max-width:768px){ .testimonials{grid-template-columns:1fr} }
 
-    .testi-card { border-radius:20px;padding:28px;position:relative;transition:transform .3s; }
-    .testi-card:hover { transform:translateY(-4px); }
+    .testi-card {
+      border-radius:20px; padding:28px; position:relative;
+      will-change: transform;
+      transform-style: preserve-3d;
+    }
     .testi-q    { font-size:4rem;font-weight:900;line-height:.8;margin-bottom:12px;opacity:.2; }
     .testi-text { font-size:.87rem;color:rgba(255,255,255,.7);line-height:1.65;margin-bottom:20px;font-style:italic; }
     .testi-auth { display:flex;align-items:center;gap:12px; }
@@ -332,18 +326,13 @@
     .testi-bot  { position:absolute;bottom:0;left:24px;right:24px;height:1px;opacity:0;transition:opacity .4s; }
     .testi-card:hover .testi-bot { opacity:1; }
 
-    /* ══════════════ CONTACT ══════════════ */
+    /* ─── CONTACT ─── */
     #contact { background:linear-gradient(180deg,var(--bg) 0%,var(--bg2) 100%); position:relative; }
     .contact-grid { display:grid;grid-template-columns:1fr 1fr;gap:40px;max-width:980px;margin:0 auto; }
     @media(max-width:768px){ .contact-grid{grid-template-columns:1fr} }
 
-    .form-wrap {
-      border-radius:20px; padding:2px;
-      background:linear-gradient(var(--ba),var(--blue),var(--purple),var(--blue));
-      animation:spinBorder 4s linear infinite;
-    }
+    .form-wrap { border-radius:20px; padding:2px; background:linear-gradient(var(--ba),var(--blue),var(--purple),var(--blue)); animation:spinBorder 4s linear infinite; }
     .form-inner { background:var(--bg); border-radius:18px; padding:32px; }
-
     .form-success { text-align:center;padding:48px 0; }
     .form-success .s-icon { font-size:3rem;margin-bottom:12px; }
     .form-success h3 { font-size:1.5rem;font-weight:900;margin-bottom:8px; }
@@ -357,15 +346,16 @@
       color:#fff;font-family:inherit;font-size:.88rem;
       transition:border-color .2s,background .2s;outline:none;resize:none;
     }
-    .fg input::placeholder, .fg textarea::placeholder { color:rgba(255,255,255,.22); }
-    .fg input:focus, .fg textarea:focus { border-color:rgba(0,212,255,.5);background:rgba(255,255,255,.08); }
+    .fg input::placeholder,.fg textarea::placeholder { color:rgba(255,255,255,.22); }
+    .fg input:focus,.fg textarea:focus { border-color:rgba(0,212,255,.5);background:rgba(255,255,255,.08); }
 
     .form-submit {
-      width:100%;padding:14px;border-radius:12px;
+      display:block; width:100%;padding:14px;border-radius:12px;
       background:linear-gradient(135deg,var(--blue),var(--purple));
       color:#fff;font-weight:700;font-size:1rem;
       border:none;cursor:pointer;font-family:inherit;
       transition:box-shadow .3s,opacity .2s;
+      will-change: transform;
     }
     .form-submit:hover { box-shadow:0 0 35px rgba(0,212,255,.4); }
     .form-submit:disabled { opacity:.6;cursor:wait; }
@@ -373,19 +363,18 @@
     .form-error { color:#ff6b6b;font-size:.82rem;margin-bottom:12px;display:none; }
 
     .info-cards { display:flex;flex-direction:column;gap:14px; }
-    .info-card { border-radius:14px;padding:20px;display:flex;gap:14px;transition:border-color .3s; }
+    .info-card  { border-radius:14px;padding:20px;display:flex;gap:14px;transition:border-color .3s; }
     .info-card:hover { border-color:rgba(0,212,255,.2) !important; }
     .info-icon  { font-size:1.4rem;flex-shrink:0;margin-top:2px; }
     .info-title { font-size:.93rem;font-weight:700;color:#fff;margin-bottom:4px; }
     .info-body  { font-size:.82rem;color:rgba(255,255,255,.45);line-height:1.6; }
-
     .direct-box { border-radius:14px;padding:20px;border:1px solid rgba(0,212,255,.12); }
     .direct-lbl { font-size:.7rem;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:rgba(255,255,255,.35);margin-bottom:7px; }
     .direct-em  { color:var(--blue);font-weight:600;font-size:.9rem;text-decoration:none; }
     .direct-em:hover { text-decoration:underline; }
     .direct-rep { font-size:.75rem;color:rgba(255,255,255,.3);margin-top:3px; }
 
-    /* ══════════════ FOOTER ══════════════ */
+    /* ─── FOOTER ─── */
     footer { background:#060609;border-top:1px solid rgba(255,255,255,.05);padding:48px 0;position:relative; }
     footer::before { content:'';position:absolute;top:0;left:50%;transform:translateX(-50%);width:600px;height:1px;background:linear-gradient(90deg,transparent,rgba(0,212,255,.28),transparent); }
     .footer-in  { display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:24px;margin-bottom:28px; }
@@ -395,13 +384,21 @@
     .footer-nav a:hover { color:rgba(255,255,255,.8); }
     .footer-email { color:rgba(0,212,255,.6);font-size:.84rem;text-decoration:none;transition:color .2s; }
     .footer-email:hover { color:var(--blue); }
-    .footer-bot   { border-top:1px solid rgba(255,255,255,.05);padding-top:24px;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px; }
-    .footer-copy  { font-size:.76rem;color:rgba(255,255,255,.2); }
+    .footer-bot  { border-top:1px solid rgba(255,255,255,.05);padding-top:24px;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px; }
+    .footer-copy { font-size:.76rem;color:rgba(255,255,255,.2); }
+
+    /* ─── MOBILE overrides ─── */
+    @media(max-width:768px) {
+      #three-canvas { display:none; }
+    }
   </style>
 </head>
 <body>
 
-<!-- ══════════════════════════ NAVBAR ══════════════════════════ -->
+<!-- Three.js decorative overlay -->
+<canvas id="three-canvas"></canvas>
+
+<!-- ══════════════ NAVBAR ══════════════ -->
 <nav id="navbar">
   <div class="container nav-inner">
     <a href="#" class="logo">
@@ -416,7 +413,7 @@
       <li><a href="#contact">Contact</a></li>
     </ul>
     <div class="nav-cta-wrap">
-      <a href="#contact" class="nav-cta">Book Free Call</a>
+      <a href="#contact" class="nav-cta magnetic">Book Free Call</a>
     </div>
     <button class="hamburger" id="ham" aria-label="Toggle menu">
       <span></span><span></span><span></span>
@@ -431,7 +428,7 @@
   </div>
 </nav>
 
-<!-- ══════════════════════════ HERO ══════════════════════════ -->
+<!-- ══════════════ HERO ══════════════ -->
 <section id="hero">
   <canvas id="particles-canvas"></canvas>
   <div class="orb orb1"></div>
@@ -440,28 +437,27 @@
 
   <div class="container hero-inner">
     <div class="hero-grid">
-
       <div class="hero-left">
-        <div class="badge badge-blue fade-up d1" style="margin-bottom:24px">
+        <div class="badge badge-blue hero-badge" style="margin-bottom:24px">
           <span class="dot"></span>AI Automation · Dental &amp; Business
         </div>
-        <h1 class="fade-up d2">
+        <h1 class="hero-h1">
           The Future of Your <span class="text-gradient">Practice</span><br>Starts Here
         </h1>
-        <div class="typing-row fade-up d3">
+        <div class="typing-row hero-typing">
           <span class="typing-prefix">We help you</span>
           <span class="typing-text" id="typing-text"></span>
           <span class="cursor">|</span>
         </div>
-        <p class="hero-sub fade-up d4">
+        <p class="hero-sub">
           We build AI-powered automation systems for dental clinics and growing businesses.
           Cut costs, reclaim hours, and grow — without hiring a single extra person.
         </p>
-        <div class="hero-btns fade-up d5">
-          <a href="#contact" class="btn-primary">Book a Free Call →</a>
-          <a href="#services" class="btn-ghost">See Our Services</a>
+        <div class="hero-btns">
+          <a href="#contact" class="btn-primary magnetic">Book a Free Call →</a>
+          <a href="#services" class="btn-ghost magnetic">See Our Services</a>
         </div>
-        <div class="proof-row fade-up d5">
+        <div class="proof-row hero-proof">
           <div class="proof-item"><span class="proof-num">47+</span><span class="proof-label">Clients Automated</span></div>
           <div class="proof-sep"></div>
           <div class="proof-item"><span class="proof-num">10K+</span><span class="proof-label">Hours Saved</span></div>
@@ -478,29 +474,27 @@
         <div class="shape sh4"><div class="shape-inner"></div></div>
         <div class="shape sh5"><div class="shape-inner"></div></div>
       </div>
-
     </div>
   </div>
 
-  <div style="position:absolute;bottom:28px;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:6px;color:rgba(255,255,255,.25);font-size:.68rem;font-weight:600;letter-spacing:.12em;text-transform:uppercase;animation:floatSlow 2.5s ease-in-out infinite">
+  <div id="scroll-hint" style="position:absolute;bottom:28px;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:6px;color:rgba(255,255,255,.25);font-size:.68rem;font-weight:600;letter-spacing:.12em;text-transform:uppercase">
     <span>Scroll</span>
     <div style="width:1px;height:34px;background:linear-gradient(to bottom,rgba(255,255,255,.25),transparent)"></div>
   </div>
 </section>
 
-<!-- ══════════════════════════ WHY AI ══════════════════════════ -->
+<!-- ══════════════ WHY AI ══════════════ -->
 <section id="why">
   <div class="grid-tex"></div>
   <div class="container" style="position:relative;z-index:1">
-
-    <div class="section-header reveal">
+    <div class="section-header">
       <div class="badge badge-purple" style="margin-bottom:16px"><span class="dot"></span>Why AI, Why Now</div>
       <h2>The AI Shift Is <span class="text-gradient">Already Here</span></h2>
+      <div class="accent-line"></div>
       <p>This isn't a trend. It's a fundamental shift in how successful clinics and businesses operate. The question isn't if — it's how fast.</p>
     </div>
-
     <div class="why-grid">
-      <div class="why-card glass reveal">
+      <div class="why-card glass tilt-card">
         <div class="card-glow glow-b"></div>
         <div class="card-icon icon-b">⚡</div>
         <div class="card-stat stat-b">3x</div>
@@ -508,7 +502,7 @@
         <p class="card-body">Companies that integrate AI automation outpace competitors across every measurable metric — bookings, revenue, and retention.</p>
         <div class="card-line line-b"></div>
       </div>
-      <div class="why-card glass reveal" style="transition-delay:.12s">
+      <div class="why-card glass tilt-card">
         <div class="card-glow glow-p"></div>
         <div class="card-icon icon-p">🤖</div>
         <div class="card-stat stat-p">80%</div>
@@ -516,7 +510,7 @@
         <p class="card-body">Appointment reminders, follow-ups, lead qualification, intake forms — all running 24/7 without an employee touching them.</p>
         <div class="card-line line-p"></div>
       </div>
-      <div class="why-card glass reveal" style="transition-delay:.24s">
+      <div class="why-card glass tilt-card">
         <div class="card-glow glow-b"></div>
         <div class="card-icon icon-b">🚀</div>
         <div class="card-stat stat-b">Now</div>
@@ -525,23 +519,20 @@
         <div class="card-line line-b"></div>
       </div>
     </div>
-
   </div>
 </section>
 
-<!-- ══════════════════════════ SERVICES ══════════════════════════ -->
+<!-- ══════════════ SERVICES ══════════════ -->
 <section id="services">
   <div class="container" style="position:relative;z-index:1">
-
-    <div class="section-header reveal">
+    <div class="section-header">
       <div class="badge badge-blue" style="margin-bottom:16px"><span class="dot"></span>What We Build</div>
       <h2>AI Systems That <span class="text-gradient">Run Your Growth</span></h2>
+      <div class="accent-line"></div>
       <p>Click any card to see what's inside. Every system is custom-built — no templates, no generic software.</p>
     </div>
-
     <div class="svc-grid">
-
-      <div class="svc-card svc-b glass reveal" onclick="toggleSvc(this)">
+      <div class="svc-card svc-b glass" onclick="toggleSvc(this)">
         <div class="svc-top">
           <div class="svc-icon icon-b">📅</div>
           <div class="svc-toggle">+</div>
@@ -560,8 +551,7 @@
         </div>
         <div class="svc-bottom" style="background:linear-gradient(90deg,transparent,rgba(0,212,255,.4),transparent)"></div>
       </div>
-
-      <div class="svc-card svc-p glass reveal" style="transition-delay:.1s" onclick="toggleSvc(this)">
+      <div class="svc-card svc-p glass" onclick="toggleSvc(this)">
         <div class="svc-top">
           <div class="svc-icon icon-p">🔄</div>
           <div class="svc-toggle">+</div>
@@ -580,8 +570,7 @@
         </div>
         <div class="svc-bottom" style="background:linear-gradient(90deg,transparent,rgba(123,47,255,.4),transparent)"></div>
       </div>
-
-      <div class="svc-card svc-b glass reveal" style="transition-delay:.2s" onclick="toggleSvc(this)">
+      <div class="svc-card svc-b glass" onclick="toggleSvc(this)">
         <div class="svc-top">
           <div class="svc-icon icon-b">💬</div>
           <div class="svc-toggle">+</div>
@@ -600,8 +589,7 @@
         </div>
         <div class="svc-bottom" style="background:linear-gradient(90deg,transparent,rgba(0,212,255,.4),transparent)"></div>
       </div>
-
-      <div class="svc-card svc-p glass reveal" style="transition-delay:.3s" onclick="toggleSvc(this)">
+      <div class="svc-card svc-p glass" onclick="toggleSvc(this)">
         <div class="svc-top">
           <div class="svc-icon icon-p">⚙️</div>
           <div class="svc-toggle">+</div>
@@ -620,28 +608,25 @@
         </div>
         <div class="svc-bottom" style="background:linear-gradient(90deg,transparent,rgba(123,47,255,.4),transparent)"></div>
       </div>
-
     </div>
-
-    <div class="svc-cta reveal">
+    <div class="svc-cta">
       <p>Not sure which system you need?</p>
-      <a href="#contact" class="btn-primary">Get a Free Audit →</a>
+      <a href="#contact" class="btn-primary magnetic">Get a Free Audit →</a>
     </div>
   </div>
 </section>
 
-<!-- ══════════════════════════ RESULTS ══════════════════════════ -->
+<!-- ══════════════ RESULTS ══════════════ -->
 <section id="results">
   <div class="results-tex"></div>
   <div class="container" style="position:relative;z-index:1">
-
-    <div class="section-header reveal">
+    <div class="section-header">
       <div class="badge badge-blue" style="margin-bottom:16px"><span class="dot"></span>Real Results</div>
       <h2>Numbers Don't <span class="text-gradient">Lie</span></h2>
+      <div class="accent-line"></div>
       <p>Every metric below comes from live client deployments. No projections. No estimates.</p>
     </div>
-
-    <div class="stats-box glass reveal" id="stats-box">
+    <div class="stats-box glass" id="stats-box">
       <div class="stat-item">
         <div class="stat-num" id="c1" style="color:var(--blue);text-shadow:0 0 40px rgba(0,212,255,.5)">0</div>
         <div class="stat-label">Clients Automated</div>
@@ -663,9 +648,8 @@
         <div class="stat-sub">Clients who renew and expand</div>
       </div>
     </div>
-
     <div class="testimonials">
-      <div class="testi-card glass reveal">
+      <div class="testi-card glass tilt-card">
         <div class="testi-q" style="color:var(--blue)">"</div>
         <p class="testi-text">We went from 12 missed calls a week to zero. The AI books everything now and our front desk finally has time to focus on patients.</p>
         <div class="testi-auth">
@@ -674,7 +658,7 @@
         </div>
         <div class="testi-bot" style="background:linear-gradient(90deg,transparent,var(--blue),transparent)"></div>
       </div>
-      <div class="testi-card glass reveal" style="transition-delay:.12s">
+      <div class="testi-card glass tilt-card">
         <div class="testi-q" style="color:var(--purple)">"</div>
         <p class="testi-text">I didn't believe automation could work for a small business. Three months in and we've saved over $8,000 in admin costs.</p>
         <div class="testi-auth">
@@ -683,7 +667,7 @@
         </div>
         <div class="testi-bot" style="background:linear-gradient(90deg,transparent,var(--purple),transparent)"></div>
       </div>
-      <div class="testi-card glass reveal" style="transition-delay:.24s">
+      <div class="testi-card glass tilt-card">
         <div class="testi-q" style="color:var(--blue)">"</div>
         <p class="testi-text">The follow-up system alone reactivated 23 lapsed patients in the first month. Revenue we were just leaving on the table.</p>
         <div class="testi-auth">
@@ -693,23 +677,20 @@
         <div class="testi-bot" style="background:linear-gradient(90deg,transparent,var(--blue),transparent)"></div>
       </div>
     </div>
-
   </div>
 </section>
 
-<!-- ══════════════════════════ CONTACT ══════════════════════════ -->
+<!-- ══════════════ CONTACT ══════════════ -->
 <section id="contact">
   <div class="container" style="position:relative;z-index:1">
-
-    <div class="section-header reveal">
+    <div class="section-header">
       <div class="badge badge-blue" style="margin-bottom:16px"><span class="dot"></span>Book a Free Strategy Call</div>
       <h2>Let's Build Your <span class="text-gradient">AI System</span></h2>
+      <div class="accent-line"></div>
       <p>30-minute call. No pitch. Just a clear breakdown of what AI automation can do for your specific business.</p>
     </div>
-
     <div class="contact-grid">
-
-      <div class="reveal">
+      <div>
         <div class="form-wrap">
           <div class="form-inner">
             <div id="form-success" class="form-success" style="display:none">
@@ -735,14 +716,13 @@
                 <textarea name="message" rows="3" placeholder="e.g. We miss too many calls, follow-up is inconsistent..."></textarea>
               </div>
               <div class="form-error" id="ferr">Something went wrong. Please try again or email us directly.</div>
-              <button type="submit" class="form-submit" id="fsub">Book My Free Strategy Call →</button>
+              <button type="submit" class="form-submit magnetic" id="fsub">Book My Free Strategy Call →</button>
               <p class="form-note">No spam. No pressure. Just clarity on what's possible.</p>
             </form>
           </div>
         </div>
       </div>
-
-      <div class="info-cards reveal" style="transition-delay:.15s">
+      <div class="info-cards">
         <div class="info-card glass">
           <div class="info-icon">🕐</div>
           <div>
@@ -770,12 +750,11 @@
           <p class="direct-rep">We respond within 24 hours.</p>
         </div>
       </div>
-
     </div>
   </div>
 </section>
 
-<!-- ══════════════════════════ FOOTER ══════════════════════════ -->
+<!-- ══════════════ FOOTER ══════════════ -->
 <footer>
   <div class="container">
     <div class="footer-in">
@@ -799,30 +778,33 @@
   </div>
 </footer>
 
-<!-- ══════════════════════════ JAVASCRIPT ══════════════════════════ -->
-<script>
-// Year
-document.getElementById('yr').textContent = new Date().getFullYear();
+<!-- ══════════════ CDN LIBRARIES ══════════════ -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
 
-// Navbar scroll
+<!-- ══════════════ MAIN SCRIPT ══════════════ -->
+<script>
+'use strict';
+
+// ─── Init ───
+gsap.registerPlugin(ScrollTrigger);
+document.getElementById('yr').textContent = new Date().getFullYear();
+const isMobile = window.innerWidth <= 768;
+
+// ─── Navbar scroll ───
 const navbar = document.getElementById('navbar');
 window.addEventListener('scroll', () => {
   navbar.classList.toggle('scrolled', window.scrollY > 40);
 }, { passive: true });
 
-// Mobile menu
+// ─── Mobile menu ───
 const ham = document.getElementById('ham');
 const mob = document.getElementById('mob');
-ham.addEventListener('click', () => {
-  ham.classList.toggle('open');
-  mob.classList.toggle('open');
-});
-function closeMob() {
-  ham.classList.remove('open');
-  mob.classList.remove('open');
-}
+ham.addEventListener('click', () => { ham.classList.toggle('open'); mob.classList.toggle('open'); });
+function closeMob() { ham.classList.remove('open'); mob.classList.remove('open'); }
 
-// Typing animation
+// ─── Typing animation ───
 const PHRASES = ['Automate Your Clinic', 'Convert More Patients', 'Scale Without Hiring'];
 let pi = 0, ci = 0, del = false, paused = false;
 const typEl = document.getElementById('typing-text');
@@ -830,155 +812,372 @@ function type() {
   if (paused) return;
   const ph = PHRASES[pi];
   if (!del && ci === ph.length) {
-    paused = true;
-    setTimeout(() => { del = true; paused = false; type(); }, 2200);
-    return;
+    paused = true; setTimeout(() => { del = true; paused = false; type(); }, 2200); return;
   }
   if (del && ci === 0) { del = false; pi = (pi + 1) % PHRASES.length; }
   ci += del ? -1 : 1;
   typEl.textContent = ph.substring(0, ci);
   setTimeout(type, del ? 45 : 95);
 }
-type();
 
-// Particle canvas
+// ─── Particle canvas ───
 (function() {
-  const cv  = document.getElementById('particles-canvas');
+  const cv = document.getElementById('particles-canvas');
   const ctx = cv.getContext('2d');
   let W, H, pts = [];
   const COLS = ['rgba(0,212,255,', 'rgba(123,47,255,', 'rgba(255,255,255,'];
-
-  function resize() {
-    W = cv.width  = cv.offsetWidth;
-    H = cv.height = cv.offsetHeight;
-  }
+  function resize() { W = cv.width = cv.offsetWidth; H = cv.height = cv.offsetHeight; }
   window.addEventListener('resize', resize, { passive: true });
   resize();
-
   function Pt() {
     this.reset = function() {
-      this.x  = Math.random() * W;
-      this.y  = Math.random() * H;
-      this.r  = Math.random() * 1.5 + 0.4;
-      this.vx = (Math.random() - 0.5) * 0.38;
-      this.vy = (Math.random() - 0.5) * 0.38;
-      this.op = Math.random() * 0.38 + 0.06;
-      this.c  = COLS[Math.floor(Math.random() * COLS.length)];
-    };
-    this.reset();
+      this.x = Math.random()*W; this.y = Math.random()*H;
+      this.r = Math.random()*1.5+0.4; this.vx = (Math.random()-.5)*.38; this.vy = (Math.random()-.5)*.38;
+      this.op = Math.random()*.38+.06; this.c = COLS[Math.floor(Math.random()*COLS.length)];
+    }; this.reset();
   }
   for (let i = 0; i < 65; i++) pts.push(new Pt());
-
   let mx = -9999, my = -9999;
-  cv.addEventListener('mousemove', e => {
-    const r = cv.getBoundingClientRect();
-    mx = e.clientX - r.left; my = e.clientY - r.top;
-  });
-
+  cv.addEventListener('mousemove', e => { const r = cv.getBoundingClientRect(); mx = e.clientX-r.left; my = e.clientY-r.top; });
   function draw() {
     ctx.clearRect(0, 0, W, H);
-    // links
     for (let i = 0; i < pts.length; i++) {
-      for (let j = i + 1; j < pts.length; j++) {
-        const dx = pts[i].x - pts[j].x, dy = pts[i].y - pts[j].y;
-        const d  = Math.hypot(dx, dy);
-        if (d < 140) {
-          ctx.beginPath();
-          ctx.strokeStyle = `rgba(0,212,255,${0.055*(1-d/140)})`;
-          ctx.lineWidth = 0.5;
-          ctx.moveTo(pts[i].x, pts[i].y);
-          ctx.lineTo(pts[j].x, pts[j].y);
-          ctx.stroke();
-        }
+      for (let j = i+1; j < pts.length; j++) {
+        const dx = pts[i].x-pts[j].x, dy = pts[i].y-pts[j].y, d = Math.hypot(dx,dy);
+        if (d < 140) { ctx.beginPath(); ctx.strokeStyle=`rgba(0,212,255,${.055*(1-d/140)})`; ctx.lineWidth=.5; ctx.moveTo(pts[i].x,pts[i].y); ctx.lineTo(pts[j].x,pts[j].y); ctx.stroke(); }
       }
     }
-    // dots
     pts.forEach(p => {
-      const dx = p.x - mx, dy = p.y - my, d = Math.hypot(dx, dy);
-      if (d < 80 && d > 0) { p.x += dx/d * 1.4; p.y += dy/d * 1.4; }
-      p.x += p.vx; p.y += p.vy;
-      if (p.x < 0 || p.x > W) p.vx *= -1;
-      if (p.y < 0 || p.y > H) p.vy *= -1;
-      ctx.beginPath();
-      ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
-      ctx.fillStyle = p.c + p.op + ')';
-      ctx.fill();
+      const dx=p.x-mx, dy=p.y-my, d=Math.hypot(dx,dy);
+      if (d<80&&d>0) { p.x+=dx/d*1.4; p.y+=dy/d*1.4; }
+      p.x+=p.vx; p.y+=p.vy;
+      if (p.x<0||p.x>W) p.vx*=-1; if (p.y<0||p.y>H) p.vy*=-1;
+      ctx.beginPath(); ctx.arc(p.x,p.y,p.r,0,Math.PI*2); ctx.fillStyle=p.c+p.op+')'; ctx.fill();
     });
     requestAnimationFrame(draw);
   }
   draw();
 })();
 
-// Scroll reveal
-const revEls = document.querySelectorAll('.reveal');
-const revObs = new IntersectionObserver(entries => {
-  entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); revObs.unobserve(e.target); } });
-}, { threshold: 0.08, rootMargin: '0px 0px -50px 0px' });
-revEls.forEach(el => revObs.observe(el));
-
-// Animated counters
-const COUNTERS = [
-  { el: document.getElementById('c1'), target: 47,    suffix: '+',  fmt: false },
-  { el: document.getElementById('c2'), target: 10000, suffix: '+',  fmt: true  },
-  { el: document.getElementById('c3'), target: 3,     suffix: 'x',  fmt: false },
-  { el: document.getElementById('c4'), target: 98,    suffix: '%',  fmt: false },
-];
-let countersRan = false;
-const cObs = new IntersectionObserver(entries => {
-  if (!entries[0].isIntersecting || countersRan) return;
-  countersRan = true;
-  COUNTERS.forEach(({ el, target, suffix, fmt }) => {
-    let start = null;
-    const dur = 2000;
-    (function step(ts) {
-      if (!start) start = ts;
-      const p = Math.min((ts - start) / dur, 1);
-      const e = 1 - Math.pow(1 - p, 3);
-      const v = Math.floor(e * target);
-      el.textContent = (fmt ? v.toLocaleString() : v) + suffix;
-      if (p < 1) requestAnimationFrame(step);
-      else el.textContent = (fmt ? target.toLocaleString() : target) + suffix;
-    })(performance.now());
-  });
-}, { threshold: 0.3 });
-cObs.observe(document.getElementById('stats-box'));
-
-// Services expand/collapse
+// ─── Service cards toggle ───
 function toggleSvc(card) {
   const was = card.classList.contains('open');
   document.querySelectorAll('.svc-card.open').forEach(c => c.classList.remove('open'));
   if (!was) card.classList.add('open');
 }
 
-// Contact form
+// ─── Contact form ───
 document.getElementById('cform').addEventListener('submit', async function(e) {
   e.preventDefault();
-  const btn = document.getElementById('fsub');
-  const err = document.getElementById('ferr');
-  btn.disabled = true;
-  btn.textContent = 'Sending…';
-  err.style.display = 'none';
+  const btn = document.getElementById('fsub'), err = document.getElementById('ferr');
+  btn.disabled = true; btn.textContent = 'Sending…'; err.style.display = 'none';
   try {
     const res = await fetch('https://formspree.io/f/mdajebpz', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
-      body: JSON.stringify({
-        name:    this.name.value,
-        email:   this.email.value,
-        company: this.company.value,
-        message: this.message.value,
-      }),
+      method:'POST', headers:{'Content-Type':'application/json',Accept:'application/json'},
+      body: JSON.stringify({ name:this.name.value, email:this.email.value, company:this.company.value, message:this.message.value }),
     });
-    if (res.ok) {
-      this.style.display = 'none';
-      document.getElementById('form-success').style.display = 'block';
-    } else { throw 0; }
-  } catch {
-    err.style.display = 'block';
-    btn.disabled = false;
-    btn.textContent = 'Book My Free Strategy Call →';
+    if (res.ok) { this.style.display='none'; document.getElementById('form-success').style.display='block'; }
+    else throw 0;
+  } catch { err.style.display='block'; btn.disabled=false; btn.textContent='Book My Free Strategy Call →'; }
+});
+
+// ════════════════════════════════════════════════════════
+// GSAP ANIMATIONS
+// ════════════════════════════════════════════════════════
+
+// ─── Hero entrance timeline ───
+gsap.set(['.hero-badge','.hero-h1','.hero-typing','.hero-sub','.hero-btns','.hero-proof','.hero-right'], { opacity: 0 });
+gsap.set(['.hero-badge','.hero-h1','.hero-typing','.hero-sub','.hero-btns','.hero-proof'], { y: 32 });
+gsap.set('.hero-right', { x: 50 });
+
+const heroTl = gsap.timeline({ delay: 0.15, onStart: type });
+heroTl
+  .to('.hero-badge',   { opacity:1, y:0, duration:.7, ease:'power3.out' })
+  .to('.hero-h1',      { opacity:1, y:0, duration:.85,ease:'power3.out' }, '-=.4')
+  .to('.hero-typing',  { opacity:1, y:0, duration:.6, ease:'power3.out' }, '-=.45')
+  .to('.hero-sub',     { opacity:1, y:0, duration:.6, ease:'power3.out' }, '-=.4')
+  .to('.hero-btns',    { opacity:1, y:0, duration:.6, ease:'power3.out' }, '-=.35')
+  .to('.hero-proof',   { opacity:1, y:0, duration:.6, ease:'power3.out' }, '-=.3')
+  .to('.hero-right',   { opacity:1, x:0, duration:.9, ease:'power3.out' }, '-=.7')
+  .to('#scroll-hint',  { opacity:1, duration:.5 }, '-=.2');
+
+gsap.set('#scroll-hint', { opacity: 0 });
+
+// ─── Hero pin with parallax shapes on scroll (desktop only) ───
+if (!isMobile) {
+  const heroPin = gsap.timeline({
+    scrollTrigger: {
+      trigger: '#hero',
+      start: 'top top',
+      end: '+=380',
+      scrub: 0.8,
+      pin: true,
+      pinSpacing: true,
+    }
+  });
+  heroPin
+    .to('.hero-right', { y: -55, opacity: 0.25, ease: 'none' }, 0)
+    .to('.orb1',       { y: -50, x: 30,  ease: 'none' }, 0)
+    .to('.orb2',       { y:  40, x: -25, ease: 'none' }, 0)
+    .to('#scroll-hint',{ opacity: 0, y: 12, ease: 'none' }, 0);
+}
+
+// ─── Section reveal helper ───
+function revealFrom(selector, trigger, vars = {}) {
+  gsap.from(selector, {
+    scrollTrigger: { trigger, start: 'top 82%', once: true },
+    y: 50, opacity: 0, duration: .75, ease: 'power3.out',
+    stagger: vars.stagger || 0,
+    ...vars,
+  });
+}
+
+// ─── Why AI section ───
+revealFrom('#why .section-header', '#why');
+gsap.from('#why .why-card', {
+  scrollTrigger: { trigger: '#why .why-grid', start: 'top 80%', once: true },
+  y: 60, opacity: 0, duration: .8, ease: 'power3.out', stagger: .14,
+});
+// Accent line sweep
+gsap.to('#why .accent-line', {
+  scrollTrigger: { trigger: '#why .section-header', start: 'top 85%', once: true },
+  width: 60, duration: .8, ease: 'power3.out', delay: .2,
+});
+// Grid parallax on scroll
+gsap.to('#why .grid-tex', {
+  scrollTrigger: { trigger: '#why', start: 'top bottom', end: 'bottom top', scrub: 1.5 },
+  y: -60, ease: 'none',
+});
+
+// ─── Services section ───
+revealFrom('#services .section-header', '#services');
+gsap.from('#services .svc-card', {
+  scrollTrigger: { trigger: '#services .svc-grid', start: 'top 82%', once: true },
+  y: 55, opacity: 0, duration: .75, ease: 'power3.out', stagger: .12,
+});
+revealFrom('#services .svc-cta', '#services .svc-cta', { delay: .2 });
+gsap.to('#services .accent-line', {
+  scrollTrigger: { trigger: '#services .section-header', start: 'top 85%', once: true },
+  width: 60, duration: .8, ease: 'power3.out', delay: .2,
+});
+
+// ─── Results section ───
+revealFrom('#results .section-header', '#results');
+gsap.from('#results .stats-box', {
+  scrollTrigger: { trigger: '#results .stats-box', start: 'top 85%', once: true },
+  y: 40, opacity: 0, duration: .85, ease: 'power3.out',
+});
+gsap.from('#results .testi-card', {
+  scrollTrigger: { trigger: '#results .testimonials', start: 'top 82%', once: true },
+  y: 50, opacity: 0, duration: .75, ease: 'power3.out', stagger: .14,
+});
+gsap.to('#results .accent-line', {
+  scrollTrigger: { trigger: '#results .section-header', start: 'top 85%', once: true },
+  width: 60, duration: .8, ease: 'power3.out', delay: .2,
+});
+// Results grid parallax
+gsap.to('#results .results-tex', {
+  scrollTrigger: { trigger: '#results', start: 'top bottom', end: 'bottom top', scrub: 1.5 },
+  y: -70, ease: 'none',
+});
+
+// ─── Animated counters (GSAP) ───
+const COUNTERS = [
+  { el: document.getElementById('c1'), target: 47,    suffix: '+',  fmt: false },
+  { el: document.getElementById('c2'), target: 10000, suffix: '+',  fmt: true  },
+  { el: document.getElementById('c3'), target: 3,     suffix: 'x',  fmt: false },
+  { el: document.getElementById('c4'), target: 98,    suffix: '%',  fmt: false },
+];
+ScrollTrigger.create({
+  trigger: '#stats-box',
+  start: 'top 82%',
+  once: true,
+  onEnter() {
+    COUNTERS.forEach(({ el, target, suffix, fmt }) => {
+      const proxy = { val: 0 };
+      gsap.to(proxy, {
+        val: target, duration: 2.2, ease: 'power2.out',
+        onUpdate() {
+          const v = Math.floor(proxy.val);
+          el.textContent = (fmt ? v.toLocaleString() : v) + suffix;
+        },
+        onComplete() {
+          el.textContent = (fmt ? target.toLocaleString() : target) + suffix;
+        }
+      });
+    });
   }
 });
+
+// ─── Contact section ───
+revealFrom('#contact .section-header', '#contact');
+gsap.from('#contact .form-wrap', {
+  scrollTrigger: { trigger: '#contact .contact-grid', start: 'top 82%', once: true },
+  x: -40, opacity: 0, duration: .85, ease: 'power3.out',
+});
+gsap.from('#contact .info-cards', {
+  scrollTrigger: { trigger: '#contact .contact-grid', start: 'top 82%', once: true },
+  x: 40, opacity: 0, duration: .85, ease: 'power3.out', delay: .1,
+});
+gsap.to('#contact .accent-line', {
+  scrollTrigger: { trigger: '#contact .section-header', start: 'top 85%', once: true },
+  width: 60, duration: .8, ease: 'power3.out', delay: .2,
+});
+
+// ─── Footer ───
+revealFrom('footer .footer-in', 'footer', { y: 30 });
+
+// ─── Orb scroll parallax (full page, desktop only) ───
+if (!isMobile) {
+  gsap.to('.orb1', {
+    scrollTrigger: { trigger: 'body', start: 'top top', end: 'bottom bottom', scrub: 2 },
+    y: -120, ease: 'none',
+  });
+  gsap.to('.orb2', {
+    scrollTrigger: { trigger: 'body', start: 'top top', end: 'bottom bottom', scrub: 2.5 },
+    y: 80, ease: 'none',
+  });
+}
+
+// ─── Mouse parallax (desktop only) ───
+if (!isMobile) {
+  let mouseX = 0, mouseY = 0;
+  document.addEventListener('mousemove', e => {
+    mouseX = (e.clientX / window.innerWidth  - 0.5) * 2;
+    mouseY = (e.clientY / window.innerHeight - 0.5) * 2;
+    gsap.to('.orb1',      { x: mouseX * 22,  y: mouseY * 16,  duration: 1,   ease: 'power2.out', overwrite: 'auto' });
+    gsap.to('.orb2',      { x: -mouseX * 28, y: -mouseY * 20, duration: 1.2, ease: 'power2.out', overwrite: 'auto' });
+    gsap.to('#why .grid-tex',     { x: mouseX * 8, y: mouseY * 6, duration: 1.5, ease: 'power2.out', overwrite: 'auto' });
+    gsap.to('#results .results-tex', { x: -mouseX * 6, y: -mouseY * 5, duration: 1.5, ease: 'power2.out', overwrite: 'auto' });
+  });
+}
+
+// ─── Magnetic buttons (desktop only) ───
+if (!isMobile) {
+  document.querySelectorAll('.magnetic').forEach(el => {
+    el.addEventListener('mousemove', function(e) {
+      const r = this.getBoundingClientRect();
+      const x = (e.clientX - r.left - r.width  / 2) * 0.32;
+      const y = (e.clientY - r.top  - r.height / 2) * 0.32;
+      gsap.to(this, { x, y, duration: .3, ease: 'power2.out', overwrite: 'auto' });
+    });
+    el.addEventListener('mouseleave', function() {
+      gsap.to(this, { x: 0, y: 0, duration: .6, ease: 'elastic.out(1, 0.5)', overwrite: 'auto' });
+    });
+  });
+}
+
+// ─── 3D card tilt (desktop only) ───
+if (!isMobile) {
+  document.querySelectorAll('.tilt-card').forEach(card => {
+    card.addEventListener('mousemove', function(e) {
+      const r = this.getBoundingClientRect();
+      const rx = ((e.clientY - r.top)  / r.height - 0.5) * -14;
+      const ry = ((e.clientX - r.left) / r.width  - 0.5) *  14;
+      gsap.to(this, { rotationX: rx, rotationY: ry, duration: .25, ease: 'power2.out', transformPerspective: 900, overwrite: 'auto' });
+    });
+    card.addEventListener('mouseleave', function() {
+      gsap.to(this, { rotationX: 0, rotationY: 0, duration: .6, ease: 'elastic.out(1, 0.4)', transformPerspective: 900, overwrite: 'auto' });
+    });
+  });
+}
+
+// ════════════════════════════════════════════════════════
+// THREE.JS — decorative wireframe shapes overlay
+// ════════════════════════════════════════════════════════
+if (!isMobile && typeof THREE !== 'undefined') {
+  (function() {
+    const canvas = document.getElementById('three-canvas');
+    const W = window.innerWidth, H = window.innerHeight;
+
+    const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
+    renderer.setSize(W, H);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
+    renderer.setClearColor(0x000000, 0);
+
+    const scene  = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(65, W / H, 0.1, 100);
+    camera.position.z = 6;
+
+    // Materials
+    const mBlue = new THREE.MeshBasicMaterial({ color: 0x00d4ff, wireframe: true, transparent: true, opacity: .55 });
+    const mPurp = new THREE.MeshBasicMaterial({ color: 0x7b2fff, wireframe: true, transparent: true, opacity: .45 });
+    const mWhit = new THREE.MeshBasicMaterial({ color: 0xaaddff, wireframe: true, transparent: true, opacity: .15 });
+
+    // Geometries
+    const ico    = new THREE.Mesh(new THREE.IcosahedronGeometry(1.15, 0), mBlue);
+    const torus  = new THREE.Mesh(new THREE.TorusGeometry(.9, .26, 8, 36),  mPurp);
+    const octa   = new THREE.Mesh(new THREE.OctahedronGeometry(.72),        mWhit);
+    const knot   = new THREE.Mesh(new THREE.TorusKnotGeometry(.45, .13, 80, 8), mBlue);
+    const box    = new THREE.Mesh(new THREE.BoxGeometry(.6, .6, .6),        mPurp);
+    const tetra  = new THREE.Mesh(new THREE.TetrahedronGeometry(.55),       mBlue);
+
+    // Positions (spread across the 3D space)
+    ico.position.set(   3.2,  1.2,  0   );
+    torus.position.set(-3.5, -1.2, -1   );
+    octa.position.set( -2.2,  2.2, -0.5 );
+    knot.position.set(  2.6, -2.0, -0.5 );
+    box.position.set(   3.8,  0.2, -1.5 );
+    tetra.position.set( 0.4,  2.8, -1   );
+
+    scene.add(ico, torus, octa, knot, box, tetra);
+
+    // Mouse + scroll tracking
+    let tgtRotY = 0, tgtRotX = 0, tgtScrollY = 0;
+    let curRotY = 0, curRotX = 0, curScrollY = 0;
+
+    window.addEventListener('mousemove', e => {
+      tgtRotY = (e.clientX / window.innerWidth  - 0.5) *  0.5;
+      tgtRotX = (e.clientY / window.innerHeight - 0.5) * -0.3;
+    }, { passive: true });
+
+    window.addEventListener('scroll', () => {
+      const maxScroll = document.body.scrollHeight - window.innerHeight;
+      tgtScrollY = (window.scrollY / maxScroll) * -2.5;
+    }, { passive: true });
+
+    window.addEventListener('resize', () => {
+      const W2 = window.innerWidth, H2 = window.innerHeight;
+      camera.aspect = W2 / H2;
+      camera.updateProjectionMatrix();
+      renderer.setSize(W2, H2);
+    });
+
+    const clock = new THREE.Clock();
+    let raf;
+
+    function animate() {
+      raf = requestAnimationFrame(animate);
+      const t = clock.getElapsedTime();
+
+      // Lerp camera parallax
+      curRotY  += (tgtRotY     - curRotY)  * 0.04;
+      curRotX  += (tgtRotX     - curRotX)  * 0.04;
+      curScrollY += (tgtScrollY - curScrollY) * 0.04;
+
+      scene.rotation.y = curRotY;
+      scene.rotation.x = curRotX;
+      scene.position.y = curScrollY;
+
+      // Individual rotations
+      ico.rotation.x   = t * .22; ico.rotation.y   = t * .35;
+      torus.rotation.x = t * .28; torus.rotation.y = t * .18;
+      octa.rotation.y  = t * .5;  octa.rotation.z  = t * .3;
+      knot.rotation.x  = t * .15; knot.rotation.y  = t * .28;
+      box.rotation.x   = t * .22; box.rotation.y   = t * .38;
+      tetra.rotation.x = t * .3;  tetra.rotation.z = t * .2;
+
+      // Floating bob
+      ico.position.y   = 1.2  + Math.sin(t * .7)       * .28;
+      torus.position.y = -1.2 + Math.sin(t * .55 + 1)  * .22;
+      octa.position.y  = 2.2  + Math.sin(t * .85 + 2)  * .18;
+      knot.position.y  = -2.0 + Math.sin(t * .65 + .5) * .2;
+
+      renderer.render(scene, camera);
+    }
+    animate();
+  })();
+}
 </script>
 </body>
 </html>
