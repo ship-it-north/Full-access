@@ -3,409 +3,400 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>FYLTR Media — AI Automation for Dental Clinics & Businesses</title>
-  <meta name="description" content="AI-powered automation for dental clinics and growing businesses. Cut costs, reclaim hours, and grow without hiring." />
+  <title>FYLTR Media — Luxury AI Automation for Modern Business</title>
+  <meta name="description" content="FYLTR Media builds AI automation systems for ambitious businesses — lead generation, client follow-up, virtual assistants, and full process automation. Convert more, automate everything, scale without hiring." />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600;700;800;900&family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      --blue:   #00d4ff;
-      --purple: #7b2fff;
-      --bg:     #0a0a0f;
-      --bg2:    #0d0d18;
-      --glass:  rgba(255,255,255,0.04);
-      --border: rgba(255,255,255,0.08);
+      --pearl:      #FAFAF8;
+      --pearl-2:    #F4F2EC;
+      --purple:     #6B21A8;
+      --purple-soft:#9333EA;
+      --gold:       #D4AF37;
+      --gold-soft:  #E6C964;
+      --blue:       #00d4ff;
+      --ink:        #1A1525;
+      --text:       #3A3348;
+      --muted:      #7A7388;
+      --line:       rgba(107,33,168,.10);
+      --glass:      rgba(255,255,255,0.62);
     }
 
     html { scroll-behavior: smooth; }
 
     body {
       font-family: 'Inter', sans-serif;
-      background: var(--bg);
-      color: #fff;
+      background: var(--pearl);
+      color: var(--text);
       overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
     }
 
-    /* ─── Three.js overlay canvas ─── */
-    #three-canvas {
-      position: fixed;
-      inset: 0;
-      width: 100%;
-      height: 100%;
-      z-index: 4;
-      pointer-events: none;
-      mix-blend-mode: screen;
+    h1, h2, h3, .serif { font-family: 'Playfair Display', serif; }
+
+    /* ─── BACKGROUND LAYERS ─── */
+    .bg-grid {
+      position: fixed; inset: 0; z-index: 0; pointer-events: none;
+      background-image:
+        linear-gradient(rgba(107,33,168,.045) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(107,33,168,.045) 1px, transparent 1px);
+      background-size: 64px 64px;
+      mask-image: radial-gradient(ellipse 90% 80% at 50% 30%, #000 40%, transparent 100%);
+      -webkit-mask-image: radial-gradient(ellipse 90% 80% at 50% 30%, #000 40%, transparent 100%);
     }
+    .bg-orb { position: fixed; border-radius: 50%; filter: blur(90px); pointer-events: none; z-index: 0; opacity: .5; }
+    .bg-orb-1 { width: 480px; height: 480px; top: -80px;  left: -60px;  background: radial-gradient(circle, rgba(212,175,55,.18), transparent 70%); }
+    .bg-orb-2 { width: 560px; height: 560px; bottom: 6%;  right: -120px; background: radial-gradient(circle, rgba(147,51,234,.12), transparent 70%); }
+    .bg-orb-3 { width: 420px; height: 420px; top: 40%;    left: 30%;     background: radial-gradient(circle, rgba(255,255,255,.6), transparent 70%); }
+
+    /* Scroll-driven robot overlay */
+    #robot-stage {
+      position: fixed; inset: 0; z-index: 1; pointer-events: none;
+      display: flex; align-items: center; justify-content: center;
+      overflow: hidden;
+    }
+    #scroll-robot { width: min(680px, 92vw); height: auto; opacity: .05; transform-origin: 50% 45%; }
 
     /* ─── UTILITIES ─── */
-    .container { max-width: 1200px; margin: 0 auto; padding: 0 24px; }
+    .container { max-width: 1180px; margin: 0 auto; padding: 0 26px; position: relative; z-index: 2; }
 
-    .text-gradient {
-      background: linear-gradient(135deg, var(--blue), var(--purple));
-      -webkit-background-clip: text;
+    .text-grad-bp {
+      background: linear-gradient(120deg, var(--blue), var(--purple-soft) 55%, var(--purple));
+      -webkit-background-clip: text; background-clip: text;
       -webkit-text-fill-color: transparent;
-      background-clip: text;
     }
+    .text-purple { color: var(--purple); }
+    .text-gold   { color: var(--gold); }
 
     .glass {
       background: var(--glass);
-      backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
-      border: 1px solid var(--border);
+      backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(255,255,255,.7);
+      box-shadow: 0 10px 40px rgba(107,33,168,.06), inset 0 1px 0 rgba(255,255,255,.9);
     }
 
-    .btn-primary {
-      display: inline-block;
-      padding: 14px 32px;
-      border-radius: 12px;
-      font-weight: 700;
-      font-size: 1rem;
-      color: #fff;
-      background: linear-gradient(135deg, var(--blue), var(--purple));
-      text-decoration: none;
-      cursor: pointer;
-      border: none;
-      font-family: inherit;
-      transition: box-shadow .3s;
-      will-change: transform;
+    .gold-divider {
+      width: 100%; max-width: 240px; height: 1px; margin: 0 auto;
+      background: linear-gradient(90deg, transparent, var(--gold), transparent);
+      opacity: .7;
     }
-    .btn-primary:hover { box-shadow: 0 0 40px rgba(0,212,255,.5); }
+
+    .btn-gold {
+      display: inline-block; padding: 15px 36px; border-radius: 100px;
+      font-family: 'Inter', sans-serif; font-weight: 600; font-size: 1rem; letter-spacing: .01em;
+      color: #2a2007; text-decoration: none; cursor: pointer; border: none;
+      background: linear-gradient(120deg, var(--gold-soft), var(--gold));
+      box-shadow: 0 8px 28px rgba(212,175,55,.32);
+      transition: box-shadow .35s, transform .2s; will-change: transform;
+    }
+    .btn-gold:hover { box-shadow: 0 12px 38px rgba(212,175,55,.5); }
+
+    .btn-purple {
+      display: inline-block; padding: 15px 36px; border-radius: 100px;
+      font-family: 'Inter', sans-serif; font-weight: 600; font-size: 1rem;
+      color: #fff; text-decoration: none; cursor: pointer; border: none;
+      background: linear-gradient(120deg, var(--purple-soft), var(--purple));
+      box-shadow: 0 8px 28px rgba(107,33,168,.28);
+      transition: box-shadow .35s, transform .2s; will-change: transform;
+    }
+    .btn-purple:hover { box-shadow: 0 12px 38px rgba(107,33,168,.42); }
 
     .btn-ghost {
-      display: inline-block;
-      padding: 14px 32px;
-      border-radius: 12px;
-      font-weight: 700;
-      font-size: 1rem;
-      color: #fff;
-      background: rgba(255,255,255,0.05);
-      border: 1px solid rgba(255,255,255,0.15);
-      text-decoration: none;
-      cursor: pointer;
-      transition: border-color .3s, background .3s;
-      will-change: transform;
+      display: inline-block; padding: 15px 34px; border-radius: 100px;
+      font-family: 'Inter', sans-serif; font-weight: 600; font-size: 1rem;
+      color: var(--purple); text-decoration: none; cursor: pointer;
+      background: rgba(255,255,255,.5);
+      border: 1px solid var(--line);
+      transition: border-color .3s, background .3s; will-change: transform;
     }
-    .btn-ghost:hover { border-color: rgba(0,212,255,.4); background: rgba(255,255,255,0.08); }
+    .btn-ghost:hover { border-color: var(--gold); background: rgba(255,255,255,.85); }
 
     .badge {
       display: inline-flex; align-items: center; gap: 8px;
-      padding: 7px 16px; border-radius: 999px;
-      font-size: .8rem; font-weight: 600; letter-spacing: .05em;
+      padding: 7px 18px; border-radius: 999px;
+      font-size: .78rem; font-weight: 600; letter-spacing: .08em; text-transform: uppercase;
+      background: rgba(255,255,255,.6); border: 1px solid var(--line); color: var(--purple);
     }
-    .badge-blue   { border: 1px solid rgba(0,212,255,.3);  background: rgba(0,212,255,.08);  color: var(--blue); }
-    .badge-purple { border: 1px solid rgba(123,47,255,.3); background: rgba(123,47,255,.08); color: var(--purple); }
-    .dot { width: 7px; height: 7px; border-radius: 50%; background: currentColor; animation: blink 2s infinite; }
+    .badge .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--gold); box-shadow: 0 0 8px var(--gold); animation: blink 2s infinite; }
 
-    /* ─── ANIMATIONS (decorative only — GSAP handles reveals) ─── */
-    @keyframes blink     { 0%,100%{opacity:1} 50%{opacity:.3} }
-    @keyframes float     { 0%,100%{transform:translateY(0) rotate(var(--r,0deg))} 50%{transform:translateY(-14px) rotate(var(--r,0deg))} }
-    @keyframes floatSlow { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-9px)} }
-    @keyframes glowPulse { 0%,100%{box-shadow:0 0 22px rgba(0,212,255,.3),inset 0 0 22px rgba(0,212,255,.05)} 50%{box-shadow:0 0 50px rgba(123,47,255,.45),inset 0 0 50px rgba(123,47,255,.08)} }
-    @keyframes spinBorder { 0%{--ba:0deg} 100%{--ba:360deg} }
-    @property --ba { syntax:'<angle>'; initial-value:0deg; inherits:false; }
+    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:.35} }
+    @keyframes shimmer { 0%{background-position:200% center} 100%{background-position:-200% center} }
 
     /* ─── NAVBAR ─── */
     #navbar {
-      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
-      padding: 20px 0; transition: all .35s;
+      position: fixed; top: 0; left: 0; right: 0; z-index: 60;
+      padding: 20px 0; transition: all .35s; overflow: visible;
     }
     #navbar.scrolled {
-      background: rgba(10,10,15,.88);
-      backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
-      border-bottom: 1px solid var(--border);
-      padding: 12px 0;
+      background: rgba(250,250,248,.8);
+      backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px);
+      border-bottom: 1px solid var(--line); padding: 12px 0;
     }
     .nav-inner { display: flex; align-items: center; justify-content: space-between; }
-    .logo { font-size: 1.2rem; font-weight: 900; text-decoration: none; letter-spacing: -.02em; }
 
-    .nav-links { display: flex; align-items: center; gap: 32px; list-style: none; }
+    /* Logo + robot canvas */
+    .logo-wrap { position: relative; display: inline-block; }
+    .logo {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.35rem; font-weight: 800; letter-spacing: .04em;
+      text-decoration: none; white-space: nowrap;
+      transition: opacity .3s; display: inline-block;
+    }
+    .logo .sep { color: var(--gold); font-weight: 400; margin: 0 7px; }
+    .logo .media { color: var(--ink); }
+    #logo-canvas {
+      position: absolute; left: -18px; top: -8px;
+      width: 320px; height: 140px;
+      pointer-events: none; opacity: 0; transition: opacity .25s;
+      z-index: 5;
+    }
+    .logo-wrap.active #logo-canvas { opacity: 1; }
+    .logo-wrap.active .logo { opacity: 0; }
+
+    .nav-links { display: flex; align-items: center; gap: 34px; list-style: none; }
     .nav-links a {
-      color: rgba(255,255,255,.6); text-decoration: none;
-      font-size: .88rem; font-weight: 500; position: relative; transition: color .2s;
+      color: var(--text); text-decoration: none; font-size: .9rem; font-weight: 500;
+      position: relative; transition: color .2s;
     }
-    .nav-links a::after {
-      content:''; position:absolute; bottom:-3px; left:0;
-      width:0; height:1px;
-      background: linear-gradient(90deg, var(--blue), var(--purple));
-      transition: width .3s;
-    }
-    .nav-links a:hover { color:#fff; }
-    .nav-links a:hover::after { width:100%; }
+    .nav-links a::after { content:''; position:absolute; bottom:-4px; left:0; width:0; height:1.5px; background: var(--gold); transition: width .3s; }
+    .nav-links a:hover { color: var(--purple); }
+    .nav-links a:hover::after { width: 100%; }
 
-    .nav-cta {
-      display: inline-block;
-      padding: 9px 22px; border-radius: 10px;
-      background: linear-gradient(135deg, var(--blue), var(--purple));
-      color: #fff; font-weight: 700; font-size: .85rem;
-      text-decoration: none; transition: box-shadow .3s;
-      will-change: transform;
-    }
-    .nav-cta:hover { box-shadow: 0 0 25px rgba(0,212,255,.4); }
+    .nav-cta { padding: 10px 26px !important; font-size: .85rem; }
 
     .hamburger { display:none; flex-direction:column; gap:5px; background:none; border:none; cursor:pointer; padding:4px; }
-    .hamburger span { display:block; width:24px; height:2px; background:#fff; border-radius:2px; transition:all .3s; }
-    .hamburger.open span:nth-child(1) { transform:rotate(45deg) translate(5px,5px); }
-    .hamburger.open span:nth-child(2) { opacity:0; }
-    .hamburger.open span:nth-child(3) { transform:rotate(-45deg) translate(5px,-5px); }
+    .hamburger span { display:block; width:24px; height:2px; background:var(--ink); border-radius:2px; transition:all .3s; }
+    .hamburger.open span:nth-child(1){ transform:rotate(45deg) translate(5px,5px); }
+    .hamburger.open span:nth-child(2){ opacity:0; }
+    .hamburger.open span:nth-child(3){ transform:rotate(-45deg) translate(5px,-5px); }
 
-    .mobile-menu { display:none; flex-direction:column; gap:4px; padding:16px 24px; background:rgba(10,10,15,.96); border-top:1px solid var(--border); }
+    .mobile-menu { display:none; flex-direction:column; gap:4px; padding:16px 26px; background:rgba(250,250,248,.97); border-top:1px solid var(--line); }
     .mobile-menu.open { display:flex; }
-    .mobile-menu a { color:rgba(255,255,255,.7); text-decoration:none; font-weight:500; padding:10px 0; border-bottom:1px solid rgba(255,255,255,.05); transition:color .2s; }
-    .mobile-menu a:hover { color:#fff; }
-    .mobile-cta { margin-top:6px !important; text-align:center; border-radius:10px; background:linear-gradient(135deg,var(--blue),var(--purple)); color:#fff !important; font-weight:700; border:none !important; }
+    .mobile-menu a { color:var(--text); text-decoration:none; font-weight:500; padding:11px 0; border-bottom:1px solid var(--line); }
+    .mobile-cta { margin-top:8px !important; text-align:center; border-radius:100px; background:linear-gradient(120deg,var(--gold-soft),var(--gold)); color:#2a2007 !important; font-weight:700; border-bottom:none !important; }
 
-    @media(max-width:768px) { .nav-links,.nav-cta-wrap{display:none} .hamburger{display:flex} }
+    @media(max-width:880px){ .nav-links,.nav-cta-wrap{display:none} .hamburger{display:flex} }
 
     /* ─── HERO ─── */
-    #hero { position:relative; min-height:100vh; display:flex; align-items:center; overflow:hidden; }
-    #particles-canvas { position:absolute; inset:0; z-index:0; width:100%; height:100%; }
+    #hero { position:relative; min-height:100vh; display:flex; align-items:center; padding:130px 0 90px; }
 
-    .orb { position:absolute; border-radius:50%; filter:blur(100px); pointer-events:none; }
-    .orb1 { width:420px;height:420px;top:8%;left:4%;  background:rgba(0,212,255,.1);  animation:floatSlow 9s ease-in-out infinite; will-change:transform; }
-    .orb2 { width:520px;height:520px;bottom:4%;right:4%; background:rgba(123,47,255,.08); animation:floatSlow 11s ease-in-out infinite reverse; will-change:transform; }
-    .orb3 { width:700px;height:350px;top:50%;left:50%;transform:translate(-50%,-50%); background:rgba(123,47,255,.04);filter:blur(80px); }
+    .f-monogram {
+      position: absolute; top: 50%; left: 50%; transform: translate(-50%,-46%);
+      font-family: 'Playfair Display', serif; font-weight: 900;
+      font-size: clamp(20rem, 46vw, 44rem); line-height: .8;
+      color: transparent;
+      background: linear-gradient(150deg, rgba(147,51,234,.16), rgba(107,33,168,.10) 50%, rgba(212,175,55,.10));
+      -webkit-background-clip: text; background-clip: text;
+      z-index: 1; pointer-events: none; user-select: none;
+      filter: drop-shadow(0 20px 60px rgba(107,33,168,.08));
+    }
 
-    .hero-inner { position:relative; z-index:2; width:100%; padding:140px 0 80px; }
-    .hero-grid  { display:grid; grid-template-columns:1fr 1fr; gap:60px; align-items:center; }
-    @media(max-width:900px){ .hero-grid{grid-template-columns:1fr} .hero-right{display:none} }
+    .hero-content { position: relative; z-index: 3; max-width: 820px; margin: 0 auto; text-align: center; }
+    .hero-content h1 {
+      font-size: clamp(2.6rem, 6vw, 5rem); font-weight: 800; line-height: 1.04;
+      letter-spacing: .005em; color: var(--ink); margin: 26px 0 18px;
+    }
+    .hero-shimmer {
+      background: linear-gradient(110deg, var(--ink) 0%, var(--ink) 38%, var(--gold) 49%, var(--gold-soft) 51%, var(--ink) 62%, var(--ink) 100%);
+      background-size: 220% auto;
+      -webkit-background-clip: text; background-clip: text;
+      -webkit-text-fill-color: transparent;
+      animation: shimmer 6s linear infinite;
+    }
+    .typing-row { height: 46px; display:flex; align-items:center; justify-content:center; margin-bottom: 22px; }
+    .typing-prefix { font-size: 1.25rem; font-weight: 500; color: var(--muted); }
+    .typing-text   { font-family:'Playfair Display',serif; font-style:italic; font-size:1.45rem; font-weight:600; color: var(--purple); margin-left:10px; }
+    .cursor { display:inline-block; width:2px; margin-left:2px; color: var(--gold); animation: blink 1s infinite; }
 
-    .hero-left h1 { font-size:clamp(2.4rem,5vw,4.2rem); font-weight:900; line-height:1.06; letter-spacing:-.03em; margin-bottom:20px; }
-    .typing-row   { height:44px; display:flex; align-items:center; margin-bottom:20px; }
-    .typing-prefix{ font-size:1.2rem; font-weight:600; color:rgba(255,255,255,.5); }
-    .typing-text  { font-size:1.2rem; font-weight:700; color:var(--blue); margin-left:8px; }
-    .cursor       { display:inline-block; color:var(--blue); animation:blink 1s infinite; }
-
-    .hero-sub   { font-size:1.05rem; line-height:1.7; color:rgba(255,255,255,.55); max-width:500px; margin-bottom:36px; }
-    .hero-btns  { display:flex; flex-wrap:wrap; gap:14px; margin-bottom:48px; }
-    .proof-row  { display:flex; flex-wrap:wrap; align-items:center; gap:20px; }
-    .proof-item { display:flex; align-items:center; gap:8px; }
-    .proof-num   { font-weight:900; font-size:1rem; color:var(--blue); }
-    .proof-label { font-size:.85rem; color:rgba(255,255,255,.4); }
-    .proof-sep   { width:1px; height:16px; background:rgba(255,255,255,.12); }
-
-    /* Floating shape frames */
-    .hero-right { position:relative; height:540px; }
-    .shape      { position:absolute; border:1px solid; animation:float 7s ease-in-out infinite; }
-    .shape-inner{ width:100%; height:100%; border-radius:inherit; background:linear-gradient(135deg,rgba(0,212,255,.04),rgba(123,47,255,.04)); display:flex; align-items:center; justify-content:center; }
-    .shape-glyph{ font-size:2rem; opacity:.5; }
-
-    .sh1 { --r:20deg; width:180px;height:180px; border-color:rgba(0,212,255,.3);  border-radius:28px; top:8%;right:8%;  animation-duration:7s; }
-    .sh2 { width:110px; height:110px; border-color:rgba(123,47,255,.4); border-radius:50%; top:42%;left:4%;  animation-duration:5s; animation-delay:-.8s; }
-    .sh3 { --r:-15deg; width:75px;height:75px; border-color:rgba(0,212,255,.25); border-radius:14px; bottom:18%;right:22%; animation-duration:8s; animation-delay:-.4s; }
-    .sh4 { width:46px; height:46px; border-color:rgba(123,47,255,.35); border-radius:50%; top:18%;left:32%; animation-duration:4s; animation-delay:-1s; }
-    .sh5 { width:240px;height:240px; border-color:rgba(123,47,255,.1); border-radius:50%; top:50%;left:50%;transform:translate(-50%,-50%); animation-duration:9s; animation-delay:-.5s; }
-
-    .center-orb  { position:absolute;top:50%;left:50%;transform:translate(-50%,-50%); width:260px;height:260px;border-radius:50%; background:radial-gradient(circle at 40% 40%,rgba(0,212,255,.15),rgba(123,47,255,.1) 60%,transparent 80%); border:1px solid rgba(0,212,255,.2); animation:glowPulse 4s ease-in-out infinite; display:flex;align-items:center;justify-content:center; }
-    .center-glyph{ font-size:3.2rem; animation:floatSlow 4s ease-in-out infinite; }
+    .hero-sub { font-size: 1.1rem; line-height: 1.75; color: var(--text); max-width: 600px; margin: 0 auto 38px; }
+    .hero-btns { display:flex; flex-wrap:wrap; gap:16px; justify-content:center; margin-bottom: 54px; }
+    .hero-proof { display:flex; flex-wrap:wrap; align-items:center; justify-content:center; gap:24px; }
+    .proof-item { display:flex; align-items:center; gap:9px; }
+    .proof-num { font-family:'Playfair Display',serif; font-weight:800; font-size:1.15rem; color: var(--gold); }
+    .proof-label { font-size:.85rem; color: var(--muted); }
+    .proof-sep { width:1px; height:18px; background: var(--line); }
 
     /* ─── SECTION COMMON ─── */
-    section { padding: 96px 0; }
-    .section-header { text-align:center; margin-bottom:60px; }
-    .section-header h2 { font-size:clamp(2rem,4vw,3rem); font-weight:900; letter-spacing:-.03em; margin:12px 0 16px; }
-    .section-header p  { font-size:1rem; color:rgba(255,255,255,.5); max-width:560px; margin:0 auto; line-height:1.7; }
-
-    /* Accent line under section h2 */
-    .accent-line {
-      width: 0; height: 3px;
-      background: linear-gradient(90deg, var(--blue), var(--purple));
-      border-radius: 3px;
-      margin: 0 auto 16px;
-    }
+    section { padding: 110px 0; position: relative; }
+    .section-header { text-align:center; margin-bottom:64px; }
+    .section-header h2 { font-size: clamp(2.1rem,4vw,3.2rem); font-weight:800; letter-spacing:.01em; color: var(--ink); margin: 16px 0 18px; }
+    .section-header h2 .accent { font-style: italic; color: var(--purple); }
+    .section-header p { font-size:1.05rem; color: var(--muted); max-width: 580px; margin: 18px auto 0; line-height:1.7; }
 
     /* ─── WHY AI ─── */
-    #why { background:var(--bg); position:relative; overflow:hidden; }
-    .grid-tex {
-      position:absolute; inset:0; pointer-events:none; opacity:.025;
-      background-image:linear-gradient(rgba(0,212,255,1) 1px,transparent 1px),linear-gradient(90deg,rgba(0,212,255,1) 1px,transparent 1px);
-      background-size:60px 60px;
-      will-change: transform;
-    }
-    .why-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:24px; }
-    @media(max-width:768px){ .why-grid{grid-template-columns:1fr} }
-
+    .why-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:26px; }
+    @media(max-width:820px){ .why-grid{grid-template-columns:1fr} }
     .why-card {
-      border-radius:20px; padding:32px; position:relative; overflow:hidden;
-      cursor:default; transition:box-shadow .35s;
-      will-change: transform;
-      transform-style: preserve-3d;
+      border-radius:22px; padding:38px 32px; position:relative; cursor:default;
+      transition: box-shadow .4s, transform .4s, border-color .4s;
+      will-change: transform; transform-style: preserve-3d;
     }
-    .why-card:hover .card-glow { opacity:1; }
-
-    .card-glow { position:absolute;inset:0;border-radius:20px;opacity:0;transition:opacity .4s;pointer-events:none; }
-    .glow-b  { box-shadow:0 0 55px rgba(0,212,255,.18),inset 0 0 55px rgba(0,212,255,.04); }
-    .glow-p  { box-shadow:0 0 55px rgba(123,47,255,.18),inset 0 0 55px rgba(123,47,255,.04); }
-
-    .card-icon  { width:58px;height:58px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:1.5rem;margin-bottom:20px; }
-    .icon-b { background:rgba(0,212,255,.1);  border:1px solid rgba(0,212,255,.25); }
-    .icon-p { background:rgba(123,47,255,.1); border:1px solid rgba(123,47,255,.25); }
-
-    .card-stat  { font-size:2.8rem; font-weight:900; line-height:1; margin-bottom:8px; }
-    .stat-b  { color:var(--blue);   text-shadow:0 0 28px rgba(0,212,255,.55); }
-    .stat-p  { color:var(--purple); text-shadow:0 0 28px rgba(123,47,255,.55); }
-
-    .card-title { font-size:1rem;font-weight:700;color:#fff;margin-bottom:10px; }
-    .card-body  { font-size:.87rem;color:rgba(255,255,255,.5);line-height:1.65; }
-    .card-line  { position:absolute;bottom:0;left:32px;right:32px;height:1px;opacity:0;transition:opacity .4s; }
-    .why-card:hover .card-line { opacity:1; }
-    .line-b { background:linear-gradient(90deg,transparent,var(--blue),transparent); }
-    .line-p { background:linear-gradient(90deg,transparent,var(--purple),transparent); }
+    .why-card:hover { box-shadow: 0 24px 60px rgba(212,175,55,.18), 0 0 0 1px var(--gold); }
+    .why-num { font-family:'Playfair Display',serif; font-weight:800; font-size:3.4rem; line-height:1; color: var(--gold); margin-bottom:14px; }
+    .why-card h3 { font-size:1.15rem; font-weight:700; color: var(--ink); margin-bottom:12px; letter-spacing:.01em; }
+    .why-card p  { font-size:.92rem; color: var(--muted); line-height:1.7; }
+    .why-icon { width:54px; height:54px; border-radius:14px; display:flex; align-items:center; justify-content:center; font-size:1.4rem; margin-bottom:22px; background:linear-gradient(135deg, rgba(147,51,234,.12), rgba(212,175,55,.12)); border:1px solid var(--line); }
 
     /* ─── SERVICES ─── */
-    #services { background:linear-gradient(180deg,var(--bg) 0%,var(--bg2) 50%,var(--bg) 100%); position:relative; }
-    .svc-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:20px; }
-    @media(max-width:768px){ .svc-grid{grid-template-columns:1fr} }
-
+    .svc-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:22px; }
+    @media(max-width:820px){ .svc-grid{grid-template-columns:1fr} }
     .svc-card {
-      border-radius:20px; padding:28px; position:relative; overflow:hidden;
-      cursor:pointer; transition:box-shadow .3s, border-color .3s;
-      will-change: transform;
+      border-radius:22px; padding:32px; position:relative; overflow:hidden; cursor:pointer;
+      transition: box-shadow .4s, border-color .4s; will-change: transform;
     }
-    .svc-card.svc-b:hover { box-shadow:0 20px 60px rgba(0,212,255,.1);   border-color:rgba(0,212,255,.25) !important; }
-    .svc-card.svc-p:hover { box-shadow:0 20px 60px rgba(123,47,255,.1); border-color:rgba(123,47,255,.25) !important; }
-
-    .svc-top    { display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:14px; }
-    .svc-icon   { width:50px;height:50px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.4rem;flex-shrink:0; }
-    .svc-toggle { width:28px;height:28px;border-radius:50%;border:1px solid rgba(255,255,255,.12);display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,.4);font-size:1.1rem;flex-shrink:0;transition:transform .3s,border-color .3s; }
-    .svc-card.open .svc-toggle { transform:rotate(45deg); border-color:rgba(0,212,255,.4); }
-
-    .svc-title   { font-size:1rem;font-weight:700;color:#fff;margin-bottom:4px; }
-    .svc-tagline { font-size:.8rem;font-weight:600; }
-    .tag-b { color:var(--blue); } .tag-p { color:var(--purple); }
-
-    .svc-body { max-height:0;overflow:hidden;transition:max-height .4s ease; }
-    .svc-card.open .svc-body { max-height:400px; }
-
-    .svc-desc { font-size:.87rem;color:rgba(255,255,255,.55);line-height:1.65;margin:14px 0 16px; }
-    .svc-feats { list-style:none;display:flex;flex-direction:column;gap:8px;margin-bottom:16px; }
-    .svc-feats li { display:flex;align-items:center;gap:8px;font-size:.84rem;color:rgba(255,255,255,.7); }
-    .feat-dot { width:6px;height:6px;border-radius:50%;flex-shrink:0; }
-    .fd-b { background:var(--blue);   box-shadow:0 0 6px var(--blue); }
-    .fd-p { background:var(--purple); box-shadow:0 0 6px var(--purple); }
-    .svc-link { font-size:.84rem;font-weight:700;text-decoration:none;transition:opacity .2s; }
-    .svc-link:hover { opacity:.7; }
-    .sl-b { color:var(--blue); } .sl-p { color:var(--purple); }
-    .svc-bottom { position:absolute;bottom:0;left:0;right:0;height:1px; }
-    .svc-cta { text-align:center;margin-top:48px; }
-    .svc-cta p { color:rgba(255,255,255,.35);font-size:.9rem;margin-bottom:14px; }
+    .svc-card:hover { box-shadow: 0 24px 60px rgba(107,33,168,.14), 0 0 0 1px var(--gold); }
+    .svc-top { display:flex; justify-content:space-between; align-items:flex-start; gap:14px; margin-bottom:16px; }
+    .svc-icon { width:56px; height:56px; border-radius:15px; display:flex; align-items:center; justify-content:center; font-size:1.5rem; flex-shrink:0; background:linear-gradient(135deg, rgba(147,51,234,.12), rgba(0,212,255,.1)); border:1px solid var(--line); }
+    .svc-num { font-family:'Playfair Display',serif; font-size:1.2rem; font-weight:700; color: var(--gold); opacity:.6; }
+    .svc-title { font-size:1.2rem; font-weight:700; color: var(--ink); margin-bottom:6px; letter-spacing:.01em; }
+    .svc-tagline { font-size:.85rem; font-weight:600; color: var(--purple-soft); }
+    .svc-body { max-height:0; overflow:hidden; transition:max-height .45s ease; }
+    .svc-card.open .svc-body { max-height:420px; }
+    .svc-desc { font-size:.92rem; color: var(--muted); line-height:1.7; margin:16px 0 16px; }
+    .svc-feats { list-style:none; display:flex; flex-direction:column; gap:9px; margin-bottom:18px; }
+    .svc-feats li { display:flex; align-items:center; gap:10px; font-size:.88rem; color: var(--text); }
+    .svc-feats .fd { width:6px; height:6px; border-radius:50%; background: var(--gold); box-shadow:0 0 6px var(--gold); flex-shrink:0; }
+    .svc-link { font-size:.88rem; font-weight:700; color: var(--purple); text-decoration:none; }
+    .svc-link:hover { color: var(--gold); }
+    .svc-plus { width:30px; height:30px; border-radius:50%; border:1px solid var(--line); display:flex; align-items:center; justify-content:center; color: var(--purple); font-size:1.2rem; flex-shrink:0; transition:transform .35s, border-color .35s, background .35s; }
+    .svc-card.open .svc-plus { transform:rotate(45deg); border-color: var(--gold); background: rgba(212,175,55,.1); }
 
     /* ─── RESULTS ─── */
-    #results { background:var(--bg); position:relative; overflow:hidden; }
-    .results-tex {
-      position:absolute; inset:0; pointer-events:none; opacity:.02;
-      background-image:linear-gradient(rgba(123,47,255,1) 1px,transparent 1px),linear-gradient(90deg,rgba(123,47,255,1) 1px,transparent 1px);
-      background-size:80px 80px;
-      will-change: transform;
-    }
-    .stats-box { border-radius:24px; display:grid; grid-template-columns:repeat(4,1fr); gap:0; padding:48px; margin-bottom:64px; }
-    @media(max-width:768px){ .stats-box{grid-template-columns:repeat(2,1fr);padding:28px 20px} }
-    @media(max-width:400px){ .stats-box{grid-template-columns:1fr} }
+    .stats-box { border-radius:26px; display:grid; grid-template-columns:repeat(4,1fr); padding:54px 40px; margin-bottom:70px; }
+    @media(max-width:820px){ .stats-box{grid-template-columns:repeat(2,1fr); gap:36px 0; padding:40px 24px} }
+    @media(max-width:420px){ .stats-box{grid-template-columns:1fr} }
+    .stat-item { text-align:center; padding:8px; }
+    .stat-num { font-family:'Playfair Display',serif; font-size:clamp(2.6rem,5vw,3.6rem); font-weight:800; line-height:1; color: var(--gold); margin-bottom:8px; }
+    .stat-label { font-size:.95rem; font-weight:700; color: var(--ink); margin-bottom:4px; }
+    .stat-sub { font-size:.78rem; color: var(--muted); }
 
-    .stat-item  { text-align:center; padding:8px; }
-    .stat-num   { font-size:clamp(2.4rem,5vw,3.4rem);font-weight:900;line-height:1;margin-bottom:6px; }
-    .stat-label { font-size:.9rem;font-weight:700;color:#fff;margin-bottom:4px; }
-    .stat-sub   { font-size:.76rem;color:rgba(255,255,255,.3); }
-
-    .testimonials { display:grid; grid-template-columns:repeat(3,1fr); gap:20px; }
-    @media(max-width:768px){ .testimonials{grid-template-columns:1fr} }
-
-    .testi-card {
-      border-radius:20px; padding:28px; position:relative;
-      will-change: transform;
-      transform-style: preserve-3d;
-    }
-    .testi-q    { font-size:4rem;font-weight:900;line-height:.8;margin-bottom:12px;opacity:.2; }
-    .testi-text { font-size:.87rem;color:rgba(255,255,255,.7);line-height:1.65;margin-bottom:20px;font-style:italic; }
-    .testi-auth { display:flex;align-items:center;gap:12px; }
-    .testi-ava  { width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.68rem;font-weight:900;color:#fff;flex-shrink:0; }
-    .ava-b  { background:linear-gradient(135deg,var(--blue),rgba(0,212,255,.5)); }
-    .ava-p  { background:linear-gradient(135deg,var(--purple),rgba(123,47,255,.5)); }
-    .testi-name { font-size:.87rem;font-weight:700;color:#fff; }
-    .testi-role { font-size:.75rem;color:rgba(255,255,255,.35); }
-    .testi-bot  { position:absolute;bottom:0;left:24px;right:24px;height:1px;opacity:0;transition:opacity .4s; }
-    .testi-card:hover .testi-bot { opacity:1; }
+    .testimonials { display:grid; grid-template-columns:repeat(3,1fr); gap:22px; }
+    @media(max-width:820px){ .testimonials{grid-template-columns:1fr} }
+    .testi-card { border-radius:22px; padding:32px; position:relative; will-change:transform; transform-style:preserve-3d; transition: box-shadow .4s; }
+    .testi-card:hover { box-shadow: 0 24px 60px rgba(212,175,55,.16); }
+    .testi-q { font-family:'Playfair Display',serif; font-size:4rem; line-height:.6; color: var(--gold); opacity:.35; margin-bottom:10px; }
+    .testi-text { font-size:.95rem; color: var(--text); line-height:1.75; margin-bottom:22px; font-style:italic; }
+    .testi-auth { display:flex; align-items:center; gap:13px; }
+    .testi-ava { width:42px; height:42px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:.72rem; font-weight:800; color:#fff; flex-shrink:0; background:linear-gradient(135deg, var(--purple-soft), var(--purple)); }
+    .testi-name { font-size:.9rem; font-weight:700; color: var(--ink); }
+    .testi-role { font-size:.78rem; color: var(--muted); }
 
     /* ─── CONTACT ─── */
-    #contact { background:linear-gradient(180deg,var(--bg) 0%,var(--bg2) 100%); position:relative; }
-    .contact-grid { display:grid;grid-template-columns:1fr 1fr;gap:40px;max-width:980px;margin:0 auto; }
-    @media(max-width:768px){ .contact-grid{grid-template-columns:1fr} }
-
-    .form-wrap { border-radius:20px; padding:2px; background:linear-gradient(var(--ba),var(--blue),var(--purple),var(--blue)); animation:spinBorder 4s linear infinite; }
-    .form-inner { background:var(--bg); border-radius:18px; padding:32px; }
-    .form-success { text-align:center;padding:48px 0; }
-    .form-success .s-icon { font-size:3rem;margin-bottom:12px; }
-    .form-success h3 { font-size:1.5rem;font-weight:900;margin-bottom:8px; }
-    .form-success p  { color:rgba(255,255,255,.55); }
-
+    .contact-grid { display:grid; grid-template-columns:1fr 1fr; gap:42px; max-width:980px; margin:0 auto; }
+    @media(max-width:820px){ .contact-grid{grid-template-columns:1fr} }
+    .form-card { border-radius:24px; padding:40px; }
+    .form-success { text-align:center; padding:48px 0; }
+    .form-success .s-icon { font-size:3rem; margin-bottom:14px; }
+    .form-success h3 { font-size:1.6rem; color: var(--ink); margin-bottom:8px; }
+    .form-success p { color: var(--muted); }
     .fg { margin-bottom:18px; }
-    .fg label { display:block;font-size:.8rem;font-weight:600;color:rgba(255,255,255,.6);margin-bottom:7px; }
+    .fg label { display:block; font-size:.82rem; font-weight:600; color: var(--text); margin-bottom:8px; }
     .fg input, .fg textarea {
-      width:100%;padding:12px 16px;border-radius:10px;
-      background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);
-      color:#fff;font-family:inherit;font-size:.88rem;
-      transition:border-color .2s,background .2s;outline:none;resize:none;
+      width:100%; padding:13px 16px; border-radius:12px; font-family:inherit; font-size:.92rem;
+      background: rgba(255,255,255,.7); border:1px solid var(--line); color: var(--ink);
+      outline:none; resize:none; transition:border-color .25s, box-shadow .25s;
     }
-    .fg input::placeholder,.fg textarea::placeholder { color:rgba(255,255,255,.22); }
-    .fg input:focus,.fg textarea:focus { border-color:rgba(0,212,255,.5);background:rgba(255,255,255,.08); }
+    .fg input::placeholder, .fg textarea::placeholder { color: #b3aec0; }
+    .fg input:focus, .fg textarea:focus { border-color: var(--gold); box-shadow:0 0 0 3px rgba(212,175,55,.14); }
+    .form-error { color:#c0392b; font-size:.84rem; margin-bottom:12px; display:none; }
+    .form-note { text-align:center; font-size:.76rem; color: var(--muted); margin-top:12px; }
 
-    .form-submit {
-      display:block; width:100%;padding:14px;border-radius:12px;
-      background:linear-gradient(135deg,var(--blue),var(--purple));
-      color:#fff;font-weight:700;font-size:1rem;
-      border:none;cursor:pointer;font-family:inherit;
-      transition:box-shadow .3s,opacity .2s;
-      will-change: transform;
-    }
-    .form-submit:hover { box-shadow:0 0 35px rgba(0,212,255,.4); }
-    .form-submit:disabled { opacity:.6;cursor:wait; }
-    .form-note  { text-align:center;font-size:.74rem;color:rgba(255,255,255,.22);margin-top:10px; }
-    .form-error { color:#ff6b6b;font-size:.82rem;margin-bottom:12px;display:none; }
-
-    .info-cards { display:flex;flex-direction:column;gap:14px; }
-    .info-card  { border-radius:14px;padding:20px;display:flex;gap:14px;transition:border-color .3s; }
-    .info-card:hover { border-color:rgba(0,212,255,.2) !important; }
-    .info-icon  { font-size:1.4rem;flex-shrink:0;margin-top:2px; }
-    .info-title { font-size:.93rem;font-weight:700;color:#fff;margin-bottom:4px; }
-    .info-body  { font-size:.82rem;color:rgba(255,255,255,.45);line-height:1.6; }
-    .direct-box { border-radius:14px;padding:20px;border:1px solid rgba(0,212,255,.12); }
-    .direct-lbl { font-size:.7rem;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:rgba(255,255,255,.35);margin-bottom:7px; }
-    .direct-em  { color:var(--blue);font-weight:600;font-size:.9rem;text-decoration:none; }
-    .direct-em:hover { text-decoration:underline; }
-    .direct-rep { font-size:.75rem;color:rgba(255,255,255,.3);margin-top:3px; }
+    .contact-side { display:flex; flex-direction:column; gap:16px; }
+    .info-card { border-radius:16px; padding:22px; display:flex; gap:15px; }
+    .info-icon { font-size:1.4rem; flex-shrink:0; }
+    .info-title { font-size:.96rem; font-weight:700; color: var(--ink); margin-bottom:4px; }
+    .info-body { font-size:.85rem; color: var(--muted); line-height:1.6; }
+    .direct-box { border-radius:16px; padding:22px; border:1px solid var(--line); background:linear-gradient(135deg, rgba(212,175,55,.06), rgba(147,51,234,.04)); }
+    .direct-lbl { font-size:.7rem; font-weight:600; text-transform:uppercase; letter-spacing:.1em; color: var(--muted); margin-bottom:8px; }
+    .direct-em { color: var(--purple); font-weight:700; font-size:.95rem; text-decoration:none; }
+    .direct-em:hover { color: var(--gold); }
+    .direct-rep { font-size:.78rem; color: var(--muted); margin-top:4px; }
 
     /* ─── FOOTER ─── */
-    footer { background:#060609;border-top:1px solid rgba(255,255,255,.05);padding:48px 0;position:relative; }
-    footer::before { content:'';position:absolute;top:0;left:50%;transform:translateX(-50%);width:600px;height:1px;background:linear-gradient(90deg,transparent,rgba(0,212,255,.28),transparent); }
-    .footer-in  { display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:24px;margin-bottom:28px; }
-    .footer-logo { font-size:1.1rem;font-weight:900;text-decoration:none;letter-spacing:-.02em; }
-    .footer-nav  { display:flex;flex-wrap:wrap;gap:24px;list-style:none; }
-    .footer-nav a { color:rgba(255,255,255,.35);text-decoration:none;font-size:.84rem;transition:color .2s; }
-    .footer-nav a:hover { color:rgba(255,255,255,.8); }
-    .footer-email { color:rgba(0,212,255,.6);font-size:.84rem;text-decoration:none;transition:color .2s; }
-    .footer-email:hover { color:var(--blue); }
-    .footer-bot  { border-top:1px solid rgba(255,255,255,.05);padding-top:24px;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px; }
-    .footer-copy { font-size:.76rem;color:rgba(255,255,255,.2); }
+    footer { background: var(--pearl-2); border-top:1px solid var(--line); padding:52px 0; position:relative; z-index:2; }
+    .footer-in { display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:24px; margin-bottom:30px; }
+    .footer-logo { font-family:'Playfair Display',serif; font-size:1.2rem; font-weight:800; letter-spacing:.04em; text-decoration:none; }
+    .footer-nav { display:flex; flex-wrap:wrap; gap:26px; list-style:none; }
+    .footer-nav a { color: var(--muted); text-decoration:none; font-size:.86rem; transition:color .2s; }
+    .footer-nav a:hover { color: var(--purple); }
+    .footer-email { color: var(--purple); font-size:.86rem; text-decoration:none; font-weight:600; }
+    .footer-email:hover { color: var(--gold); }
+    .footer-bot { border-top:1px solid var(--line); padding-top:26px; display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:10px; }
+    .footer-copy { font-size:.78rem; color: var(--muted); }
 
-    /* ─── MOBILE overrides ─── */
-    @media(max-width:768px) {
-      #three-canvas { display:none; }
-    }
+    @media(max-width:880px){ .f-monogram{font-size:clamp(16rem,60vw,28rem)} }
   </style>
 </head>
 <body>
 
-<!-- Three.js decorative overlay -->
-<canvas id="three-canvas"></canvas>
+<!-- Background layers -->
+<div class="bg-grid"></div>
+<div class="bg-orb bg-orb-1"></div>
+<div class="bg-orb bg-orb-2"></div>
+<div class="bg-orb bg-orb-3"></div>
+
+<!-- Scroll-driven robot overlay -->
+<div id="robot-stage">
+  <svg id="scroll-robot" viewBox="0 0 400 620" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <linearGradient id="rg" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stop-color="#9333EA"/>
+        <stop offset="1" stop-color="#6B21A8"/>
+      </linearGradient>
+    </defs>
+    <!-- Head -->
+    <rect class="r-frame" x="150" y="40" width="100" height="86" rx="22" stroke="url(#rg)" stroke-width="2.5"/>
+    <line class="r-frame" x1="200" y1="40" x2="200" y2="20" stroke="url(#rg)" stroke-width="2.5"/>
+    <circle class="r-frame" cx="200" cy="14" r="6" stroke="url(#rg)" stroke-width="2.5"/>
+    <!-- Eyes -->
+    <circle class="r-eye" cx="178" cy="84" r="9" fill="#00d4ff"/>
+    <circle class="r-eye" cx="222" cy="84" r="9" fill="#00d4ff"/>
+    <!-- Mouth grid -->
+    <line class="r-circuit" x1="176" y1="108" x2="224" y2="108" stroke="#00d4ff" stroke-width="2"/>
+    <!-- Neck -->
+    <line class="r-frame" x1="184" y1="126" x2="184" y2="140" stroke="url(#rg)" stroke-width="2.5"/>
+    <line class="r-frame" x1="216" y1="126" x2="216" y2="140" stroke="url(#rg)" stroke-width="2.5"/>
+    <!-- Torso -->
+    <rect class="r-frame" x="146" y="140" width="108" height="150" rx="20" stroke="url(#rg)" stroke-width="2.5"/>
+    <!-- Internal circuits -->
+    <circle class="r-circuit" cx="200" cy="190" r="22" stroke="#00d4ff" stroke-width="2"/>
+    <circle class="r-circuit" cx="200" cy="190" r="10" stroke="#D4AF37" stroke-width="2"/>
+    <line class="r-circuit" x1="200" y1="212" x2="200" y2="262" stroke="#00d4ff" stroke-width="2"/>
+    <line class="r-circuit" x1="170" y1="240" x2="230" y2="240" stroke="#00d4ff" stroke-width="2"/>
+    <circle class="r-circuit" cx="170" cy="240" r="4" fill="#D4AF37"/>
+    <circle class="r-circuit" cx="230" cy="240" r="4" fill="#D4AF37"/>
+    <circle class="r-circuit" cx="200" cy="262" r="4" fill="#00d4ff"/>
+    <!-- Gear teeth (decorative) -->
+    <path class="r-circuit" d="M200 168 v-8 M200 212 v8 M178 190 h-8 M222 190 h8" stroke="#D4AF37" stroke-width="2"/>
+    <!-- Arms -->
+    <rect class="r-frame" x="112" y="148" width="26" height="96" rx="13" stroke="url(#rg)" stroke-width="2.5"/>
+    <rect class="r-frame" x="262" y="148" width="26" height="96" rx="13" stroke="url(#rg)" stroke-width="2.5"/>
+    <circle class="r-circuit" cx="125" cy="258" r="10" stroke="#00d4ff" stroke-width="2"/>
+    <circle class="r-circuit" cx="275" cy="258" r="10" stroke="#00d4ff" stroke-width="2"/>
+    <!-- Legs -->
+    <rect class="r-frame" x="158" y="296" width="30" height="120" rx="14" stroke="url(#rg)" stroke-width="2.5"/>
+    <rect class="r-frame" x="212" y="296" width="30" height="120" rx="14" stroke="url(#rg)" stroke-width="2.5"/>
+    <line class="r-circuit" x1="173" y1="320" x2="173" y2="392" stroke="#00d4ff" stroke-width="1.6"/>
+    <line class="r-circuit" x1="227" y1="320" x2="227" y2="392" stroke="#00d4ff" stroke-width="1.6"/>
+    <!-- Feet -->
+    <rect class="r-frame" x="150" y="416" width="46" height="20" rx="8" stroke="url(#rg)" stroke-width="2.5"/>
+    <rect class="r-frame" x="204" y="416" width="46" height="20" rx="8" stroke="url(#rg)" stroke-width="2.5"/>
+  </svg>
+</div>
 
 <!-- ══════════════ NAVBAR ══════════════ -->
 <nav id="navbar">
   <div class="container nav-inner">
-    <a href="#" class="logo">
-      <span class="text-gradient">FYLTR</span>
-      <span style="color:rgba(255,255,255,.3);font-weight:300;margin:0 5px">|</span>
-      <span style="color:#fff">MEDIA</span>
-    </a>
+    <div class="logo-wrap" id="logo-wrap">
+      <a href="#" class="logo" id="logo-text">
+        <span class="text-grad-bp">FYLTR</span><span class="sep">|</span><span class="media">MEDIA</span>
+      </a>
+      <canvas id="logo-canvas"></canvas>
+    </div>
     <ul class="nav-links">
       <li><a href="#why">Why AI</a></li>
       <li><a href="#services">Services</a></li>
@@ -413,110 +404,80 @@
       <li><a href="#contact">Contact</a></li>
     </ul>
     <div class="nav-cta-wrap">
-      <a href="#contact" class="nav-cta magnetic">Book Free Call</a>
+      <a href="#contact" class="btn-gold nav-cta magnetic">Book a Call</a>
     </div>
-    <button class="hamburger" id="ham" aria-label="Toggle menu">
-      <span></span><span></span><span></span>
-    </button>
+    <button class="hamburger" id="ham" aria-label="Toggle menu"><span></span><span></span><span></span></button>
   </div>
   <div class="mobile-menu" id="mob">
-    <a href="#why"      onclick="closeMob()">Why AI</a>
+    <a href="#why" onclick="closeMob()">Why AI</a>
     <a href="#services" onclick="closeMob()">Services</a>
-    <a href="#results"  onclick="closeMob()">Results</a>
-    <a href="#contact"  onclick="closeMob()">Contact</a>
-    <a href="#contact"  onclick="closeMob()" class="mobile-cta">Book Free Call</a>
+    <a href="#results" onclick="closeMob()">Results</a>
+    <a href="#contact" onclick="closeMob()">Contact</a>
+    <a href="#contact" onclick="closeMob()" class="mobile-cta">Book a Call</a>
   </div>
 </nav>
 
 <!-- ══════════════ HERO ══════════════ -->
 <section id="hero">
-  <canvas id="particles-canvas"></canvas>
-  <div class="orb orb1"></div>
-  <div class="orb orb2"></div>
-  <div class="orb orb3"></div>
-
-  <div class="container hero-inner">
-    <div class="hero-grid">
-      <div class="hero-left">
-        <div class="badge badge-blue hero-badge" style="margin-bottom:24px">
-          <span class="dot"></span>AI Automation · Dental &amp; Business
-        </div>
-        <h1 class="hero-h1">
-          The Future of Your <span class="text-gradient">Practice</span><br>Starts Here
-        </h1>
-        <div class="typing-row hero-typing">
-          <span class="typing-prefix">We help you</span>
-          <span class="typing-text" id="typing-text"></span>
-          <span class="cursor">|</span>
-        </div>
-        <p class="hero-sub">
-          We build AI-powered automation systems for dental clinics and growing businesses.
-          Cut costs, reclaim hours, and grow — without hiring a single extra person.
-        </p>
-        <div class="hero-btns">
-          <a href="#contact" class="btn-primary magnetic">Book a Free Call →</a>
-          <a href="#services" class="btn-ghost magnetic">See Our Services</a>
-        </div>
-        <div class="proof-row hero-proof">
-          <div class="proof-item"><span class="proof-num">47+</span><span class="proof-label">Clients Automated</span></div>
-          <div class="proof-sep"></div>
-          <div class="proof-item"><span class="proof-num">10K+</span><span class="proof-label">Hours Saved</span></div>
-          <div class="proof-sep"></div>
-          <div class="proof-item"><span class="proof-num">3x</span><span class="proof-label">Average ROI</span></div>
-        </div>
+  <div class="f-monogram" id="f-mono">F</div>
+  <div class="container">
+    <div class="hero-content">
+      <div class="badge hero-el"><span class="dot"></span>Luxury AI Automation Agency</div>
+      <h1 class="hero-el">
+        The Future of Your <span class="hero-shimmer">Business</span><br>Starts Here
+      </h1>
+      <div class="typing-row hero-el">
+        <span class="typing-prefix">We help you</span>
+        <span class="typing-text" id="typing-text"></span>
+        <span class="cursor">|</span>
       </div>
-
-      <div class="hero-right">
-        <div class="center-orb"><div class="center-glyph">🤖</div></div>
-        <div class="shape sh1"><div class="shape-inner"><div class="shape-glyph">⚡</div></div></div>
-        <div class="shape sh2"><div class="shape-inner"><div class="shape-glyph">🦷</div></div></div>
-        <div class="shape sh3"><div class="shape-inner"></div></div>
-        <div class="shape sh4"><div class="shape-inner"></div></div>
-        <div class="shape sh5"><div class="shape-inner"></div></div>
+      <p class="hero-sub hero-el">
+        FYLTR Media designs and deploys bespoke AI systems for ambitious businesses.
+        Capture more leads, automate the busywork, and scale your operations —
+        all without adding headcount.
+      </p>
+      <div class="hero-btns hero-el">
+        <a href="#contact" class="btn-gold magnetic">Book a Free Strategy Call →</a>
+        <a href="#services" class="btn-ghost magnetic">Explore Services</a>
+      </div>
+      <div class="hero-proof hero-el">
+        <div class="proof-item"><span class="proof-num">500+</span><span class="proof-label">Businesses Automated</span></div>
+        <div class="proof-sep"></div>
+        <div class="proof-item"><span class="proof-num">1M+</span><span class="proof-label">Hours Saved</span></div>
+        <div class="proof-sep"></div>
+        <div class="proof-item"><span class="proof-num">4x</span><span class="proof-label">Average ROI</span></div>
       </div>
     </div>
-  </div>
-
-  <div id="scroll-hint" style="position:absolute;bottom:28px;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:6px;color:rgba(255,255,255,.25);font-size:.68rem;font-weight:600;letter-spacing:.12em;text-transform:uppercase">
-    <span>Scroll</span>
-    <div style="width:1px;height:34px;background:linear-gradient(to bottom,rgba(255,255,255,.25),transparent)"></div>
   </div>
 </section>
 
 <!-- ══════════════ WHY AI ══════════════ -->
 <section id="why">
-  <div class="grid-tex"></div>
-  <div class="container" style="position:relative;z-index:1">
+  <div class="container">
     <div class="section-header">
-      <div class="badge badge-purple" style="margin-bottom:16px"><span class="dot"></span>Why AI, Why Now</div>
-      <h2>The AI Shift Is <span class="text-gradient">Already Here</span></h2>
-      <div class="accent-line"></div>
-      <p>This isn't a trend. It's a fundamental shift in how successful clinics and businesses operate. The question isn't if — it's how fast.</p>
+      <div class="badge"><span class="dot"></span>Why AI, Why Now</div>
+      <h2>The Shift Is <span class="accent">Already Underway</span></h2>
+      <div class="gold-divider"></div>
+      <p>Across every industry — from law firms to home services to clinics — the businesses that adopt AI first are pulling ahead. The question isn't if, it's how fast.</p>
     </div>
     <div class="why-grid">
       <div class="why-card glass tilt-card">
-        <div class="card-glow glow-b"></div>
-        <div class="card-icon icon-b">⚡</div>
-        <div class="card-stat stat-b">3x</div>
-        <div class="card-title">Businesses using AI grow 3x faster</div>
-        <p class="card-body">Companies that integrate AI automation outpace competitors across every measurable metric — bookings, revenue, and retention.</p>
-        <div class="card-line line-b"></div>
+        <div class="why-icon">📈</div>
+        <div class="why-num">3×</div>
+        <h3>Early adopters grow faster</h3>
+        <p>Businesses that integrate AI automation consistently outperform their peers on revenue, response time, and customer retention.</p>
       </div>
       <div class="why-card glass tilt-card">
-        <div class="card-glow glow-p"></div>
-        <div class="card-icon icon-p">🤖</div>
-        <div class="card-stat stat-p">80%</div>
-        <div class="card-title">80% of repetitive tasks can be automated today</div>
-        <p class="card-body">Appointment reminders, follow-ups, lead qualification, intake forms — all running 24/7 without an employee touching them.</p>
-        <div class="card-line line-p"></div>
+        <div class="why-icon">⚙️</div>
+        <div class="why-num">80%</div>
+        <h3>Of routine work is automatable</h3>
+        <p>Lead intake, follow-ups, scheduling, data entry, reporting — the repetitive tasks draining your team can now run themselves, 24/7.</p>
       </div>
       <div class="why-card glass tilt-card">
-        <div class="card-glow glow-b"></div>
-        <div class="card-icon icon-b">🚀</div>
-        <div class="card-stat stat-b">Now</div>
-        <div class="card-title">Your competitors are already doing it</div>
-        <p class="card-body">The window to gain a first-mover advantage in your market is closing fast. The clinics that automate now will own their category.</p>
-        <div class="card-line line-b"></div>
+        <div class="why-icon">🏁</div>
+        <div class="why-num">Now</div>
+        <h3>Your competitors are moving</h3>
+        <p>The first-mover advantage in your market is real and shrinking. The companies that automate this year will define their category.</p>
       </div>
     </div>
   </div>
@@ -524,157 +485,158 @@
 
 <!-- ══════════════ SERVICES ══════════════ -->
 <section id="services">
-  <div class="container" style="position:relative;z-index:1">
+  <div class="container">
     <div class="section-header">
-      <div class="badge badge-blue" style="margin-bottom:16px"><span class="dot"></span>What We Build</div>
-      <h2>AI Systems That <span class="text-gradient">Run Your Growth</span></h2>
-      <div class="accent-line"></div>
-      <p>Click any card to see what's inside. Every system is custom-built — no templates, no generic software.</p>
+      <div class="badge"><span class="dot"></span>What We Build</div>
+      <h2>AI Systems That <span class="accent">Run Your Growth</span></h2>
+      <div class="gold-divider"></div>
+      <p>Tap any service to see what's inside. Every system is custom-built to your business — no templates, no off-the-shelf software.</p>
     </div>
     <div class="svc-grid">
-      <div class="svc-card svc-b glass" onclick="toggleSvc(this)">
+
+      <div class="svc-card glass" onclick="toggleSvc(this)">
         <div class="svc-top">
-          <div class="svc-icon icon-b">📅</div>
-          <div class="svc-toggle">+</div>
+          <div class="svc-icon">🎯</div>
+          <div class="svc-plus">+</div>
         </div>
-        <div class="svc-title">AI Appointment Booking Automation</div>
-        <div class="svc-tagline tag-b">Fill your calendar on autopilot</div>
+        <div class="svc-num">01</div>
+        <div class="svc-title">AI Lead Generation &amp; Conversion</div>
+        <div class="svc-tagline">Turn attention into booked revenue</div>
         <div class="svc-body">
-          <p class="svc-desc">An intelligent booking system that handles scheduling, confirmations, and reminders 24/7 — without a receptionist. Patients book through SMS, webchat, or voice, and your calendar fills itself.</p>
+          <p class="svc-desc">Intelligent systems that capture, qualify, and convert leads around the clock — across your website, ads, and social channels — so no opportunity slips away.</p>
           <ul class="svc-feats">
-            <li><span class="feat-dot fd-b"></span>24/7 automated scheduling</li>
-            <li><span class="feat-dot fd-b"></span>SMS &amp; voice booking flows</li>
-            <li><span class="feat-dot fd-b"></span>Instant confirmations</li>
-            <li><span class="feat-dot fd-b"></span>No-show prevention reminders</li>
+            <li><span class="fd"></span>24/7 lead capture &amp; qualification</li>
+            <li><span class="fd"></span>Instant response to every inquiry</li>
+            <li><span class="fd"></span>Smart routing to the right team</li>
+            <li><span class="fd"></span>Conversion tracking &amp; optimization</li>
           </ul>
-          <a href="#contact" class="svc-link sl-b" onclick="event.stopPropagation()">Get this service →</a>
+          <a href="#contact" class="svc-link" onclick="event.stopPropagation()">Get this system →</a>
         </div>
-        <div class="svc-bottom" style="background:linear-gradient(90deg,transparent,rgba(0,212,255,.4),transparent)"></div>
       </div>
-      <div class="svc-card svc-p glass" onclick="toggleSvc(this)">
+
+      <div class="svc-card glass" onclick="toggleSvc(this)">
         <div class="svc-top">
-          <div class="svc-icon icon-p">🔄</div>
-          <div class="svc-toggle">+</div>
+          <div class="svc-icon">🔄</div>
+          <div class="svc-plus">+</div>
         </div>
-        <div class="svc-title">Patient Follow-Up &amp; Reactivation</div>
-        <div class="svc-tagline tag-p">Win back lapsed patients automatically</div>
+        <div class="svc-num">02</div>
+        <div class="svc-title">Automated Client Follow-Up Systems</div>
+        <div class="svc-tagline">Never let a relationship go cold</div>
         <div class="svc-body">
-          <p class="svc-desc">Automated sequences that re-engage inactive patients, follow up post-appointment, request reviews, and nurture long-term loyalty — all personalized and hands-free.</p>
+          <p class="svc-desc">Personalized, hands-free sequences that re-engage past clients, nurture prospects, request reviews, and keep your pipeline warm — automatically.</p>
           <ul class="svc-feats">
-            <li><span class="feat-dot fd-p"></span>Automated reactivation campaigns</li>
-            <li><span class="feat-dot fd-p"></span>Post-visit follow-up sequences</li>
-            <li><span class="feat-dot fd-p"></span>Review request automation</li>
-            <li><span class="feat-dot fd-p"></span>Loyalty &amp; recall reminders</li>
+            <li><span class="fd"></span>Reactivation &amp; win-back campaigns</li>
+            <li><span class="fd"></span>Post-sale follow-up sequences</li>
+            <li><span class="fd"></span>Review &amp; referral automation</li>
+            <li><span class="fd"></span>Loyalty &amp; retention reminders</li>
           </ul>
-          <a href="#contact" class="svc-link sl-p" onclick="event.stopPropagation()">Get this service →</a>
+          <a href="#contact" class="svc-link" onclick="event.stopPropagation()">Get this system →</a>
         </div>
-        <div class="svc-bottom" style="background:linear-gradient(90deg,transparent,rgba(123,47,255,.4),transparent)"></div>
       </div>
-      <div class="svc-card svc-b glass" onclick="toggleSvc(this)">
+
+      <div class="svc-card glass" onclick="toggleSvc(this)">
         <div class="svc-top">
-          <div class="svc-icon icon-b">💬</div>
-          <div class="svc-toggle">+</div>
+          <div class="svc-icon">💬</div>
+          <div class="svc-plus">+</div>
         </div>
-        <div class="svc-title">AI Chatbots for Lead Capture</div>
-        <div class="svc-tagline tag-b">Convert visitors into booked appointments</div>
+        <div class="svc-num">03</div>
+        <div class="svc-title">AI Chatbots &amp; Virtual Assistants</div>
+        <div class="svc-tagline">A tireless team member that never sleeps</div>
         <div class="svc-body">
-          <p class="svc-desc">A trained AI assistant on your website and social profiles that answers questions, qualifies leads, and books consultations — capturing revenue that would otherwise slip away.</p>
+          <p class="svc-desc">Custom AI assistants trained on your business that answer questions, book appointments, and handle support across every channel — voice, chat, and social.</p>
           <ul class="svc-feats">
-            <li><span class="feat-dot fd-b"></span>Trained on your services</li>
-            <li><span class="feat-dot fd-b"></span>Multi-platform deployment</li>
-            <li><span class="feat-dot fd-b"></span>Lead qualification logic</li>
-            <li><span class="feat-dot fd-b"></span>Direct CRM integration</li>
+            <li><span class="fd"></span>Trained on your offers &amp; FAQs</li>
+            <li><span class="fd"></span>Web, SMS, voice &amp; social deployment</li>
+            <li><span class="fd"></span>Books appointments directly</li>
+            <li><span class="fd"></span>Seamless CRM integration</li>
           </ul>
-          <a href="#contact" class="svc-link sl-b" onclick="event.stopPropagation()">Get this service →</a>
+          <a href="#contact" class="svc-link" onclick="event.stopPropagation()">Get this system →</a>
         </div>
-        <div class="svc-bottom" style="background:linear-gradient(90deg,transparent,rgba(0,212,255,.4),transparent)"></div>
       </div>
-      <div class="svc-card svc-p glass" onclick="toggleSvc(this)">
+
+      <div class="svc-card glass" onclick="toggleSvc(this)">
         <div class="svc-top">
-          <div class="svc-icon icon-p">⚙️</div>
-          <div class="svc-toggle">+</div>
+          <div class="svc-icon">🧠</div>
+          <div class="svc-plus">+</div>
         </div>
-        <div class="svc-title">Business Process Automation</div>
-        <div class="svc-tagline tag-p">Eliminate repetitive operational work</div>
+        <div class="svc-num">04</div>
+        <div class="svc-title">Full Business Process Automation</div>
+        <div class="svc-tagline">Engineer the busywork out of your day</div>
         <div class="svc-body">
-          <p class="svc-desc">We map your manual workflows and replace them with intelligent automations — from intake forms and insurance verification to internal reporting and staff notifications.</p>
+          <p class="svc-desc">We map your manual workflows end-to-end and replace them with intelligent automations — from intake and invoicing to reporting and internal operations.</p>
           <ul class="svc-feats">
-            <li><span class="feat-dot fd-p"></span>Workflow audit &amp; mapping</li>
-            <li><span class="feat-dot fd-p"></span>Custom automation builds</li>
-            <li><span class="feat-dot fd-p"></span>System integrations</li>
-            <li><span class="feat-dot fd-p"></span>Staff time savings tracking</li>
+            <li><span class="fd"></span>Full workflow audit &amp; mapping</li>
+            <li><span class="fd"></span>Custom automation builds</li>
+            <li><span class="fd"></span>Tool &amp; system integrations</li>
+            <li><span class="fd"></span>Time-saved tracking &amp; reporting</li>
           </ul>
-          <a href="#contact" class="svc-link sl-p" onclick="event.stopPropagation()">Get this service →</a>
+          <a href="#contact" class="svc-link" onclick="event.stopPropagation()">Get this system →</a>
         </div>
-        <div class="svc-bottom" style="background:linear-gradient(90deg,transparent,rgba(123,47,255,.4),transparent)"></div>
       </div>
+
     </div>
-    <div class="svc-cta">
-      <p>Not sure which system you need?</p>
-      <a href="#contact" class="btn-primary magnetic">Get a Free Audit →</a>
+    <div class="svc-cta" style="text-align:center;margin-top:52px">
+      <p style="color:var(--muted);margin-bottom:16px">Not sure where to start?</p>
+      <a href="#contact" class="btn-purple magnetic">Get a Free Automation Audit →</a>
     </div>
   </div>
 </section>
 
 <!-- ══════════════ RESULTS ══════════════ -->
 <section id="results">
-  <div class="results-tex"></div>
-  <div class="container" style="position:relative;z-index:1">
+  <div class="container">
     <div class="section-header">
-      <div class="badge badge-blue" style="margin-bottom:16px"><span class="dot"></span>Real Results</div>
-      <h2>Numbers Don't <span class="text-gradient">Lie</span></h2>
-      <div class="accent-line"></div>
-      <p>Every metric below comes from live client deployments. No projections. No estimates.</p>
+      <div class="badge"><span class="dot"></span>Real Results</div>
+      <h2>Outcomes That <span class="accent">Speak for Themselves</span></h2>
+      <div class="gold-divider"></div>
+      <p>Aggregate metrics from live client systems across industries. No projections — just results.</p>
     </div>
     <div class="stats-box glass" id="stats-box">
       <div class="stat-item">
-        <div class="stat-num" id="c1" style="color:var(--blue);text-shadow:0 0 40px rgba(0,212,255,.5)">0</div>
-        <div class="stat-label">Clients Automated</div>
-        <div class="stat-sub">Dental clinics and businesses fully live</div>
+        <div class="stat-num" id="c1">0</div>
+        <div class="stat-label">Businesses Automated</div>
+        <div class="stat-sub">Across every major industry</div>
       </div>
       <div class="stat-item">
-        <div class="stat-num" id="c2" style="color:var(--purple);text-shadow:0 0 40px rgba(123,47,255,.5)">0</div>
+        <div class="stat-num" id="c2">0</div>
         <div class="stat-label">Hours Saved</div>
-        <div class="stat-sub">Across all active clients per year</div>
+        <div class="stat-sub">Reclaimed for clients per year</div>
       </div>
       <div class="stat-item">
-        <div class="stat-num" id="c3" style="color:var(--blue);text-shadow:0 0 40px rgba(0,212,255,.5)">0</div>
+        <div class="stat-num" id="c3">0</div>
         <div class="stat-label">Average ROI</div>
         <div class="stat-sub">Return on automation investment</div>
       </div>
       <div class="stat-item">
-        <div class="stat-num" id="c4" style="color:var(--purple);text-shadow:0 0 40px rgba(123,47,255,.5)">0</div>
+        <div class="stat-num" id="c4">0</div>
         <div class="stat-label">Client Retention</div>
-        <div class="stat-sub">Clients who renew and expand</div>
+        <div class="stat-sub">Clients who renew &amp; expand</div>
       </div>
     </div>
     <div class="testimonials">
       <div class="testi-card glass tilt-card">
-        <div class="testi-q" style="color:var(--blue)">"</div>
-        <p class="testi-text">We went from 12 missed calls a week to zero. The AI books everything now and our front desk finally has time to focus on patients.</p>
+        <div class="testi-q">"</div>
+        <p class="testi-text">We went from drowning in manual follow-ups to a system that runs itself. Our response time dropped to seconds and our close rate climbed within weeks.</p>
         <div class="testi-auth">
-          <div class="testi-ava ava-b">ST</div>
-          <div><div class="testi-name">Dr. Sophie Tremblay</div><div class="testi-role">Dental Clinic Owner, Montréal</div></div>
+          <div class="testi-ava">SC</div>
+          <div><div class="testi-name">Sarah Côté</div><div class="testi-role">Founder, Professional Services Firm</div></div>
         </div>
-        <div class="testi-bot" style="background:linear-gradient(90deg,transparent,var(--blue),transparent)"></div>
       </div>
       <div class="testi-card glass tilt-card">
-        <div class="testi-q" style="color:var(--purple)">"</div>
-        <p class="testi-text">I didn't believe automation could work for a small business. Three months in and we've saved over $8,000 in admin costs.</p>
+        <div class="testi-q">"</div>
+        <p class="testi-text">I didn't think automation could work for a business like mine. Three months in, we've saved thousands in admin costs and freed the team for real work.</p>
         <div class="testi-auth">
-          <div class="testi-ava ava-p">MB</div>
-          <div><div class="testi-name">Marc-André Beaudin</div><div class="testi-role">CEO, Service Company, Québec</div></div>
+          <div class="testi-ava">MB</div>
+          <div><div class="testi-name">Marc Bouchard</div><div class="testi-role">CEO, Home Services Company</div></div>
         </div>
-        <div class="testi-bot" style="background:linear-gradient(90deg,transparent,var(--purple),transparent)"></div>
       </div>
       <div class="testi-card glass tilt-card">
-        <div class="testi-q" style="color:var(--blue)">"</div>
-        <p class="testi-text">The follow-up system alone reactivated 23 lapsed patients in the first month. Revenue we were just leaving on the table.</p>
+        <div class="testi-q">"</div>
+        <p class="testi-text">The AI assistant handles our inbound around the clock and books qualified calls while we sleep. It paid for itself in the first month.</p>
         <div class="testi-auth">
-          <div class="testi-ava ava-b">KL</div>
-          <div><div class="testi-name">Dr. Kevin Lavoie</div><div class="testi-role">Orthodontist, Laval</div></div>
+          <div class="testi-ava">KL</div>
+          <div><div class="testi-name">Kayla Lemieux</div><div class="testi-role">Director, Boutique Agency</div></div>
         </div>
-        <div class="testi-bot" style="background:linear-gradient(90deg,transparent,var(--blue),transparent)"></div>
       </div>
     </div>
   </div>
@@ -682,67 +644,56 @@
 
 <!-- ══════════════ CONTACT ══════════════ -->
 <section id="contact">
-  <div class="container" style="position:relative;z-index:1">
+  <div class="container">
     <div class="section-header">
-      <div class="badge badge-blue" style="margin-bottom:16px"><span class="dot"></span>Book a Free Strategy Call</div>
-      <h2>Let's Build Your <span class="text-gradient">AI System</span></h2>
-      <div class="accent-line"></div>
-      <p>30-minute call. No pitch. Just a clear breakdown of what AI automation can do for your specific business.</p>
+      <div class="badge"><span class="dot"></span>Let's Talk</div>
+      <h2>Ready to <span class="accent">Automate Your Business?</span></h2>
+      <div class="gold-divider"></div>
+      <p>Book a 30-minute strategy call. No pitch — just a clear breakdown of what AI can do for your specific business.</p>
     </div>
     <div class="contact-grid">
       <div>
-        <div class="form-wrap">
-          <div class="form-inner">
-            <div id="form-success" class="form-success" style="display:none">
-              <div class="s-icon">🎉</div>
-              <h3>You're In</h3>
-              <p>We'll reach out within 24 hours to book your strategy call.</p>
-            </div>
-            <form id="cform">
-              <div class="fg">
-                <label>Full Name *</label>
-                <input type="text" name="name" placeholder="Dr. Sophie Tremblay" required>
-              </div>
-              <div class="fg">
-                <label>Email Address *</label>
-                <input type="email" name="email" placeholder="you@yourclinic.com" required>
-              </div>
-              <div class="fg">
-                <label>Business / Clinic Name <span style="color:rgba(255,255,255,.3)">(optional)</span></label>
-                <input type="text" name="company" placeholder="Clinique Tremblay">
-              </div>
-              <div class="fg">
-                <label>Biggest challenge? <span style="color:rgba(255,255,255,.3)">(optional)</span></label>
-                <textarea name="message" rows="3" placeholder="e.g. We miss too many calls, follow-up is inconsistent..."></textarea>
-              </div>
-              <div class="form-error" id="ferr">Something went wrong. Please try again or email us directly.</div>
-              <button type="submit" class="form-submit magnetic" id="fsub">Book My Free Strategy Call →</button>
-              <p class="form-note">No spam. No pressure. Just clarity on what's possible.</p>
-            </form>
+        <div class="form-card glass">
+          <div id="form-success" class="form-success" style="display:none">
+            <div class="s-icon">🎉</div>
+            <h3>You're In</h3>
+            <p>We'll reach out within 24 hours to book your strategy call.</p>
           </div>
+          <form id="cform">
+            <div class="fg">
+              <label>Full Name *</label>
+              <input type="text" name="name" placeholder="Your name" required>
+            </div>
+            <div class="fg">
+              <label>Email Address *</label>
+              <input type="email" name="email" placeholder="you@yourcompany.com" required>
+            </div>
+            <div class="fg">
+              <label>Company Name <span style="color:var(--muted)">(optional)</span></label>
+              <input type="text" name="company" placeholder="Your company">
+            </div>
+            <div class="fg">
+              <label>What would you like to automate? <span style="color:var(--muted)">(optional)</span></label>
+              <textarea name="message" rows="3" placeholder="e.g. lead follow-up, scheduling, customer support..."></textarea>
+            </div>
+            <div class="form-error" id="ferr">Something went wrong. Please try again or email us directly.</div>
+            <button type="submit" class="btn-gold magnetic" id="fsub" style="width:100%">Book My Free Strategy Call →</button>
+            <p class="form-note">No spam. No pressure. Just clarity on what's possible.</p>
+          </form>
         </div>
       </div>
-      <div class="info-cards">
+      <div class="contact-side">
         <div class="info-card glass">
           <div class="info-icon">🕐</div>
-          <div>
-            <div class="info-title">30-Minute Call</div>
-            <p class="info-body">No fluff. We come prepared with ideas specific to your industry and business size.</p>
-          </div>
+          <div><div class="info-title">30-Minute Call</div><p class="info-body">No fluff. We arrive with ideas tailored to your industry and business size.</p></div>
         </div>
         <div class="info-card glass">
           <div class="info-icon">🔍</div>
-          <div>
-            <div class="info-title">Free Automation Audit</div>
-            <p class="info-body">We map your current workflow and show exactly which tasks can be automated and what it saves you.</p>
-          </div>
+          <div><div class="info-title">Free Automation Audit</div><p class="info-body">We map your current workflow and show exactly what can be automated and what it saves.</p></div>
         </div>
         <div class="info-card glass">
           <div class="info-icon">📈</div>
-          <div>
-            <div class="info-title">Custom Roadmap</div>
-            <p class="info-body">You leave with a clear plan — even if you choose not to work with us. That's how confident we are in the value.</p>
-          </div>
+          <div><div class="info-title">Custom Roadmap</div><p class="info-body">You leave with a clear plan — even if you choose not to work with us.</p></div>
         </div>
         <div class="direct-box">
           <div class="direct-lbl">Prefer to reach out directly?</div>
@@ -758,11 +709,7 @@
 <footer>
   <div class="container">
     <div class="footer-in">
-      <a href="#" class="footer-logo">
-        <span class="text-gradient">FYLTR</span>
-        <span style="color:rgba(255,255,255,.25);font-weight:300;margin:0 6px">|</span>
-        <span style="color:#fff">MEDIA</span>
-      </a>
+      <a href="#" class="footer-logo"><span class="text-grad-bp">FYLTR</span><span style="color:var(--gold);font-weight:400;margin:0 6px">|</span><span style="color:var(--ink)">MEDIA</span></a>
       <ul class="footer-nav">
         <li><a href="#why">Why AI</a></li>
         <li><a href="#services">Services</a></li>
@@ -773,7 +720,7 @@
     </div>
     <div class="footer-bot">
       <span class="footer-copy">© <span id="yr"></span> FYLTR Media. All rights reserved.</span>
-      <span class="footer-copy">AI Automation Agency · Québec, Canada</span>
+      <span class="footer-copy">Luxury AI Automation · Québec, Canada</span>
     </div>
   </div>
 </footer>
@@ -781,401 +728,390 @@
 <!-- ══════════════ CDN LIBRARIES ══════════════ -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 
 <!-- ══════════════ MAIN SCRIPT ══════════════ -->
 <script>
 'use strict';
-
-// ─── Init ───
 gsap.registerPlugin(ScrollTrigger);
 document.getElementById('yr').textContent = new Date().getFullYear();
-const isMobile = window.innerWidth <= 768;
+const isMobile = window.innerWidth <= 880;
 
-// ─── Navbar scroll ───
+/* ─── Navbar scroll ─── */
 const navbar = document.getElementById('navbar');
-window.addEventListener('scroll', () => {
-  navbar.classList.toggle('scrolled', window.scrollY > 40);
-}, { passive: true });
+window.addEventListener('scroll', () => navbar.classList.toggle('scrolled', window.scrollY > 40), { passive: true });
 
-// ─── Mobile menu ───
-const ham = document.getElementById('ham');
-const mob = document.getElementById('mob');
+/* ─── Mobile menu ─── */
+const ham = document.getElementById('ham'), mob = document.getElementById('mob');
 ham.addEventListener('click', () => { ham.classList.toggle('open'); mob.classList.toggle('open'); });
 function closeMob() { ham.classList.remove('open'); mob.classList.remove('open'); }
 
-// ─── Typing animation ───
-const PHRASES = ['Automate Your Clinic', 'Convert More Patients', 'Scale Without Hiring'];
+/* ─── Typing animation ─── */
+const PHRASES = ['Convert More Clients', 'Automate Your Operations', 'Scale Without Hiring', 'Dominate Your Market'];
 let pi = 0, ci = 0, del = false, paused = false;
 const typEl = document.getElementById('typing-text');
 function type() {
   if (paused) return;
   const ph = PHRASES[pi];
-  if (!del && ci === ph.length) {
-    paused = true; setTimeout(() => { del = true; paused = false; type(); }, 2200); return;
-  }
+  if (!del && ci === ph.length) { paused = true; setTimeout(() => { del = true; paused = false; type(); }, 2000); return; }
   if (del && ci === 0) { del = false; pi = (pi + 1) % PHRASES.length; }
   ci += del ? -1 : 1;
   typEl.textContent = ph.substring(0, ci);
-  setTimeout(type, del ? 45 : 95);
+  setTimeout(type, del ? 40 : 85);
 }
 
-// ─── Particle canvas ───
-(function() {
-  const cv = document.getElementById('particles-canvas');
-  const ctx = cv.getContext('2d');
-  let W, H, pts = [];
-  const COLS = ['rgba(0,212,255,', 'rgba(123,47,255,', 'rgba(255,255,255,'];
-  function resize() { W = cv.width = cv.offsetWidth; H = cv.height = cv.offsetHeight; }
-  window.addEventListener('resize', resize, { passive: true });
-  resize();
-  function Pt() {
-    this.reset = function() {
-      this.x = Math.random()*W; this.y = Math.random()*H;
-      this.r = Math.random()*1.5+0.4; this.vx = (Math.random()-.5)*.38; this.vy = (Math.random()-.5)*.38;
-      this.op = Math.random()*.38+.06; this.c = COLS[Math.floor(Math.random()*COLS.length)];
-    }; this.reset();
+/* ─── F monogram dramatic entrance ─── */
+gsap.fromTo('#f-mono',
+  { scale: 3, opacity: 0 },
+  { scale: 1, opacity: 1, duration: 1.6, ease: 'power4.out',
+    onComplete() { gsap.to('#f-mono', { opacity: 0.55, duration: 1.2, ease: 'power2.out' }); }
   }
-  for (let i = 0; i < 65; i++) pts.push(new Pt());
-  let mx = -9999, my = -9999;
-  cv.addEventListener('mousemove', e => { const r = cv.getBoundingClientRect(); mx = e.clientX-r.left; my = e.clientY-r.top; });
-  function draw() {
-    ctx.clearRect(0, 0, W, H);
-    for (let i = 0; i < pts.length; i++) {
-      for (let j = i+1; j < pts.length; j++) {
-        const dx = pts[i].x-pts[j].x, dy = pts[i].y-pts[j].y, d = Math.hypot(dx,dy);
-        if (d < 140) { ctx.beginPath(); ctx.strokeStyle=`rgba(0,212,255,${.055*(1-d/140)})`; ctx.lineWidth=.5; ctx.moveTo(pts[i].x,pts[i].y); ctx.lineTo(pts[j].x,pts[j].y); ctx.stroke(); }
-      }
-    }
-    pts.forEach(p => {
-      const dx=p.x-mx, dy=p.y-my, d=Math.hypot(dx,dy);
-      if (d<80&&d>0) { p.x+=dx/d*1.4; p.y+=dy/d*1.4; }
-      p.x+=p.vx; p.y+=p.vy;
-      if (p.x<0||p.x>W) p.vx*=-1; if (p.y<0||p.y>H) p.vy*=-1;
-      ctx.beginPath(); ctx.arc(p.x,p.y,p.r,0,Math.PI*2); ctx.fillStyle=p.c+p.op+')'; ctx.fill();
-    });
-    requestAnimationFrame(draw);
-  }
-  draw();
-})();
+);
 
-// ─── Service cards toggle ───
-function toggleSvc(card) {
-  const was = card.classList.contains('open');
-  document.querySelectorAll('.svc-card.open').forEach(c => c.classList.remove('open'));
-  if (!was) card.classList.add('open');
-}
+/* ─── Hero entrance timeline ─── */
+gsap.set('.hero-el', { opacity: 0, y: 34 });
+gsap.timeline({ delay: 0.5, onStart: type })
+  .to('.hero-el', { opacity: 1, y: 0, duration: 0.8, ease: 'power3.out', stagger: 0.13 });
 
-// ─── Contact form ───
-document.getElementById('cform').addEventListener('submit', async function(e) {
-  e.preventDefault();
-  const btn = document.getElementById('fsub'), err = document.getElementById('ferr');
-  btn.disabled = true; btn.textContent = 'Sending…'; err.style.display = 'none';
-  try {
-    const res = await fetch('https://formspree.io/f/mdajebpz', {
-      method:'POST', headers:{'Content-Type':'application/json',Accept:'application/json'},
-      body: JSON.stringify({ name:this.name.value, email:this.email.value, company:this.company.value, message:this.message.value }),
-    });
-    if (res.ok) { this.style.display='none'; document.getElementById('form-success').style.display='block'; }
-    else throw 0;
-  } catch { err.style.display='block'; btn.disabled=false; btn.textContent='Book My Free Strategy Call →'; }
-});
-
-// ════════════════════════════════════════════════════════
-// GSAP ANIMATIONS
-// ════════════════════════════════════════════════════════
-
-// ─── Hero entrance timeline ───
-gsap.set(['.hero-badge','.hero-h1','.hero-typing','.hero-sub','.hero-btns','.hero-proof','.hero-right'], { opacity: 0 });
-gsap.set(['.hero-badge','.hero-h1','.hero-typing','.hero-sub','.hero-btns','.hero-proof'], { y: 32 });
-gsap.set('.hero-right', { x: 50 });
-
-const heroTl = gsap.timeline({ delay: 0.15, onStart: type });
-heroTl
-  .to('.hero-badge',   { opacity:1, y:0, duration:.7, ease:'power3.out' })
-  .to('.hero-h1',      { opacity:1, y:0, duration:.85,ease:'power3.out' }, '-=.4')
-  .to('.hero-typing',  { opacity:1, y:0, duration:.6, ease:'power3.out' }, '-=.45')
-  .to('.hero-sub',     { opacity:1, y:0, duration:.6, ease:'power3.out' }, '-=.4')
-  .to('.hero-btns',    { opacity:1, y:0, duration:.6, ease:'power3.out' }, '-=.35')
-  .to('.hero-proof',   { opacity:1, y:0, duration:.6, ease:'power3.out' }, '-=.3')
-  .to('.hero-right',   { opacity:1, x:0, duration:.9, ease:'power3.out' }, '-=.7')
-  .to('#scroll-hint',  { opacity:1, duration:.5 }, '-=.2');
-
-gsap.set('#scroll-hint', { opacity: 0 });
-
-// ─── Hero pin with parallax shapes on scroll (desktop only) ───
-if (!isMobile) {
-  const heroPin = gsap.timeline({
-    scrollTrigger: {
-      trigger: '#hero',
-      start: 'top top',
-      end: '+=380',
-      scrub: 0.8,
-      pin: true,
-      pinSpacing: true,
-    }
-  });
-  heroPin
-    .to('.hero-right', { y: -55, opacity: 0.25, ease: 'none' }, 0)
-    .to('.orb1',       { y: -50, x: 30,  ease: 'none' }, 0)
-    .to('.orb2',       { y:  40, x: -25, ease: 'none' }, 0)
-    .to('#scroll-hint',{ opacity: 0, y: 12, ease: 'none' }, 0);
-}
-
-// ─── Section reveal helper ───
-function revealFrom(selector, trigger, vars = {}) {
-  gsap.from(selector, {
+/* ─── Section reveals ─── */
+function revealStagger(items, trigger, opts = {}) {
+  gsap.from(items, {
     scrollTrigger: { trigger, start: 'top 82%', once: true },
-    y: 50, opacity: 0, duration: .75, ease: 'power3.out',
-    stagger: vars.stagger || 0,
-    ...vars,
+    y: 55, opacity: 0, duration: 0.8, ease: 'power3.out', stagger: opts.stagger || 0.12,
   });
 }
+['#why', '#services', '#results', '#contact'].forEach(sec => {
+  revealStagger(sec + ' .section-header', sec + ' .section-header', { stagger: 0 });
+});
+revealStagger('#why .why-card', '#why .why-grid', { stagger: 0.14 });
+revealStagger('#services .svc-card', '#services .svc-grid', { stagger: 0.12 });
+revealStagger('#services .svc-cta', '#services .svc-cta', { stagger: 0 });
+revealStagger('#results .stats-box', '#results .stats-box', { stagger: 0 });
+revealStagger('#results .testi-card', '#results .testimonials', { stagger: 0.14 });
+gsap.from('#contact .form-card', { scrollTrigger: { trigger: '#contact .contact-grid', start: 'top 82%', once: true }, x: -42, opacity: 0, duration: 0.85, ease: 'power3.out' });
+gsap.from('#contact .contact-side', { scrollTrigger: { trigger: '#contact .contact-grid', start: 'top 82%', once: true }, x: 42, opacity: 0, duration: 0.85, ease: 'power3.out', delay: 0.1 });
+gsap.from('footer .footer-in', { scrollTrigger: { trigger: 'footer', start: 'top 90%', once: true }, y: 30, opacity: 0, duration: 0.7, ease: 'power3.out' });
 
-// ─── Why AI section ───
-revealFrom('#why .section-header', '#why');
-gsap.from('#why .why-card', {
-  scrollTrigger: { trigger: '#why .why-grid', start: 'top 80%', once: true },
-  y: 60, opacity: 0, duration: .8, ease: 'power3.out', stagger: .14,
-});
-// Accent line sweep
-gsap.to('#why .accent-line', {
-  scrollTrigger: { trigger: '#why .section-header', start: 'top 85%', once: true },
-  width: 60, duration: .8, ease: 'power3.out', delay: .2,
-});
-// Grid parallax on scroll
-gsap.to('#why .grid-tex', {
-  scrollTrigger: { trigger: '#why', start: 'top bottom', end: 'bottom top', scrub: 1.5 },
-  y: -60, ease: 'none',
-});
-
-// ─── Services section ───
-revealFrom('#services .section-header', '#services');
-gsap.from('#services .svc-card', {
-  scrollTrigger: { trigger: '#services .svc-grid', start: 'top 82%', once: true },
-  y: 55, opacity: 0, duration: .75, ease: 'power3.out', stagger: .12,
-});
-revealFrom('#services .svc-cta', '#services .svc-cta', { delay: .2 });
-gsap.to('#services .accent-line', {
-  scrollTrigger: { trigger: '#services .section-header', start: 'top 85%', once: true },
-  width: 60, duration: .8, ease: 'power3.out', delay: .2,
+/* Gold divider sweep */
+gsap.utils.toArray('.gold-divider').forEach(d => {
+  gsap.fromTo(d, { scaleX: 0 }, { scrollTrigger: { trigger: d, start: 'top 88%', once: true }, scaleX: 1, duration: 0.9, ease: 'power3.out' });
 });
 
-// ─── Results section ───
-revealFrom('#results .section-header', '#results');
-gsap.from('#results .stats-box', {
-  scrollTrigger: { trigger: '#results .stats-box', start: 'top 85%', once: true },
-  y: 40, opacity: 0, duration: .85, ease: 'power3.out',
-});
-gsap.from('#results .testi-card', {
-  scrollTrigger: { trigger: '#results .testimonials', start: 'top 82%', once: true },
-  y: 50, opacity: 0, duration: .75, ease: 'power3.out', stagger: .14,
-});
-gsap.to('#results .accent-line', {
-  scrollTrigger: { trigger: '#results .section-header', start: 'top 85%', once: true },
-  width: 60, duration: .8, ease: 'power3.out', delay: .2,
-});
-// Results grid parallax
-gsap.to('#results .results-tex', {
-  scrollTrigger: { trigger: '#results', start: 'top bottom', end: 'bottom top', scrub: 1.5 },
-  y: -70, ease: 'none',
-});
-
-// ─── Animated counters (GSAP) ───
+/* ─── Animated counters (gold) ─── */
 const COUNTERS = [
-  { el: document.getElementById('c1'), target: 47,    suffix: '+',  fmt: false },
-  { el: document.getElementById('c2'), target: 10000, suffix: '+',  fmt: true  },
-  { el: document.getElementById('c3'), target: 3,     suffix: 'x',  fmt: false },
-  { el: document.getElementById('c4'), target: 98,    suffix: '%',  fmt: false },
+  { el: document.getElementById('c1'), target: 500,     suffix: '+', fmt: false },
+  { el: document.getElementById('c2'), target: 1000000, suffix: '+', fmt: 'M'   },
+  { el: document.getElementById('c3'), target: 4,       suffix: 'x', fmt: false },
+  { el: document.getElementById('c4'), target: 98,      suffix: '%', fmt: false },
 ];
 ScrollTrigger.create({
-  trigger: '#stats-box',
-  start: 'top 82%',
-  once: true,
+  trigger: '#stats-box', start: 'top 82%', once: true,
   onEnter() {
     COUNTERS.forEach(({ el, target, suffix, fmt }) => {
-      const proxy = { val: 0 };
+      const proxy = { v: 0 };
       gsap.to(proxy, {
-        val: target, duration: 2.2, ease: 'power2.out',
+        v: target, duration: 2.2, ease: 'power2.out',
         onUpdate() {
-          const v = Math.floor(proxy.val);
-          el.textContent = (fmt ? v.toLocaleString() : v) + suffix;
+          let v = Math.floor(proxy.v);
+          let out = fmt === 'M' ? (v / 1000000).toFixed(v >= 1000000 ? 0 : 1) + 'M' : v.toLocaleString();
+          el.textContent = out + suffix;
         },
         onComplete() {
-          el.textContent = (fmt ? target.toLocaleString() : target) + suffix;
+          el.textContent = (fmt === 'M' ? (target / 1000000) + 'M' : target.toLocaleString()) + suffix;
         }
       });
     });
   }
 });
 
-// ─── Contact section ───
-revealFrom('#contact .section-header', '#contact');
-gsap.from('#contact .form-wrap', {
-  scrollTrigger: { trigger: '#contact .contact-grid', start: 'top 82%', once: true },
-  x: -40, opacity: 0, duration: .85, ease: 'power3.out',
-});
-gsap.from('#contact .info-cards', {
-  scrollTrigger: { trigger: '#contact .contact-grid', start: 'top 82%', once: true },
-  x: 40, opacity: 0, duration: .85, ease: 'power3.out', delay: .1,
-});
-gsap.to('#contact .accent-line', {
-  scrollTrigger: { trigger: '#contact .section-header', start: 'top 85%', once: true },
-  width: 60, duration: .8, ease: 'power3.out', delay: .2,
-});
-
-// ─── Footer ───
-revealFrom('footer .footer-in', 'footer', { y: 30 });
-
-// ─── Orb scroll parallax (full page, desktop only) ───
-if (!isMobile) {
-  gsap.to('.orb1', {
-    scrollTrigger: { trigger: 'body', start: 'top top', end: 'bottom bottom', scrub: 2 },
-    y: -120, ease: 'none',
-  });
-  gsap.to('.orb2', {
-    scrollTrigger: { trigger: 'body', start: 'top top', end: 'bottom bottom', scrub: 2.5 },
-    y: 80, ease: 'none',
-  });
+/* ─── Services toggle ─── */
+function toggleSvc(card) {
+  const was = card.classList.contains('open');
+  document.querySelectorAll('.svc-card.open').forEach(c => c.classList.remove('open'));
+  if (!was) card.classList.add('open');
 }
 
-// ─── Mouse parallax (desktop only) ───
+/* ─── Contact form ─── */
+document.getElementById('cform').addEventListener('submit', async function(e) {
+  e.preventDefault();
+  const btn = document.getElementById('fsub'), err = document.getElementById('ferr');
+  btn.disabled = true; btn.textContent = 'Sending…'; err.style.display = 'none';
+  try {
+    const res = await fetch('https://formspree.io/f/mdajebpz', {
+      method: 'POST', headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+      body: JSON.stringify({ name: this.name.value, email: this.email.value, company: this.company.value, message: this.message.value }),
+    });
+    if (res.ok) { this.style.display = 'none'; document.getElementById('form-success').style.display = 'block'; }
+    else throw 0;
+  } catch { err.style.display = 'block'; btn.disabled = false; btn.textContent = 'Book My Free Strategy Call →'; }
+});
+
+/* ════════════════════════════════════════════════════
+   SCROLL-DRIVEN ROBOT REVEAL (GSAP ScrollTrigger scrub)
+   ════════════════════════════════════════════════════ */
+(function() {
+  const robot = document.getElementById('scroll-robot');
+  if (!robot) return;
+  const frames   = robot.querySelectorAll('.r-frame');
+  const circuits = robot.querySelectorAll('.r-circuit');
+  const eyes     = robot.querySelectorAll('.r-eye');
+
+  // Prepare stroke draw-on for frames + circuits
+  [...frames, ...circuits].forEach(el => {
+    if (typeof el.getTotalLength === 'function') {
+      try {
+        const len = el.getTotalLength();
+        if (len) { el.style.strokeDasharray = len; el.style.strokeDashoffset = len; }
+      } catch (e) {}
+    }
+  });
+  gsap.set(eyes, { opacity: 0, transformOrigin: '50% 50%' });
+
+  const tl = gsap.timeline({
+    scrollTrigger: {
+      trigger: document.body,
+      start: 'top top',
+      end: 'bottom bottom',
+      scrub: true,
+    }
+  });
+
+  // Zoom in + fade up as you scroll
+  tl.fromTo(robot, { scale: 0.82, opacity: 0.04 }, { scale: 1.16, opacity: 0.16, ease: 'none' }, 0);
+  // Outer frame draws first
+  tl.to(frames, { strokeDashoffset: 0, ease: 'none', stagger: { each: 0.04 } }, 0.0);
+  // Eyes activate mid-scroll
+  tl.to(eyes, { opacity: 1, ease: 'none' }, 0.42);
+  tl.to(eyes, { filter: 'drop-shadow(0 0 10px #00d4ff)', ease: 'none' }, 0.45);
+  // Internal circuits / energy lines light up in sequence
+  tl.to(circuits, { strokeDashoffset: 0, opacity: 1, ease: 'none', stagger: { each: 0.05 } }, 0.4);
+})();
+
+/* ─── Mouse parallax on background (desktop) ─── */
 if (!isMobile) {
-  let mouseX = 0, mouseY = 0;
   document.addEventListener('mousemove', e => {
-    mouseX = (e.clientX / window.innerWidth  - 0.5) * 2;
-    mouseY = (e.clientY / window.innerHeight - 0.5) * 2;
-    gsap.to('.orb1',      { x: mouseX * 22,  y: mouseY * 16,  duration: 1,   ease: 'power2.out', overwrite: 'auto' });
-    gsap.to('.orb2',      { x: -mouseX * 28, y: -mouseY * 20, duration: 1.2, ease: 'power2.out', overwrite: 'auto' });
-    gsap.to('#why .grid-tex',     { x: mouseX * 8, y: mouseY * 6, duration: 1.5, ease: 'power2.out', overwrite: 'auto' });
-    gsap.to('#results .results-tex', { x: -mouseX * 6, y: -mouseY * 5, duration: 1.5, ease: 'power2.out', overwrite: 'auto' });
+    const mx = (e.clientX / window.innerWidth - 0.5) * 2;
+    const my = (e.clientY / window.innerHeight - 0.5) * 2;
+    gsap.to('.bg-orb-1', { x: mx * 26, y: my * 20, duration: 1.2, ease: 'power2.out', overwrite: 'auto' });
+    gsap.to('.bg-orb-2', { x: -mx * 30, y: -my * 22, duration: 1.4, ease: 'power2.out', overwrite: 'auto' });
+    gsap.to('#scroll-robot', { x: mx * 12, duration: 1.5, ease: 'power2.out', overwrite: 'auto' });
+    gsap.to('#f-mono', { x: mx * 10, y: my * 8, duration: 1.5, ease: 'power2.out', overwrite: 'auto' });
   });
-}
 
-// ─── Magnetic buttons (desktop only) ───
-if (!isMobile) {
+  /* Magnetic buttons */
   document.querySelectorAll('.magnetic').forEach(el => {
-    el.addEventListener('mousemove', function(e) {
+    el.addEventListener('mousemove', function(ev) {
       const r = this.getBoundingClientRect();
-      const x = (e.clientX - r.left - r.width  / 2) * 0.32;
-      const y = (e.clientY - r.top  - r.height / 2) * 0.32;
-      gsap.to(this, { x, y, duration: .3, ease: 'power2.out', overwrite: 'auto' });
+      gsap.to(this, { x: (ev.clientX - r.left - r.width/2) * 0.3, y: (ev.clientY - r.top - r.height/2) * 0.3, duration: 0.3, ease: 'power2.out', overwrite: 'auto' });
     });
     el.addEventListener('mouseleave', function() {
-      gsap.to(this, { x: 0, y: 0, duration: .6, ease: 'elastic.out(1, 0.5)', overwrite: 'auto' });
+      gsap.to(this, { x: 0, y: 0, duration: 0.6, ease: 'elastic.out(1,0.5)', overwrite: 'auto' });
     });
   });
-}
 
-// ─── 3D card tilt (desktop only) ───
-if (!isMobile) {
+  /* 3D card tilt */
   document.querySelectorAll('.tilt-card').forEach(card => {
-    card.addEventListener('mousemove', function(e) {
+    card.addEventListener('mousemove', function(ev) {
       const r = this.getBoundingClientRect();
-      const rx = ((e.clientY - r.top)  / r.height - 0.5) * -14;
-      const ry = ((e.clientX - r.left) / r.width  - 0.5) *  14;
-      gsap.to(this, { rotationX: rx, rotationY: ry, duration: .25, ease: 'power2.out', transformPerspective: 900, overwrite: 'auto' });
+      gsap.to(this, {
+        rotationX: ((ev.clientY - r.top)/r.height - 0.5) * -10,
+        rotationY: ((ev.clientX - r.left)/r.width - 0.5) * 10,
+        duration: 0.25, ease: 'power2.out', transformPerspective: 900, overwrite: 'auto'
+      });
     });
     card.addEventListener('mouseleave', function() {
-      gsap.to(this, { rotationX: 0, rotationY: 0, duration: .6, ease: 'elastic.out(1, 0.4)', transformPerspective: 900, overwrite: 'auto' });
+      gsap.to(this, { rotationX: 0, rotationY: 0, duration: 0.6, ease: 'elastic.out(1,0.4)', overwrite: 'auto' });
     });
   });
 }
 
-// ════════════════════════════════════════════════════════
-// THREE.JS — decorative wireframe shapes overlay
-// ════════════════════════════════════════════════════════
+/* ════════════════════════════════════════════════════
+   LOGO DISINTEGRATION → ROBOT (Three.js + GSAP)
+   ════════════════════════════════════════════════════ */
 if (!isMobile && typeof THREE !== 'undefined') {
   (function() {
-    const canvas = document.getElementById('three-canvas');
-    const W = window.innerWidth, H = window.innerHeight;
+    const CW = 320, CH = 140;          // canvas pixel space
+    const canvas = document.getElementById('logo-canvas');
+    const wrap   = document.getElementById('logo-wrap');
 
-    const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
-    renderer.setSize(W, H);
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
-    renderer.setClearColor(0x000000, 0);
+    // ── Offscreen sampler ──
+    const off = document.createElement('canvas');
+    off.width = CW; off.height = CH;
+    const octx = off.getContext('2d');
 
-    const scene  = new THREE.Scene();
-    const camera = new THREE.PerspectiveCamera(65, W / H, 0.1, 100);
-    camera.position.z = 6;
-
-    // Materials
-    const mBlue = new THREE.MeshBasicMaterial({ color: 0x00d4ff, wireframe: true, transparent: true, opacity: .55 });
-    const mPurp = new THREE.MeshBasicMaterial({ color: 0x7b2fff, wireframe: true, transparent: true, opacity: .45 });
-    const mWhit = new THREE.MeshBasicMaterial({ color: 0xaaddff, wireframe: true, transparent: true, opacity: .15 });
-
-    // Geometries
-    const ico    = new THREE.Mesh(new THREE.IcosahedronGeometry(1.15, 0), mBlue);
-    const torus  = new THREE.Mesh(new THREE.TorusGeometry(.9, .26, 8, 36),  mPurp);
-    const octa   = new THREE.Mesh(new THREE.OctahedronGeometry(.72),        mWhit);
-    const knot   = new THREE.Mesh(new THREE.TorusKnotGeometry(.45, .13, 80, 8), mBlue);
-    const box    = new THREE.Mesh(new THREE.BoxGeometry(.6, .6, .6),        mPurp);
-    const tetra  = new THREE.Mesh(new THREE.TetrahedronGeometry(.55),       mBlue);
-
-    // Positions (spread across the 3D space)
-    ico.position.set(   3.2,  1.2,  0   );
-    torus.position.set(-3.5, -1.2, -1   );
-    octa.position.set( -2.2,  2.2, -0.5 );
-    knot.position.set(  2.6, -2.0, -0.5 );
-    box.position.set(   3.8,  0.2, -1.5 );
-    tetra.position.set( 0.4,  2.8, -1   );
-
-    scene.add(ico, torus, octa, knot, box, tetra);
-
-    // Mouse + scroll tracking
-    let tgtRotY = 0, tgtRotX = 0, tgtScrollY = 0;
-    let curRotY = 0, curRotX = 0, curScrollY = 0;
-
-    window.addEventListener('mousemove', e => {
-      tgtRotY = (e.clientX / window.innerWidth  - 0.5) *  0.5;
-      tgtRotX = (e.clientY / window.innerHeight - 0.5) * -0.3;
-    }, { passive: true });
-
-    window.addEventListener('scroll', () => {
-      const maxScroll = document.body.scrollHeight - window.innerHeight;
-      tgtScrollY = (window.scrollY / maxScroll) * -2.5;
-    }, { passive: true });
-
-    window.addEventListener('resize', () => {
-      const W2 = window.innerWidth, H2 = window.innerHeight;
-      camera.aspect = W2 / H2;
-      camera.updateProjectionMatrix();
-      renderer.setSize(W2, H2);
-    });
-
-    const clock = new THREE.Clock();
-    let raf;
-
-    function animate() {
-      raf = requestAnimationFrame(animate);
-      const t = clock.getElapsedTime();
-
-      // Lerp camera parallax
-      curRotY  += (tgtRotY     - curRotY)  * 0.04;
-      curRotX  += (tgtRotX     - curRotX)  * 0.04;
-      curScrollY += (tgtScrollY - curScrollY) * 0.04;
-
-      scene.rotation.y = curRotY;
-      scene.rotation.x = curRotX;
-      scene.position.y = curScrollY;
-
-      // Individual rotations
-      ico.rotation.x   = t * .22; ico.rotation.y   = t * .35;
-      torus.rotation.x = t * .28; torus.rotation.y = t * .18;
-      octa.rotation.y  = t * .5;  octa.rotation.z  = t * .3;
-      knot.rotation.x  = t * .15; knot.rotation.y  = t * .28;
-      box.rotation.x   = t * .22; box.rotation.y   = t * .38;
-      tetra.rotation.x = t * .3;  tetra.rotation.z = t * .2;
-
-      // Floating bob
-      ico.position.y   = 1.2  + Math.sin(t * .7)       * .28;
-      torus.position.y = -1.2 + Math.sin(t * .55 + 1)  * .22;
-      octa.position.y  = 2.2  + Math.sin(t * .85 + 2)  * .18;
-      knot.position.y  = -2.0 + Math.sin(t * .65 + .5) * .2;
-
-      renderer.render(scene, camera);
+    function sample(drawFn, stepGuess) {
+      octx.clearRect(0, 0, CW, CH);
+      drawFn(octx);
+      const data = octx.getImageData(0, 0, CW, CH).data;
+      const pts = [];
+      const step = stepGuess;
+      for (let y = 0; y < CH; y += step) {
+        for (let x = 0; x < CW; x += step) {
+          if (data[(y * CW + x) * 4 + 3] > 130) {
+            pts.push([x, CH - y]);   // flip y for three (y up)
+          }
+        }
+      }
+      return pts;
     }
-    animate();
+
+    // Logo text shape
+    const logoPts = sample(ctx => {
+      ctx.fillStyle = '#fff';
+      ctx.textBaseline = 'middle';
+      ctx.font = '800 30px Georgia, "Playfair Display", serif';
+      ctx.fillText('FYLTR | MEDIA', 14, CH / 2);
+    }, 2);
+
+    // Robot shape (filled silhouette, eyes excluded — added separately)
+    const robotPts = sample(ctx => {
+      ctx.fillStyle = '#fff';
+      const cx = CW / 2;
+      function rr(x, y, w, h, r) { ctx.beginPath(); ctx.roundRect(x, y, w, h, r); ctx.fill(); }
+      // head, neck, torso, arms, legs, feet, antenna
+      rr(cx - 30, 14, 60, 40, 12);       // head
+      ctx.fillRect(cx - 2, 4, 4, 12);    // antenna stalk
+      ctx.beginPath(); ctx.arc(cx, 4, 4, 0, 7); ctx.fill(); // antenna dot
+      rr(cx - 12, 54, 24, 8, 3);         // neck
+      rr(cx - 34, 62, 68, 44, 14);       // torso
+      rr(cx - 50, 64, 14, 34, 7);        // left arm
+      rr(cx + 36, 64, 14, 34, 7);        // right arm
+      rr(cx - 22, 106, 16, 22, 6);       // left leg
+      rr(cx + 6, 106, 16, 22, 6);        // right leg
+    }, 2);
+
+    // Eye positions in canvas space (flip y)
+    const headTopY = 14, headH = 40, cx = CW / 2;
+    const eyeY = CH - (headTopY + 18);
+    const eyePts = [[cx - 12, eyeY], [cx + 12, eyeY]];
+
+    // Internal circuit points (cyan) — chest cross + core
+    const circuitPts = [];
+    (function() {
+      const coreY = CH - 84;
+      for (let i = -16; i <= 16; i += 3) circuitPts.push([cx, CH - 70 + i]);  // vertical
+      for (let i = -16; i <= 16; i += 3) circuitPts.push([cx + i, coreY]);    // horizontal
+      for (let a = 0; a < 6.28; a += 0.5) circuitPts.push([cx + Math.cos(a) * 9, coreY + Math.sin(a) * 9]); // core ring
+    })();
+
+    // ── Normalize counts & build particle set ──
+    const N = Math.min(1100, logoPts.length, robotPts.length);
+    function pick(arr, n) {
+      const out = [];
+      for (let i = 0; i < n; i++) out.push(arr[Math.floor(Math.random() * arr.length)]);
+      return out;
+    }
+    const L = pick(logoPts, N);
+    const R = pick(robotPts, N);
+
+    // Scatter offsets for the "disintegrate" burst
+    const scatter = new Float32Array(N * 2);
+    for (let i = 0; i < N; i++) {
+      const ang = Math.random() * Math.PI * 2, mag = 14 + Math.random() * 46;
+      scatter[i * 2]     = Math.cos(ang) * mag;
+      scatter[i * 2 + 1] = Math.sin(ang) * mag;
+    }
+
+    // ── Three.js setup (ortho, pixel-space) ──
+    const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.setSize(CW, CH, false);
+
+    const scene = new THREE.Scene();
+    const camera = new THREE.OrthographicCamera(0, CW, CH, 0, -100, 100);
+    camera.position.z = 10;
+
+    // Body particles
+    const bodyGeo = new THREE.BufferGeometry();
+    const bodyPos = new Float32Array(N * 3);
+    const bodyCol = new Float32Array(N * 3);
+    const cBlue = new THREE.Color(0x00d4ff), cPurp = new THREE.Color(0x9333EA);
+    for (let i = 0; i < N; i++) {
+      bodyPos[i*3] = L[i][0]; bodyPos[i*3+1] = L[i][1]; bodyPos[i*3+2] = 0;
+      const mix = R[i][0] / CW;
+      const c = cBlue.clone().lerp(cPurp, mix);
+      bodyCol[i*3] = c.r; bodyCol[i*3+1] = c.g; bodyCol[i*3+2] = c.b;
+    }
+    bodyGeo.setAttribute('position', new THREE.BufferAttribute(bodyPos, 3));
+    bodyGeo.setAttribute('color',    new THREE.BufferAttribute(bodyCol, 3));
+    const bodyMat = new THREE.PointsMaterial({ size: 2.4, sizeAttenuation: false, vertexColors: true, transparent: true, opacity: 0.95 });
+    const bodyPoints = new THREE.Points(bodyGeo, bodyMat);
+    scene.add(bodyPoints);
+
+    // Circuit particles (cyan)
+    const CN = circuitPts.length;
+    const circGeo = new THREE.BufferGeometry();
+    const circPos = new Float32Array(CN * 3);
+    const circOrigin = pick(logoPts, CN);
+    for (let i = 0; i < CN; i++) { circPos[i*3] = circOrigin[i][0]; circPos[i*3+1] = circOrigin[i][1]; circPos[i*3+2] = 1; }
+    circGeo.setAttribute('position', new THREE.BufferAttribute(circPos, 3));
+    const circMat = new THREE.PointsMaterial({ size: 2.6, sizeAttenuation: false, color: 0x00d4ff, transparent: true, opacity: 0 });
+    const circPoints = new THREE.Points(circGeo, circMat);
+    scene.add(circPoints);
+
+    // Eye particles (bright cyan, large)
+    const eyeGeo = new THREE.BufferGeometry();
+    const eyePos = new Float32Array(eyePts.length * 3);
+    const eyeOrigin = pick(logoPts, eyePts.length);
+    for (let i = 0; i < eyePts.length; i++) { eyePos[i*3] = eyeOrigin[i][0]; eyePos[i*3+1] = eyeOrigin[i][1]; eyePos[i*3+2] = 2; }
+    eyeGeo.setAttribute('position', new THREE.BufferAttribute(eyePos, 3));
+    const eyeMat = new THREE.PointsMaterial({ size: 9, sizeAttenuation: false, color: 0x00eaff, transparent: true, opacity: 0 });
+    const eyePoints = new THREE.Points(eyeGeo, eyeMat);
+    scene.add(eyePoints);
+
+    // ── State + GSAP-driven progress ──
+    const state = { p: 0 };
+    let active = false, raf = null;
+
+    function lerpInto(geo, originArr, targetArr, count, baseZ, useScatter) {
+      const pos = geo.attributes.position.array;
+      const e = state.p;
+      const burst = Math.sin(Math.min(Math.max(e, 0), 1) * Math.PI);
+      for (let i = 0; i < count; i++) {
+        let ox = originArr[i][0], oy = originArr[i][1];
+        let tx = targetArr[i][0], ty = targetArr[i][1];
+        let x = ox * (1 - e) + tx * e;
+        let y = oy * (1 - e) + ty * e;
+        if (useScatter) { x += scatter[i*2] * burst; y += scatter[i*2+1] * burst; }
+        else { x += (Math.random() - 0.5) * 0.6 * burst; }
+        pos[i*3] = x; pos[i*3+1] = y; pos[i*3+2] = baseZ;
+      }
+      geo.attributes.position.needsUpdate = true;
+    }
+
+    function render() {
+      raf = requestAnimationFrame(render);
+      // Body: logo → robot
+      lerpInto(bodyGeo, L, R, N, 0, true);
+      // Circuits: logo origin → circuit target
+      lerpInto(circGeo, circOrigin, circuitPts, CN, 1, false);
+      // Eyes: logo origin → eye target
+      lerpInto(eyeGeo, eyeOrigin, eyePts, eyePts.length, 2, false);
+      // Opacities tied to progress
+      const e = state.p;
+      circMat.opacity = Math.max(0, (e - 0.55) / 0.45);
+      const eyeOn = Math.max(0, (e - 0.6) / 0.4);
+      eyeMat.opacity = eyeOn;
+      eyeMat.size = 7 + eyeOn * (3 + Math.sin(performance.now() / 200) * 1.5); // LED pulse
+      renderer.render(scene, camera);
+      if (!active && state.p < 0.001) { cancelAnimationFrame(raf); raf = null; }
+    }
+
+    function start() {
+      active = true;
+      wrap.classList.add('active');
+      if (!raf) render();
+      gsap.to(state, { p: 1, duration: 0.9, ease: 'power3.inOut', overwrite: true });
+    }
+    function end() {
+      active = false;
+      gsap.to(state, { p: 0, duration: 0.7, ease: 'power3.inOut', overwrite: true,
+        onComplete() { wrap.classList.remove('active'); } });
+      if (!raf) render();
+    }
+
+    wrap.addEventListener('mouseenter', start);
+    wrap.addEventListener('mouseleave', end);
   })();
 }
 </script>
