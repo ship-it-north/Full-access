@@ -1207,7 +1207,313 @@
 })();
 </script>
 
-<!-- PART 3: Three.js 3D robot will be added here -->
+<!-- ══════════════ PART 3: THREE.JS 3D ROBOT ══════════════ -->
+<script>
+(function() {
+  'use strict';
+  if (typeof THREE === 'undefined') return;
+
+  const canvas = document.getElementById('robot-canvas');
+  if (!canvas) return;
+
+  /* ─── Renderer ─── */
+  const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+  renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  renderer.localClippingEnabled = true;
+
+  /* ─── Scene + Camera ─── */
+  const scene  = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(42, window.innerWidth / window.innerHeight, 0.1, 100);
+  camera.position.set(0, 0.6, 8);
+  camera.lookAt(0, 0.2, 0);
+
+  /* ─── Material helpers ─── */
+  function metalMat(hex, opts) {
+    return new THREE.MeshStandardMaterial(Object.assign(
+      { color: hex, metalness: 0.9, roughness: 0.1 }, opts || {}
+    ));
+  }
+  function glowMat(hex) {
+    return new THREE.MeshStandardMaterial({
+      color: hex, emissive: new THREE.Color(hex), emissiveIntensity: 1.2,
+      metalness: 0.4, roughness: 0.2,
+    });
+  }
+
+  /* ─── Clipping plane (animates chest open) ─── */
+  // Plane normal points backward (-Z). Points where -z + constant > 0 → z < constant are rendered.
+  // constant = 0.5 → whole shell visible.  constant → -0.25 → front half clipped off.
+  const clipPlane = new THREE.Plane(new THREE.Vector3(0, 0, -1), 0.5);
+
+  const shellMat = new THREE.MeshStandardMaterial({
+    color: 0x1e3a5f, metalness: 0.8, roughness: 0.15,
+    transparent: true, opacity: 0.55,
+    clippingPlanes: [clipPlane], clipShadows: false, side: THREE.DoubleSide,
+  });
+
+  /* ─── Geometry helpers ─── */
+  function mesh(geo, mat) { return new THREE.Mesh(geo, mat); }
+  function box(w,h,d,mat)     { return mesh(new THREE.BoxGeometry(w,h,d), mat); }
+  function cyl(rt,rb,h,s,mat) { return mesh(new THREE.CylinderGeometry(rt,rb,h,s), mat); }
+  function sph(r,mat)          { return mesh(new THREE.SphereGeometry(r,20,16), mat); }
+  function tor(R,r,rs,ts,mat)  { return mesh(new THREE.TorusGeometry(R,r,rs,ts), mat); }
+
+  const darkMetal = metalMat(0x0f1e33);
+  const midMetal  = metalMat(0x1e3a60);
+  const gearCol   = metalMat(0x7b2fff, { emissive: new THREE.Color(0x3a1080), emissiveIntensity: 0.4 });
+  const pipeCol   = metalMat(0x003a55, { emissive: new THREE.Color(0x001a2a), emissiveIntensity: 0.3 });
+  const eyeMat    = glowMat(0x00d4ff);
+
+  /* ══════════ BUILD ROBOT ══════════ */
+  const robot = new THREE.Group();
+  scene.add(robot);
+
+  /* HEAD */
+  const headGroup = new THREE.Group();
+  headGroup.position.y = 1.85;
+
+  const headShell = sph(0.46, shellMat);
+  headGroup.add(headShell);
+
+  // Flat face panel
+  const facePlate = box(0.52, 0.38, 0.06, midMetal);
+  facePlate.position.set(0, 0.02, 0.41);
+  headGroup.add(facePlate);
+
+  // Eyes
+  const eyeL = sph(0.08, eyeMat); eyeL.position.set(-0.16, 0.08, 0.46);
+  const eyeR = sph(0.08, eyeMat); eyeR.position.set( 0.16, 0.08, 0.46);
+  headGroup.add(eyeL, eyeR);
+
+  // Eye point-lights (stored for animation)
+  const eyePtL = new THREE.PointLight(0x00d4ff, 0, 2.5); eyePtL.position.copy(eyeL.position);
+  const eyePtR = new THREE.PointLight(0x00d4ff, 0, 2.5); eyePtR.position.copy(eyeR.position);
+  headGroup.add(eyePtL, eyePtR);
+
+  // Antenna
+  const antStalk = cyl(0.018, 0.018, 0.28, 8, midMetal); antStalk.position.y = 0.6;
+  const antTip   = sph(0.055, glowMat(0x7b2fff)); antTip.position.y = 0.78;
+  headGroup.add(antStalk, antTip);
+
+  // Ear plates
+  [-1,1].forEach(s => {
+    const ear = box(0.08, 0.28, 0.22, midMetal); ear.position.set(s * 0.5, 0.0, 0);
+    headGroup.add(ear);
+  });
+
+  robot.add(headGroup);
+
+  /* NECK */
+  const neck = cyl(0.11, 0.15, 0.22, 8, darkMetal);
+  neck.position.y = 1.3;
+  robot.add(neck);
+
+  /* TORSO */
+  const torsoGroup = new THREE.Group();
+  torsoGroup.position.y = 0.22;
+
+  // Outer shell (clipped to open on scroll)
+  const torsoShell = box(1.15, 1.25, 0.72, shellMat);
+  torsoGroup.add(torsoShell);
+
+  // Back plate (solid, always visible)
+  const backPlate = box(0.95, 1.05, 0.08, darkMetal); backPlate.position.z = -0.32;
+  torsoGroup.add(backPlate);
+
+  // ── Gears (stored for spin animation) ──
+  const gears = [];
+
+  // Central large gear
+  const gearBig = tor(0.26, 0.07, 8, 14, gearCol);
+  gearBig.position.set(0, 0.22, 0.08);
+  torsoGroup.add(gearBig); gears.push({ mesh: gearBig, dir: 1, speed: 1.0 });
+
+  // Two smaller interlocking gears
+  [[-0.3, -0.1], [0.3, -0.1]].forEach(([x, y], i) => {
+    const g = tor(0.17, 0.055, 8, 12, gearCol);
+    g.position.set(x, y, 0.08);
+    torsoGroup.add(g); gears.push({ mesh: g, dir: -1, speed: 1.55 });
+  });
+
+  // Fourth accent gear (smaller)
+  const gearSm = tor(0.1, 0.04, 6, 10, metalMat(0x00d4ff, { emissive: new THREE.Color(0x003344), emissiveIntensity: 0.5 }));
+  gearSm.position.set(0, -0.18, 0.08);
+  torsoGroup.add(gearSm); gears.push({ mesh: gearSm, dir: 1, speed: 2.4 });
+
+  // Vertical pistons
+  [-0.38, 0.38].forEach(x => {
+    const piston = cyl(0.048, 0.048, 0.68, 8, pipeCol); piston.position.set(x, 0, 0.05);
+    torsoGroup.add(piston);
+    const cap = cyl(0.07, 0.07, 0.06, 8, pipeCol); cap.position.set(x, 0.37, 0.05);
+    torsoGroup.add(cap);
+  });
+
+  // Ribcage tubes (horizontal)
+  for (let i = 0; i < 5; i++) {
+    const rib = cyl(0.025, 0.025, 0.7, 8, darkMetal);
+    rib.rotation.z = Math.PI / 2; rib.position.set(0, -0.3 + i * 0.18, -0.1);
+    torsoGroup.add(rib);
+  }
+
+  // Shoulder connector boxes
+  [-1,1].forEach(s => {
+    const sc = box(0.18, 0.22, 0.52, darkMetal); sc.position.set(s * 0.64, 0.44, 0);
+    torsoGroup.add(sc);
+  });
+
+  robot.add(torsoGroup);
+
+  /* ARMS */
+  [-1, 1].forEach(side => {
+    const arm = new THREE.Group();
+    arm.position.set(side * 0.82, 0.44, 0);
+
+    // Shoulder ball
+    const shoulder = sph(0.14, midMetal); shoulder.position.y = 0.0;
+    arm.add(shoulder);
+
+    // Shoulder gear
+    const sGear = tor(0.14, 0.045, 6, 10, gearCol);
+    sGear.rotation.y = Math.PI / 2; sGear.position.y = 0;
+    arm.add(sGear); gears.push({ mesh: sGear, dir: side, speed: 0.7 });
+
+    // Upper arm
+    const upper = cyl(0.1, 0.12, 0.55, 8, darkMetal); upper.position.y = -0.32;
+    arm.add(upper);
+
+    // Elbow ball
+    const elbow = sph(0.11, midMetal); elbow.position.y = -0.63;
+    arm.add(elbow);
+
+    // Forearm
+    const fore = cyl(0.075, 0.095, 0.48, 8, darkMetal); fore.position.y = -0.9;
+    arm.add(fore);
+
+    robot.add(arm);
+  });
+
+  /* LEGS */
+  [-0.3, 0.3].forEach(x => {
+    const leg = new THREE.Group();
+    leg.position.set(x, -0.6, 0);
+
+    const upper = cyl(0.13, 0.14, 0.6, 8, darkMetal);  upper.position.y = -0.3;
+    const knee  = sph(0.14, midMetal);                  knee.position.y  = -0.62;
+    const lower = cyl(0.095, 0.12, 0.55, 8, darkMetal); lower.position.y = -0.94;
+    const foot  = box(0.24, 0.11, 0.38, darkMetal);     foot.position.y  = -1.25;
+
+    // Knee gear
+    const kGear = tor(0.12, 0.04, 6, 8, gearCol);
+    kGear.rotation.y = Math.PI / 2; kGear.position.y = -0.62;
+    leg.add(upper, knee, lower, foot, kGear);
+    gears.push({ mesh: kGear, dir: (x < 0 ? 1 : -1), speed: 0.9 });
+
+    robot.add(leg);
+  });
+
+  /* ══════════ LIGHTING ══════════ */
+  // Purple ambient
+  const ambLight = new THREE.AmbientLight(0x7b2fff, 0.35);
+  scene.add(ambLight);
+
+  // Blue front point light
+  const frontLight = new THREE.PointLight(0x00d4ff, 1.6, 22);
+  frontLight.position.set(0, 1.5, 6);
+  scene.add(frontLight);
+
+  // Purple fill from left
+  const fillLight = new THREE.PointLight(0x7b2fff, 0.8, 18);
+  fillLight.position.set(-4, 0.5, 2);
+  scene.add(fillLight);
+
+  // Gold rim from behind
+  const rimLight = new THREE.DirectionalLight(0xD4AF37, 0.9);
+  rimLight.position.set(0, 3, -6);
+  scene.add(rimLight);
+
+  /* ══════════ SCROLL ANIMATION STATE ══════════ */
+  const state = {
+    chestOpen: 0,   // 0=closed, 1=fully open
+    eyeGlow:   0,   // 0=dark, 1=full glow
+    camZ:      8,
+    camY:      0.6,
+    rotY:      0,
+  };
+
+  if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
+    const tl = gsap.timeline({
+      scrollTrigger: {
+        trigger: document.body,
+        start: 'top top',
+        end: 'bottom bottom',
+        scrub: 1,
+      }
+    });
+
+    // 0% → 25%: silhouette, subtle rotation
+    tl.to(state, { rotY: 0.18, duration: 1 }, 0);
+
+    // 25% → 50%: chest opens, gears glow
+    tl.to(state, { chestOpen: 1, duration: 1 }, 1);
+
+    // 50% → 75%: eyes fully glow, continue
+    tl.to(state, { eyeGlow: 1, duration: 1 }, 2);
+
+    // 75% → 100%: camera zooms into chest cavity
+    tl.to(state, { camZ: 3.8, camY: 0.22, duration: 1 }, 3);
+  }
+
+  /* ══════════ RENDER LOOP ══════════ */
+  const clock = new THREE.Clock();
+
+  function animate() {
+    requestAnimationFrame(animate);
+    const t = clock.getElapsedTime();
+    const sp = 0.4 + state.chestOpen * 1.8;  // gear speed scales with chest opening
+
+    // Spin gears
+    gears.forEach(g => {
+      g.mesh.rotation.z += g.dir * g.speed * sp * 0.016;
+    });
+
+    // Chest clipping: constant 0.5 (closed) → -0.25 (open)
+    clipPlane.constant = 0.5 - state.chestOpen * 0.75;
+
+    // Eye glow pulse
+    const pulse = 0.85 + Math.sin(t * 2.8) * 0.15;
+    eyeMat.emissiveIntensity = 0.3 + state.eyeGlow * 1.8 * pulse;
+    eyePtL.intensity = state.eyeGlow * 1.8 * pulse;
+    eyePtR.intensity = state.eyeGlow * 1.8 * pulse;
+
+    // Camera
+    camera.position.z = state.camZ;
+    camera.position.y = state.camY;
+    camera.lookAt(0, 0.2, 0);
+
+    // Robot: subtle float + rotation
+    robot.position.y  = Math.sin(t * 0.5) * 0.05;
+    robot.rotation.y  = state.rotY + Math.sin(t * 0.28) * 0.04;
+
+    // Light pulse
+    frontLight.intensity = 1.6 + Math.sin(t * 0.9) * 0.25;
+    fillLight.intensity  = 0.8 + Math.sin(t * 0.7 + 1) * 0.15;
+
+    renderer.render(scene, camera);
+  }
+
+  animate();
+
+  /* ─── Resize ─── */
+  window.addEventListener('resize', () => {
+    const W = window.innerWidth, H = window.innerHeight;
+    camera.aspect = W / H;
+    camera.updateProjectionMatrix();
+    renderer.setSize(W, H);
+  });
+
+})();
+</script>
 
 </body>
 </html>
