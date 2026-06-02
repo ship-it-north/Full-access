@@ -1028,7 +1028,185 @@
   });
 </script>
 
-<!-- PART 2: GSAP animations will be added here -->
+<!-- ══════════════ PART 2: GSAP ANIMATIONS ══════════════ -->
+<script>
+(function() {
+  'use strict';
+  if (typeof gsap === 'undefined') return;
+  gsap.registerPlugin(ScrollTrigger);
+
+  const isMobile = window.innerWidth <= 880;
+
+  /* ─── Typing animation ─── */
+  const PHRASES = [
+    'Convert More Clients',
+    'Automate Your Operations',
+    'Scale Without Hiring',
+    'Dominate Your Market'
+  ];
+  let pi = 0, ci = 0, deleting = false, paused = false;
+  const typEl = document.getElementById('typing-text');
+  function type() {
+    if (paused) return;
+    const ph = PHRASES[pi];
+    if (!deleting && ci === ph.length) {
+      paused = true;
+      setTimeout(() => { deleting = true; paused = false; type(); }, 2000);
+      return;
+    }
+    if (deleting && ci === 0) { deleting = false; pi = (pi + 1) % PHRASES.length; }
+    ci += deleting ? -1 : 1;
+    typEl.textContent = ph.substring(0, ci);
+    setTimeout(type, deleting ? 38 : 82);
+  }
+
+  /* ─── Hero entrance ─── */
+  gsap.set('.hero-el', { opacity: 0, y: 28 });
+  gsap.timeline({ delay: 0.3, onStart: type })
+    .to('.hero-el', { opacity: 1, y: 0, duration: 0.75, ease: 'power3.out', stagger: 0.12 });
+
+  /* ─── Gold shimmer is CSS-only — nothing needed here ─── */
+
+  /* ─── Helper: reveal on scroll ─── */
+  function reveal(targets, trigger, vars) {
+    gsap.from(targets, {
+      scrollTrigger: { trigger, start: 'top 82%', once: true },
+      ...{ y: 45, opacity: 0, duration: 0.8, ease: 'power3.out', stagger: 0.12 },
+      ...vars,
+    });
+  }
+
+  /* ─── Why AI panel — slide from left ─── */
+  gsap.from('#why .panel-left', {
+    scrollTrigger: { trigger: '#why', start: 'top 78%', once: true },
+    x: -50, opacity: 0, duration: 0.9, ease: 'power3.out',
+  });
+  reveal('#why .why-card', '#why .why-cards', { stagger: 0.14, delay: 0.2 });
+
+  /* ─── Services panel — slide from right ─── */
+  gsap.from('#services .panel-right', {
+    scrollTrigger: { trigger: '#services', start: 'top 78%', once: true },
+    x: 50, opacity: 0, duration: 0.9, ease: 'power3.out',
+  });
+  reveal('#services .svc-card', '#services .svc-list', { stagger: 0.12, delay: 0.2 });
+
+  /* ─── Results section ─── */
+  reveal('#results .container-center', '#results', { y: 30, stagger: 0 });
+  gsap.from('#stats-box', {
+    scrollTrigger: { trigger: '#stats-box', start: 'top 84%', once: true },
+    y: 30, opacity: 0, duration: 0.8, ease: 'power3.out', delay: 0.15,
+  });
+  reveal('#results .testi-card', '#results .testi-grid', { stagger: 0.14, delay: 0.1 });
+
+  /* ─── Contact section ─── */
+  gsap.from('#contact .container-center', {
+    scrollTrigger: { trigger: '#contact', start: 'top 80%', once: true },
+    y: 30, opacity: 0, duration: 0.8, ease: 'power3.out',
+  });
+  gsap.from('#contact .form-card', {
+    scrollTrigger: { trigger: '#contact .contact-grid', start: 'top 82%', once: true },
+    x: -36, opacity: 0, duration: 0.85, ease: 'power3.out', delay: 0.1,
+  });
+  gsap.from('#contact .contact-side', {
+    scrollTrigger: { trigger: '#contact .contact-grid', start: 'top 82%', once: true },
+    x: 36, opacity: 0, duration: 0.85, ease: 'power3.out', delay: 0.18,
+  });
+
+  /* ─── Footer ─── */
+  gsap.from('footer .footer-in', {
+    scrollTrigger: { trigger: 'footer', start: 'top 92%', once: true },
+    y: 24, opacity: 0, duration: 0.7, ease: 'power3.out',
+  });
+
+  /* ─── Animated counters ─── */
+  const COUNTERS = [
+    { id: 'c1', target: 47,   suffix: '+',  fmt: null },
+    { id: 'c2', target: 3200, suffix: '+',  fmt: 'comma' },
+    { id: 'c3', target: 3,    suffix: 'x',  fmt: null },
+    { id: 'c4', target: 98,   suffix: '%',  fmt: null },
+  ];
+  ScrollTrigger.create({
+    trigger: '#stats-box', start: 'top 84%', once: true,
+    onEnter() {
+      COUNTERS.forEach(({ id, target, suffix, fmt }) => {
+        const el = document.getElementById(id);
+        const proxy = { v: 0 };
+        gsap.to(proxy, {
+          v: target, duration: 2.0, ease: 'power2.out',
+          onUpdate() {
+            const v = Math.floor(proxy.v);
+            el.textContent = (fmt === 'comma' ? v.toLocaleString() : v) + suffix;
+          },
+          onComplete() {
+            el.textContent = (fmt === 'comma' ? target.toLocaleString() : target) + suffix;
+          }
+        });
+      });
+    }
+  });
+
+  /* ─── Glowing rules — sweep in ─── */
+  gsap.utils.toArray('.rule').forEach(r => {
+    gsap.fromTo(r,
+      { scaleX: 0, transformOrigin: 'left center' },
+      { scrollTrigger: { trigger: r, start: 'top 90%', once: true },
+        scaleX: 1, duration: 0.8, ease: 'power3.out' }
+    );
+  });
+
+  /* ─── Desktop-only interactions ─── */
+  if (!isMobile) {
+
+    /* Magnetic buttons */
+    document.querySelectorAll('.magnetic').forEach(el => {
+      el.addEventListener('mousemove', function(ev) {
+        const r = this.getBoundingClientRect();
+        gsap.to(this, {
+          x: (ev.clientX - r.left - r.width  / 2) * 0.28,
+          y: (ev.clientY - r.top  - r.height / 2) * 0.28,
+          duration: 0.3, ease: 'power2.out', overwrite: 'auto',
+        });
+      });
+      el.addEventListener('mouseleave', function() {
+        gsap.to(this, { x: 0, y: 0, duration: 0.6, ease: 'elastic.out(1,0.5)', overwrite: 'auto' });
+      });
+    });
+
+    /* 3D tilt on why-cards and testi-cards */
+    document.querySelectorAll('.why-card, .testi-card').forEach(card => {
+      card.addEventListener('mousemove', function(ev) {
+        const r = this.getBoundingClientRect();
+        gsap.to(this, {
+          rotationX: ((ev.clientY - r.top)  / r.height - 0.5) * -8,
+          rotationY: ((ev.clientX - r.left) / r.width  - 0.5) *  8,
+          duration: 0.25, ease: 'power2.out',
+          transformPerspective: 900, overwrite: 'auto',
+        });
+      });
+      card.addEventListener('mouseleave', function() {
+        gsap.to(this, {
+          rotationX: 0, rotationY: 0,
+          duration: 0.55, ease: 'elastic.out(1,0.4)', overwrite: 'auto',
+        });
+      });
+    });
+
+    /* Subtle background parallax on mouse move */
+    document.addEventListener('mousemove', e => {
+      const mx = (e.clientX / window.innerWidth  - 0.5) * 2;
+      const my = (e.clientY / window.innerHeight - 0.5) * 2;
+      gsap.to('.bg-grid', {
+        backgroundPositionX: mx * 12 + 'px',
+        backgroundPositionY: my * 8  + 'px',
+        duration: 1.8, ease: 'power2.out', overwrite: 'auto',
+      });
+    });
+
+  }
+
+})();
+</script>
+
 <!-- PART 3: Three.js 3D robot will be added here -->
 
 </body>
