@@ -7,570 +7,625 @@
   <meta name="description" content="FYLTR Media builds AI automation systems for ambitious businesses — lead generation, client follow-up, virtual assistants, and full process automation." />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600;700;800;900&family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
-
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&family=Playfair+Display:ital,wght@1,600;1,700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet" />
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-    /* ─── DESIGN TOKENS ─── */
+    /* ── TOKENS ── */
     :root {
-      --bg:         #0a0a0f;
-      --bg2:        #0f0f1a;
-      --purple:     #7b2fff;
-      --purple-dim: #5a1fd1;
-      --blue:       #00d4ff;
-      --gold:       #D4AF37;
-      --gold-soft:  #E6C964;
-      --white:      #ffffff;
-      --text:       rgba(255,255,255,0.82);
-      --muted:      rgba(255,255,255,0.42);
-      --line:       rgba(255,255,255,0.07);
-      --glass:      rgba(255,255,255,0.04);
-      --glass-b:    rgba(123,47,255,0.08);
+      --bg:       #0d1117;
+      --bg-dark:  #080c12;
+      --bg-card:  rgba(255,255,255,0.03);
+      --green:    #00ff88;
+      --green-d:  rgba(0,255,136,0.08);
+      --blue:     #00d4ff;
+      --purple:   #7b2fff;
+      --gold:     #D4AF37;
+      --gold-s:   #E6C964;
+      --white:    #ffffff;
+      --text:     rgba(255,255,255,0.80);
+      --muted:    rgba(255,255,255,0.40);
+      --line:     rgba(255,255,255,0.07);
+      --glow-g:   0 0 24px rgba(0,255,136,0.35);
+      --glow-b:   0 0 24px rgba(0,212,255,0.35);
     }
 
     html { scroll-behavior: smooth; }
 
     body {
-      font-family: 'Inter', sans-serif;
+      font-family: 'Outfit', sans-serif;
       background: var(--bg);
       color: var(--text);
       overflow-x: hidden;
       -webkit-font-smoothing: antialiased;
     }
 
-    h1, h2, h3, .serif { font-family: 'Playfair Display', serif; }
-
-    /* ─── FIXED BACKGROUND GRID ─── */
-    .bg-grid {
-      position: fixed; inset: 0; z-index: 0; pointer-events: none;
-      background-image:
-        linear-gradient(rgba(123,47,255,0.06) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(123,47,255,0.06) 1px, transparent 1px);
-      background-size: 72px 72px;
-    }
-
-    /* ─── ROBOT STAGE (Three.js canvas goes here) ─── */
-    #robot-stage {
-      position: fixed;
-      inset: 0;
-      z-index: 1;
+    /* ── GRAIN OVERLAY ── */
+    body::after {
+      content: '';
+      position: fixed; inset: 0; z-index: 9999;
       pointer-events: none;
-    }
-    #robot-canvas {
-      display: block;
-      width: 100%;
-      height: 100%;
+      opacity: 0.028;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)'/%3E%3C/svg%3E");
+      background-size: 300px 300px;
     }
 
-    /* ─── PAGE CONTENT sits above robot ─── */
-    .page-content { position: relative; z-index: 2; }
-
-    /* ─── LAYOUT ─── */
-    section { padding: 120px 0; position: relative; }
-
-    /* Left / right text panels — text only fills 42% of viewport */
-    .panel-left {
-      max-width: 42%;
-      padding-left: 6vw;
-      padding-right: 2vw;
+    /* ── FIXED ROBOT CANVAS ── */
+    #robot-stage {
+      position: fixed; inset: 0; z-index: 1; pointer-events: none;
     }
-    .panel-right {
-      max-width: 42%;
-      margin-left: auto;
-      padding-right: 6vw;
-      padding-left: 2vw;
+    #robot-canvas { display: block; width: 100%; height: 100%; }
+
+    /* ── BACKGROUND HEX GRID ── */
+    .bg-grid {
+      position: fixed; inset: 0; z-index: 0; pointer-events: none; opacity: 0.04;
+      background-image:
+        linear-gradient(rgba(0,255,136,1) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0,255,136,1) 1px, transparent 1px);
+      background-size: 56px 56px;
     }
 
-    /* Centered containers */
-    .container {
-      max-width: 1140px;
-      margin: 0 auto;
-      padding: 0 32px;
-    }
-    .container-center {
-      max-width: 720px;
-      margin: 0 auto;
-      padding: 0 32px;
-      text-align: center;
-    }
+    /* ── PAGE WRAPPER ── */
+    .page { position: relative; z-index: 2; }
 
-    /* ─── TYPOGRAPHY UTILS ─── */
-    .text-blue   { color: var(--blue); }
-    .text-purple { color: var(--purple); }
-    .text-gold   { color: var(--gold); }
-    .text-muted  { color: var(--muted); }
+    /* ── CONTAINERS ── */
+    .wrap  { max-width: 1160px; margin: 0 auto; padding: 0 32px; }
+    .wrap-sm { max-width: 800px;  margin: 0 auto; padding: 0 32px; }
 
-    /* ─── GLASS CARDS ─── */
+    /* ── TEXT UTILS ── */
+    .t-green  { color: var(--green); }
+    .t-gold   { color: var(--gold); }
+    .t-blue   { color: var(--blue); }
+    .t-muted  { color: var(--muted); }
+    .t-italic { font-family: 'Playfair Display', serif; font-style: italic; }
+
+    /* ── GLASS CARD ── */
     .glass {
-      background: var(--glass);
-      backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
+      background: var(--bg-card);
       border: 1px solid var(--line);
-      box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
     }
 
-    /* ─── BADGE ─── */
+    /* ── BADGE ── */
     .badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      padding: 7px 18px;
-      border-radius: 999px;
-      font-size: 0.74rem;
-      font-weight: 600;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      background: rgba(123,47,255,0.12);
-      border: 1px solid rgba(123,47,255,0.28);
-      color: var(--purple);
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 6px 16px; border-radius: 999px;
+      font-size: 0.7rem; font-weight: 700;
+      letter-spacing: 0.14em; text-transform: uppercase;
+      background: rgba(0,255,136,0.07);
+      border: 1px solid rgba(0,255,136,0.22);
+      color: var(--green);
     }
     .badge .dot {
-      width: 6px; height: 6px;
-      border-radius: 50%;
-      background: var(--blue);
-      box-shadow: 0 0 8px var(--blue);
-      animation: pulse 2s infinite;
+      width: 6px; height: 6px; border-radius: 50%;
+      background: var(--green); box-shadow: var(--glow-g);
+      animation: blink 2s infinite;
     }
-    .badge-gold {
-      background: rgba(212,175,55,0.1);
-      border-color: rgba(212,175,55,0.28);
-      color: var(--gold);
-    }
-    .badge-gold .dot { background: var(--gold); box-shadow: 0 0 8px var(--gold); }
 
-    /* ─── BUTTONS ─── */
-    .btn-primary {
-      display: inline-block;
-      padding: 16px 38px;
-      border-radius: 100px;
-      font-family: 'Inter', sans-serif;
-      font-weight: 700;
-      font-size: 1rem;
-      color: #0a0a0f;
-      text-decoration: none;
-      cursor: pointer;
-      border: none;
-      background: linear-gradient(120deg, var(--blue), var(--purple));
-      box-shadow: 0 8px 28px rgba(0,212,255,0.25);
-      transition: box-shadow 0.35s, transform 0.2s;
-      will-change: transform;
-    }
-    .btn-primary:hover { box-shadow: 0 14px 40px rgba(0,212,255,0.4); transform: translateY(-1px); }
-
+    /* ── BUTTONS ── */
     .btn-gold {
-      display: inline-block;
-      padding: 16px 38px;
-      border-radius: 100px;
-      font-family: 'Inter', sans-serif;
-      font-weight: 700;
-      font-size: 1rem;
-      color: #0a0a0f;
-      text-decoration: none;
-      cursor: pointer;
-      border: none;
-      background: linear-gradient(120deg, var(--gold-soft), var(--gold));
-      box-shadow: 0 8px 28px rgba(212,175,55,0.3);
-      transition: box-shadow 0.35s, transform 0.2s;
-      will-change: transform;
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 16px 36px; border-radius: 6px;
+      font-family: 'Outfit', sans-serif; font-weight: 700; font-size: 0.95rem;
+      letter-spacing: 0.04em; text-transform: uppercase;
+      color: #060a0d; text-decoration: none; cursor: pointer; border: none;
+      background: linear-gradient(120deg, var(--gold-s), var(--gold));
+      box-shadow: 0 6px 24px rgba(212,175,55,0.28);
+      transition: box-shadow 0.3s, transform 0.2s;
     }
-    .btn-gold:hover { box-shadow: 0 14px 40px rgba(212,175,55,0.5); transform: translateY(-1px); }
+    .btn-gold:hover { box-shadow: 0 10px 36px rgba(212,175,55,0.48); transform: translateY(-2px); }
 
-    .btn-ghost {
-      display: inline-block;
-      padding: 15px 36px;
-      border-radius: 100px;
-      font-family: 'Inter', sans-serif;
-      font-weight: 600;
-      font-size: 1rem;
-      color: var(--text);
-      text-decoration: none;
-      cursor: pointer;
+    .btn-outline {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 15px 34px; border-radius: 6px;
+      font-family: 'Outfit', sans-serif; font-weight: 600; font-size: 0.95rem;
+      letter-spacing: 0.04em; text-transform: uppercase;
+      color: var(--text); text-decoration: none; cursor: pointer;
       background: transparent;
-      border: 1px solid var(--line);
-      transition: border-color 0.3s, background 0.3s;
-      will-change: transform;
+      border: 1px solid rgba(0,255,136,0.25);
+      transition: border-color 0.3s, background 0.3s, color 0.3s;
     }
-    .btn-ghost:hover { border-color: rgba(123,47,255,0.4); background: rgba(123,47,255,0.06); }
+    .btn-outline:hover { border-color: var(--green); color: var(--green); background: rgba(0,255,136,0.05); }
 
-    /* ─── SECTION HEADINGS ─── */
-    .section-label {
-      display: block;
-      font-size: 0.72rem;
-      font-weight: 600;
-      letter-spacing: 0.14em;
-      text-transform: uppercase;
-      color: var(--blue);
-      margin-bottom: 14px;
-    }
-    .section-title {
-      font-size: clamp(1.9rem, 3.5vw, 2.8rem);
-      font-weight: 800;
-      line-height: 1.1;
-      color: var(--white);
-      margin-bottom: 18px;
-    }
-    .section-title .accent { color: var(--blue); font-style: italic; }
-    .section-title .gold   { color: var(--gold); }
-    .section-body {
-      font-size: 1.02rem;
-      line-height: 1.76;
-      color: var(--muted);
-      margin-bottom: 30px;
+    /* ── SECTION LABEL ── */
+    .sec-label {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.68rem; font-weight: 700;
+      letter-spacing: 0.2em; text-transform: uppercase;
+      color: var(--green); display: block; margin-bottom: 20px;
     }
 
-    /* Glowing rule */
-    .rule {
-      width: 56px; height: 2px;
-      background: linear-gradient(90deg, var(--blue), var(--purple));
+    .rule-green {
+      width: 48px; height: 2px;
+      background: var(--green);
+      box-shadow: var(--glow-g);
       border-radius: 2px;
-      margin-bottom: 26px;
-      box-shadow: 0 0 12px rgba(0,212,255,0.35);
+      margin-bottom: 24px;
     }
-    .rule-center { margin-left: auto; margin-right: auto; }
 
-    /* ─── ANIMATIONS ─── */
-    @keyframes pulse   { 0%,100%{opacity:1} 50%{opacity:0.3} }
-    @keyframes blink   { 0%,100%{opacity:1} 50%{opacity:0}   }
+    /* ── ANIMATIONS ── */
+    @keyframes blink   { 0%,100%{opacity:1}  50%{opacity:0.2} }
     @keyframes shimmer { 0%{background-position:200% center} 100%{background-position:-200% center} }
+    @keyframes marquee { from{transform:translateX(0)} to{transform:translateX(-50%)} }
 
-    /* ════════════════════════════════════════════════════
+    /* ════════════════════════════════════
        NAVBAR
-       ════════════════════════════════════════════════════ */
-    #navbar {
-      position: fixed;
-      top: 0; left: 0; right: 0;
-      z-index: 100;
-      padding: 22px 0;
-      transition: all 0.35s;
+    ════════════════════════════════════ */
+    #nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 200;
+      padding: 24px 0; transition: all 0.3s;
     }
-    #navbar.scrolled {
-      background: rgba(10,10,15,0.92);
-      backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
+    #nav.scrolled {
+      background: rgba(8,12,18,0.92);
+      backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
       border-bottom: 1px solid var(--line);
-      padding: 13px 0;
+      padding: 14px 0;
     }
-    .nav-inner { display: flex; align-items: center; justify-content: space-between; }
+    .nav-row { display: flex; align-items: center; justify-content: space-between; }
 
     .logo {
-      font-family: 'Playfair Display', serif;
-      font-size: 1.35rem;
-      font-weight: 800;
-      letter-spacing: 0.06em;
-      text-decoration: none;
-      color: var(--white);
-      display: inline-flex;
-      align-items: center;
+      font-family: 'Outfit', sans-serif; font-weight: 900;
+      font-size: 1.3rem; letter-spacing: 0.1em;
+      text-decoration: none; color: var(--white);
+      display: inline-flex; align-items: center; gap: 0;
     }
-    .logo .f-blue  { color: var(--blue); }
-    .logo .f-sep   { color: var(--gold); font-weight: 300; margin: 0 8px; }
-    .logo .f-media { color: var(--white); }
+    .logo .l-green { color: var(--green); }
+    .logo .l-sep   { color: rgba(255,255,255,0.2); margin: 0 8px; font-weight: 300; }
+    .logo .l-white { color: var(--white); }
 
-    .nav-links { display: flex; align-items: center; gap: 34px; list-style: none; }
+    .nav-links { display: flex; align-items: center; gap: 36px; list-style: none; }
     .nav-links a {
-      color: var(--muted);
-      text-decoration: none;
-      font-size: 0.88rem;
-      font-weight: 500;
-      position: relative;
-      transition: color 0.2s;
+      font-size: 0.82rem; font-weight: 600; letter-spacing: 0.06em;
+      text-transform: uppercase; color: var(--muted); text-decoration: none;
+      transition: color 0.2s; position: relative;
     }
     .nav-links a::after {
-      content: '';
-      position: absolute;
-      bottom: -4px; left: 0;
-      width: 0; height: 1px;
-      background: var(--blue);
-      transition: width 0.3s;
+      content: ''; position: absolute; bottom: -3px; left: 0;
+      width: 0; height: 1px; background: var(--green); transition: width 0.3s;
     }
     .nav-links a:hover { color: var(--white); }
     .nav-links a:hover::after { width: 100%; }
-
-    .nav-cta { padding: 10px 24px !important; font-size: 0.84rem !important; }
 
     .hamburger {
       display: none; flex-direction: column; gap: 5px;
       background: none; border: none; cursor: pointer; padding: 4px;
     }
-    .hamburger span { display: block; width: 24px; height: 2px; background: var(--white); border-radius: 2px; transition: all 0.3s; }
+    .hamburger span { display: block; width: 22px; height: 2px; background: var(--white); border-radius: 2px; transition: all 0.3s; }
     .hamburger.open span:nth-child(1) { transform: rotate(45deg) translate(5px,5px); }
     .hamburger.open span:nth-child(2) { opacity: 0; }
     .hamburger.open span:nth-child(3) { transform: rotate(-45deg) translate(5px,-5px); }
 
-    .mobile-menu {
-      display: none; flex-direction: column; gap: 2px;
-      padding: 14px 24px;
-      background: rgba(10,10,15,0.97);
-      border-top: 1px solid var(--line);
-    }
-    .mobile-menu.open { display: flex; }
-    .mobile-menu a { color: var(--muted); text-decoration: none; font-weight: 500; padding: 12px 0; border-bottom: 1px solid var(--line); transition: color 0.2s; }
-    .mobile-menu a:hover { color: var(--white); }
-    .mobile-cta { margin-top: 10px !important; text-align: center; border-radius: 100px; background: linear-gradient(120deg,var(--blue),var(--purple)); color: #0a0a0f !important; font-weight: 700 !important; border-bottom: none !important; padding: 13px !important; }
+    .mob-menu { display: none; flex-direction: column; padding: 14px 24px; background: rgba(8,12,18,0.98); border-top: 1px solid var(--line); }
+    .mob-menu.open { display: flex; }
+    .mob-menu a { color: var(--muted); text-decoration: none; font-weight: 600; font-size: 0.88rem; letter-spacing: 0.06em; text-transform: uppercase; padding: 13px 0; border-bottom: 1px solid var(--line); transition: color 0.2s; }
+    .mob-menu a:hover { color: var(--green); }
+    .mob-cta { color: var(--gold) !important; border-bottom: none !important; }
 
-    @media(max-width:880px) { .nav-links, .nav-cta-wrap { display: none; } .hamburger { display: flex; } }
+    @media(max-width:860px) { .nav-links, .nav-cta-wrap { display: none; } .hamburger { display: flex; } }
 
-    /* ════════════════════════════════════════════════════
+    /* ════════════════════════════════════
        HERO
-       ════════════════════════════════════════════════════ */
+    ════════════════════════════════════ */
     #hero {
       min-height: 100vh;
-      display: flex;
-      align-items: center;
-      padding: 140px 0 100px;
-    }
-    .hero-content {
-      max-width: 740px;
-      margin: 0 auto;
+      display: flex; align-items: center; justify-content: center;
+      padding: 140px 32px 100px;
+      position: relative; overflow: hidden;
       text-align: center;
-      padding: 0 32px;
-      position: relative;
-      z-index: 3;
     }
+
+    /* Radial spotlight behind hero content */
+    #hero::before {
+      content: '';
+      position: absolute; inset: 0; pointer-events: none;
+      background: radial-gradient(ellipse 60% 70% at 50% 40%, rgba(0,255,136,0.04) 0%, transparent 70%);
+    }
+
+    /* Gear clusters — positioned in corners */
+    .gear-cluster {
+      position: absolute; pointer-events: none;
+    }
+    .gc-tl { top: -30px; left: -30px; }
+    .gc-tr { top: -30px; right: -30px; transform: scaleX(-1); }
+    .gc-bl { bottom: -60px; left: -60px; transform: scaleY(-1); }
+    .gc-br { bottom: -60px; right: -60px; transform: scale(-1,-1); }
+
+    /* Individual gear SVGs inside clusters */
+    .g-svg {
+      position: absolute;
+      transform-origin: center center;
+      opacity: 0; /* GSAP animates this in */
+    }
+    /* Sizes + positions for top-left cluster */
+    .gc-tl .g-a { width: 240px; height: 240px; top: 0;   left: 0; }
+    .gc-tl .g-b { width: 160px; height: 160px; top: 50px; left: 190px; }
+    .gc-tl .g-c { width: 100px; height: 100px; top: 180px; left: 60px; }
+
+    .hero-content { position: relative; z-index: 3; max-width: 880px; }
+
+    .hero-eyebrow {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.7rem; font-weight: 700; letter-spacing: 0.22em;
+      text-transform: uppercase; color: var(--green);
+      margin-bottom: 28px; display: block;
+      opacity: 0; /* GSAP */
+    }
+
     .hero-h1 {
-      font-size: clamp(2.8rem, 6.5vw, 5rem);
-      font-weight: 900;
-      line-height: 1.02;
-      color: var(--white);
-      margin: 20px 0 10px;
-      letter-spacing: -0.01em;
+      font-size: clamp(3.2rem, 8vw, 7rem);
+      font-weight: 900; line-height: 0.95;
+      letter-spacing: -0.02em; color: var(--white);
+      text-transform: uppercase; margin-bottom: 14px;
+      opacity: 0; /* GSAP */
     }
-    .hero-shimmer {
-      background: linear-gradient(
-        110deg,
-        var(--white) 0%, var(--white) 28%,
-        var(--blue) 42%, var(--purple) 50%,
-        var(--white) 62%, var(--white) 100%
-      );
-      background-size: 240% auto;
-      -webkit-background-clip: text;
-      background-clip: text;
+    .hero-h1 .accent-line {
+      font-family: 'Playfair Display', serif;
+      font-style: italic; font-weight: 600;
+      text-transform: none; letter-spacing: 0;
+      font-size: 0.78em;
+      background: linear-gradient(110deg, var(--green), var(--blue) 60%, var(--green));
+      background-size: 200% auto;
+      -webkit-background-clip: text; background-clip: text;
       -webkit-text-fill-color: transparent;
-      animation: shimmer 5s linear infinite;
+      animation: shimmer 4s linear infinite;
+      display: block; margin-top: 8px;
     }
-    .typing-row {
-      height: 48px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 10px;
-      margin: 10px 0 20px;
+
+    .hero-sub {
+      font-size: 1.08rem; line-height: 1.75; color: var(--muted);
+      max-width: 560px; margin: 28px auto 40px;
+      opacity: 0; /* GSAP */
     }
-    .typing-prefix { font-size: 1.12rem; font-weight: 400; color: var(--muted); }
-    .typing-text   { font-family: 'Playfair Display', serif; font-style: italic; font-size: 1.28rem; font-weight: 600; color: var(--blue); }
-    .cursor        { display: inline-block; width: 2px; height: 1.1em; background: var(--blue); border-radius: 1px; animation: blink 1s infinite; vertical-align: middle; }
 
-    .hero-sub { font-size: 1.08rem; line-height: 1.78; color: var(--muted); max-width: 560px; margin: 0 auto 36px; }
-    .hero-btns { display: flex; flex-wrap: wrap; gap: 14px; justify-content: center; margin-bottom: 50px; }
+    .hero-btns {
+      display: flex; flex-wrap: wrap; gap: 14px; justify-content: center;
+      margin-bottom: 56px; opacity: 0; /* GSAP */
+    }
 
-    .hero-proof { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 26px; }
-    .proof-item { display: flex; align-items: baseline; gap: 8px; }
-    .proof-num   { font-family: 'Playfair Display', serif; font-weight: 800; font-size: 1.18rem; color: var(--gold); }
-    .proof-label { font-size: 0.8rem; color: var(--muted); }
-    .proof-sep   { width: 1px; height: 18px; background: var(--line); }
+    /* Typing row */
+    .hero-typing {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.82rem; color: var(--muted);
+      letter-spacing: 0.06em; margin-bottom: 32px;
+      opacity: 0; /* GSAP */
+    }
+    .hero-typing .t-val {
+      color: var(--green); font-weight: 700;
+    }
+    .cursor { display: inline-block; width: 8px; height: 1em; background: var(--green); vertical-align: middle; margin-left: 2px; animation: blink 1s infinite; }
 
-    /* hero elements start hidden — GSAP animates them in */
-    .hero-el { opacity: 0; transform: translateY(28px); }
+    /* Proof strip */
+    .proof-strip {
+      display: flex; flex-wrap: wrap; align-items: center; justify-content: center;
+      gap: 0; opacity: 0; /* GSAP */
+    }
+    .proof-item { padding: 0 28px; text-align: center; }
+    .proof-item:not(:last-child) { border-right: 1px solid var(--line); }
+    .proof-num {
+      font-size: 1.5rem; font-weight: 900; color: var(--gold);
+      letter-spacing: -0.02em; display: block;
+    }
+    .proof-lbl { font-size: 0.72rem; color: var(--muted); letter-spacing: 0.08em; text-transform: uppercase; }
 
-    /* ════════════════════════════════════════════════════
-       WHY AI — panel LEFT
-       ════════════════════════════════════════════════════ */
+    /* ════════════════════════════════════
+       MARQUEE STRIP
+    ════════════════════════════════════ */
+    .marquee-strip {
+      background: var(--bg-dark);
+      border-top: 1px solid rgba(0,255,136,0.12);
+      border-bottom: 1px solid rgba(0,255,136,0.12);
+      padding: 16px 0; overflow: hidden; position: relative;
+    }
+    .marquee-track {
+      display: flex; white-space: nowrap;
+      animation: marquee 28s linear infinite;
+      width: max-content;
+    }
+    .marquee-item {
+      display: inline-flex; align-items: center; gap: 16px;
+      padding: 0 32px;
+      font-family: 'Space Mono', monospace;
+      font-size: 0.7rem; font-weight: 700;
+      letter-spacing: 0.18em; text-transform: uppercase;
+      color: rgba(0,255,136,0.55);
+    }
+    .marquee-dot { width: 4px; height: 4px; border-radius: 50%; background: var(--green); opacity: 0.4; }
+
+    /* ════════════════════════════════════
+       MANIFESTO
+    ════════════════════════════════════ */
+    #manifesto {
+      padding: 120px 0;
+      background: linear-gradient(180deg, var(--bg-dark) 0%, var(--bg) 100%);
+      text-align: center; overflow: hidden; position: relative;
+    }
+    #manifesto::before {
+      content: '';
+      position: absolute; left: 50%; top: 50%; transform: translate(-50%,-50%);
+      width: 600px; height: 600px; border-radius: 50%;
+      background: radial-gradient(circle, rgba(0,255,136,0.04), transparent 70%);
+      pointer-events: none;
+    }
+    .manifesto-pre {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.68rem; letter-spacing: 0.22em; text-transform: uppercase;
+      color: var(--green); margin-bottom: 32px; display: block;
+    }
+    .manifesto-h {
+      font-size: clamp(2.8rem, 6vw, 5.5rem);
+      font-weight: 900; line-height: 0.95;
+      text-transform: uppercase; letter-spacing: -0.02em;
+      color: var(--white); margin-bottom: 8px;
+    }
+    .manifesto-h .line2 {
+      font-family: 'Playfair Display', serif;
+      font-style: italic; font-weight: 600;
+      text-transform: none; letter-spacing: 0.01em;
+      color: var(--green); display: block;
+    }
+    .manifesto-body {
+      font-size: 1.05rem; line-height: 1.75; color: var(--muted);
+      max-width: 560px; margin: 32px auto 40px;
+    }
+
+    /* ════════════════════════════════════
+       SECTION COMMON — left/right panels
+    ════════════════════════════════════ */
+    section { padding: 120px 0; position: relative; }
+
+    .panel-l {
+      max-width: 44%; padding-left: 6vw; padding-right: 2vw;
+    }
+    .panel-r {
+      max-width: 44%; margin-left: auto;
+      padding-right: 6vw; padding-left: 2vw;
+    }
+
+    .sec-title {
+      font-size: clamp(2rem, 3.8vw, 3rem);
+      font-weight: 900; line-height: 1.0;
+      text-transform: uppercase; letter-spacing: -0.01em;
+      color: var(--white); margin-bottom: 16px;
+    }
+    .sec-title em {
+      font-family: 'Playfair Display', serif;
+      font-style: italic; font-weight: 600;
+      text-transform: none; letter-spacing: 0;
+      color: var(--green); font-size: 0.88em;
+    }
+    .sec-body { font-size: 1rem; line-height: 1.76; color: var(--muted); margin-bottom: 32px; }
+
+    /* ════════════════════════════════════
+       WHY AI
+    ════════════════════════════════════ */
     #why { background: transparent; }
 
-    .why-cards { display: flex; flex-direction: column; gap: 14px; margin-top: 28px; }
+    .why-cards { display: flex; flex-direction: column; gap: 12px; margin-top: 28px; }
     .why-card {
-      border-radius: 18px;
-      padding: 22px 24px;
-      display: flex;
-      gap: 16px;
-      align-items: flex-start;
-      transition: border-color 0.3s, transform 0.3s;
-      cursor: default;
+      border-radius: 10px; padding: 22px 24px;
+      display: flex; gap: 18px; align-items: flex-start;
+      transition: border-color 0.3s, background 0.3s;
+      cursor: default; position: relative; overflow: hidden;
     }
-    .why-card:hover { border-color: rgba(0,212,255,0.22) !important; transform: translateX(4px); }
-    .why-icon {
-      width: 44px; height: 44px;
-      border-radius: 11px;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 1.2rem; flex-shrink: 0;
-      background: linear-gradient(135deg, rgba(0,212,255,0.1), rgba(123,47,255,0.1));
-      border: 1px solid rgba(123,47,255,0.18);
+    .why-card::before {
+      content: ''; position: absolute; left: 0; top: 0;
+      width: 2px; height: 100%;
+      background: var(--green); opacity: 0;
+      transition: opacity 0.3s;
     }
-    .why-num { font-family: 'Playfair Display', serif; font-size: 1.4rem; font-weight: 800; color: var(--gold); margin-bottom: 3px; }
-    .why-card h3 { font-size: 0.96rem; font-weight: 700; color: var(--white); margin-bottom: 5px; }
+    .why-card:hover { background: rgba(0,255,136,0.04); }
+    .why-card:hover::before { opacity: 1; }
+    .why-num {
+      font-size: 2rem; font-weight: 900; color: var(--green);
+      line-height: 1; min-width: 64px; letter-spacing: -0.03em;
+      text-shadow: var(--glow-g);
+    }
+    .why-card h3 { font-size: 0.92rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--white); margin-bottom: 5px; }
     .why-card p  { font-size: 0.85rem; color: var(--muted); line-height: 1.65; }
 
-    /* ════════════════════════════════════════════════════
-       SERVICES — panel RIGHT
-       ════════════════════════════════════════════════════ */
+    /* ════════════════════════════════════
+       INDUSTRIES STRIP
+    ════════════════════════════════════ */
+    .industries-strip {
+      padding: 40px 0;
+      background: var(--bg-dark);
+      border-top: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+      overflow: hidden;
+    }
+    .ind-label {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.62rem; font-weight: 700;
+      letter-spacing: 0.2em; text-transform: uppercase;
+      color: var(--muted); text-align: center; margin-bottom: 20px;
+    }
+    .ind-track {
+      display: flex; white-space: nowrap;
+      animation: marquee 36s linear infinite;
+      width: max-content;
+    }
+    .ind-item {
+      display: inline-flex; align-items: center; gap: 10px;
+      padding: 0 28px;
+      font-size: 0.78rem; font-weight: 600;
+      letter-spacing: 0.1em; text-transform: uppercase;
+      color: rgba(255,255,255,0.3);
+      transition: color 0.2s;
+    }
+    .ind-item svg { opacity: 0.35; }
+
+    /* ════════════════════════════════════
+       SERVICES
+    ════════════════════════════════════ */
     #services { background: transparent; }
 
     .svc-list { display: flex; flex-direction: column; gap: 10px; margin-top: 28px; }
     .svc-card {
-      border-radius: 16px;
-      padding: 20px 22px;
-      cursor: pointer;
-      overflow: hidden;
-      transition: border-color 0.3s;
-    }
-    .svc-card:hover { border-color: rgba(212,175,55,0.25) !important; }
-    .svc-top  { display: flex; justify-content: space-between; align-items: center; }
-    .svc-head { display: flex; align-items: center; gap: 13px; }
-    .svc-icon {
-      width: 38px; height: 38px;
-      border-radius: 9px;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 1rem; flex-shrink: 0;
-      background: linear-gradient(135deg, rgba(123,47,255,0.15), rgba(0,212,255,0.1));
-      border: 1px solid rgba(123,47,255,0.18);
-    }
-    .svc-title   { font-size: 0.96rem; font-weight: 700; color: var(--white); }
-    .svc-tagline { font-size: 0.78rem; color: var(--blue); margin-top: 2px; }
-    .svc-plus {
-      width: 26px; height: 26px; border-radius: 50%;
+      border-radius: 10px; padding: 20px 22px;
+      cursor: pointer; overflow: hidden;
       border: 1px solid var(--line);
-      display: flex; align-items: center; justify-content: center;
-      color: var(--muted); font-size: 1.1rem; flex-shrink: 0;
+      transition: border-color 0.3s, background 0.3s;
+      position: relative;
+    }
+    .svc-card::after {
+      content: ''; position: absolute; bottom: 0; left: 22px; right: 22px;
+      height: 1px; background: linear-gradient(90deg, transparent, var(--green), transparent);
+      opacity: 0; transition: opacity 0.4s;
+    }
+    .svc-card.open, .svc-card:hover { border-color: rgba(0,255,136,0.2); background: rgba(0,255,136,0.025); }
+    .svc-card.open::after { opacity: 1; }
+    .svc-top  { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+    .svc-head { display: flex; align-items: center; gap: 14px; }
+    .svc-icon {
+      width: 36px; height: 36px; border-radius: 8px; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center; font-size: 1rem;
+      background: rgba(0,255,136,0.08); border: 1px solid rgba(0,255,136,0.15);
+    }
+    .svc-name { font-size: 0.92rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; color: var(--white); }
+    .svc-sub  { font-size: 0.76rem; color: var(--green); margin-top: 2px; }
+    .svc-plus {
+      width: 24px; height: 24px; border-radius: 50%; flex-shrink: 0;
+      border: 1px solid var(--line); display: flex; align-items: center;
+      justify-content: center; color: var(--muted); font-size: 1.1rem;
       transition: transform 0.3s, border-color 0.3s, color 0.3s;
     }
-    .svc-card.open .svc-plus { transform: rotate(45deg); border-color: var(--gold); color: var(--gold); }
-    .svc-body   { max-height: 0; overflow: hidden; transition: max-height 0.45s ease; }
+    .svc-card.open .svc-plus { transform: rotate(45deg); border-color: var(--green); color: var(--green); }
+    .svc-body { max-height: 0; overflow: hidden; transition: max-height 0.45s ease; }
     .svc-card.open .svc-body { max-height: 260px; }
-    .svc-desc   { font-size: 0.85rem; color: var(--muted); line-height: 1.7; margin: 14px 0 10px; }
-    .svc-feats  { list-style: none; display: flex; flex-direction: column; gap: 7px; }
+    .svc-desc { font-size: 0.85rem; color: var(--muted); line-height: 1.7; margin: 14px 0 12px; }
+    .svc-feats { list-style: none; display: flex; flex-direction: column; gap: 7px; }
     .svc-feats li { display: flex; align-items: center; gap: 9px; font-size: 0.82rem; color: var(--text); }
-    .svc-feats .df { width: 5px; height: 5px; border-radius: 50%; background: var(--blue); box-shadow: 0 0 5px var(--blue); flex-shrink: 0; }
+    .svc-feats .df { width: 4px; height: 4px; border-radius: 50%; background: var(--green); box-shadow: var(--glow-g); flex-shrink: 0; }
 
-    /* ════════════════════════════════════════════════════
-       RESULTS — centered full width
-       ════════════════════════════════════════════════════ */
+    /* ════════════════════════════════════
+       RESULTS
+    ════════════════════════════════════ */
     #results { background: transparent; }
     .results-inner { max-width: 1100px; margin: 0 auto; padding: 0 32px; }
 
-    .stats-bar {
-      display: grid;
-      grid-template-columns: repeat(4,1fr);
-      border-radius: 22px;
-      overflow: hidden;
-      margin-bottom: 52px;
+    /* Stats row */
+    .stats-row {
+      display: grid; grid-template-columns: repeat(4,1fr);
+      border-radius: 12px; overflow: hidden; margin-bottom: 60px;
     }
-    @media(max-width:820px) { .stats-bar { grid-template-columns: repeat(2,1fr); } }
-    @media(max-width:480px) { .stats-bar { grid-template-columns: 1fr; } }
+    @media(max-width:800px) { .stats-row { grid-template-columns: repeat(2,1fr); } }
+    @media(max-width:480px) { .stats-row { grid-template-columns: 1fr; } }
 
-    .stat-item { text-align: center; padding: 42px 16px; position: relative; }
-    .stat-item:not(:last-child)::after {
-      content: ''; position: absolute; top: 20%; right: 0;
+    .stat-cell { text-align: center; padding: 46px 16px; position: relative; }
+    .stat-cell:not(:last-child)::after {
+      content: ''; position: absolute; right: 0; top: 20%;
       width: 1px; height: 60%; background: var(--line);
     }
-    .stat-num {
-      font-family: 'Playfair Display', serif;
-      font-size: clamp(2.3rem, 4vw, 3.2rem);
-      font-weight: 900;
-      line-height: 1;
-      color: var(--blue);
-      text-shadow: 0 0 40px rgba(0,212,255,0.3);
-      margin-bottom: 8px;
+    .stat-n {
+      font-size: clamp(2.6rem, 4.5vw, 3.8rem); font-weight: 900;
+      line-height: 1; color: var(--gold); letter-spacing: -0.03em;
+      text-shadow: 0 0 40px rgba(212,175,55,0.3); margin-bottom: 8px;
+      display: block;
     }
-    .stat-label { font-size: 0.88rem; font-weight: 700; color: var(--white); margin-bottom: 4px; }
-    .stat-sub   { font-size: 0.74rem; color: var(--muted); }
+    .stat-lbl { font-size: 0.82rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--white); margin-bottom: 4px; }
+    .stat-sub { font-size: 0.7rem; color: var(--muted); }
 
-    .testi-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 16px; }
-    @media(max-width:820px) { .testi-grid { grid-template-columns: 1fr; } }
+    /* Testimonials */
+    .testi-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 14px; }
+    @media(max-width:800px) { .testi-grid { grid-template-columns: 1fr; } }
 
     .testi-card {
-      border-radius: 20px;
-      padding: 28px 26px;
-      position: relative;
-      overflow: hidden;
-      transition: transform 0.3s;
-      cursor: default;
+      border-radius: 10px; padding: 28px 24px;
+      position: relative; overflow: hidden;
+      transition: transform 0.3s, border-color 0.3s;
     }
-    .testi-card:hover { transform: translateY(-3px); }
+    .testi-card:hover { transform: translateY(-3px); border-color: rgba(0,255,136,0.2) !important; }
     .testi-card::after {
-      content: '';
-      position: absolute;
-      bottom: 0; left: 26px; right: 26px;
-      height: 1px;
-      background: linear-gradient(90deg, transparent, var(--blue), transparent);
+      content: ''; position: absolute; bottom: 0; left: 24px; right: 24px;
+      height: 1px; background: linear-gradient(90deg, transparent, var(--green), transparent);
       opacity: 0; transition: opacity 0.4s;
     }
     .testi-card:hover::after { opacity: 1; }
-    .testi-q    { font-family: 'Playfair Display', serif; font-size: 3.2rem; line-height: 0.6; color: var(--blue); opacity: 0.22; margin-bottom: 12px; }
-    .testi-text { font-size: 0.9rem; color: var(--text); line-height: 1.75; font-style: italic; margin-bottom: 20px; }
+    .testi-q { font-family: 'Playfair Display', serif; font-size: 3rem; line-height: 0.6; color: var(--green); opacity: 0.2; margin-bottom: 12px; }
+    .testi-text { font-size: 0.88rem; color: var(--text); line-height: 1.76; font-style: italic; margin-bottom: 20px; }
     .testi-auth { display: flex; align-items: center; gap: 12px; }
-    .testi-ava  { width: 38px; height: 38px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.68rem; font-weight: 800; color: #fff; flex-shrink: 0; background: linear-gradient(135deg, var(--blue), var(--purple)); }
-    .testi-name { font-size: 0.86rem; font-weight: 700; color: var(--white); }
-    .testi-role { font-size: 0.74rem; color: var(--muted); }
+    .testi-ava {
+      width: 36px; height: 36px; border-radius: 50%; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.65rem; font-weight: 800; color: var(--bg);
+      background: linear-gradient(135deg, var(--green), var(--blue));
+    }
+    .testi-name { font-size: 0.84rem; font-weight: 700; color: var(--white); }
+    .testi-role { font-size: 0.72rem; color: var(--muted); }
 
-    /* ════════════════════════════════════════════════════
-       CONTACT — centered
-       ════════════════════════════════════════════════════ */
-    #contact { background: transparent; }
+    /* Results section header */
+    .results-hdr { text-align: center; margin-bottom: 52px; }
 
-    .contact-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 38px; max-width: 940px; margin: 0 auto; }
-    @media(max-width:820px) { .contact-grid { grid-template-columns: 1fr; } }
+    /* ════════════════════════════════════
+       CONTACT
+    ════════════════════════════════════ */
+    #contact { background: var(--bg-dark); }
 
-    .form-card { border-radius: 22px; padding: 36px; }
+    .contact-hdr { text-align: center; margin-bottom: 52px; }
+    .contact-grid {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 40px; max-width: 960px; margin: 0 auto;
+    }
+    @media(max-width:800px) { .contact-grid { grid-template-columns: 1fr; } }
+
+    .form-card { border-radius: 12px; padding: 36px; }
     .form-success { text-align: center; padding: 48px 0; display: none; }
-    .form-success .s-icon { font-size: 2.8rem; margin-bottom: 14px; }
-    .form-success h3 { font-size: 1.5rem; font-family: 'Playfair Display', serif; color: var(--white); margin-bottom: 8px; }
-    .form-success p { color: var(--muted); font-size: 0.9rem; }
-    .form-error { color: #ff6b6b; font-size: 0.82rem; margin-bottom: 10px; display: none; }
-
-    .fg { margin-bottom: 16px; }
-    .fg label { display: block; font-size: 0.76rem; font-weight: 600; color: var(--muted); margin-bottom: 7px; letter-spacing: 0.04em; text-transform: uppercase; }
+    .form-success .si { font-size: 2.8rem; margin-bottom: 14px; }
+    .form-success h3 { font-size: 1.4rem; font-weight: 900; color: var(--white); text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 8px; }
+    .form-success p { color: var(--muted); }
+    .form-error { color: #ff6b6b; font-size: 0.8rem; margin-bottom: 10px; display: none; }
+    .fg { margin-bottom: 14px; }
+    .fg label { display: block; font-size: 0.68rem; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); margin-bottom: 7px; }
     .fg input, .fg textarea {
-      width: 100%; padding: 13px 16px; border-radius: 11px;
-      font-family: inherit; font-size: 0.9rem;
-      background: rgba(255,255,255,0.05); border: 1px solid var(--line);
+      width: 100%; padding: 13px 16px; border-radius: 8px;
+      font-family: 'Outfit', sans-serif; font-size: 0.9rem;
+      background: rgba(255,255,255,0.04); border: 1px solid var(--line);
       color: var(--white); outline: none; resize: none;
       transition: border-color 0.25s, box-shadow 0.25s;
     }
-    .fg input::placeholder, .fg textarea::placeholder { color: rgba(255,255,255,0.18); }
-    .fg input:focus, .fg textarea:focus { border-color: rgba(0,212,255,0.35); box-shadow: 0 0 0 3px rgba(0,212,255,0.07); }
-    .form-note { text-align: center; font-size: 0.72rem; color: var(--muted); margin-top: 10px; }
+    .fg input::placeholder, .fg textarea::placeholder { color: rgba(255,255,255,0.16); }
+    .fg input:focus, .fg textarea:focus { border-color: rgba(0,255,136,0.35); box-shadow: 0 0 0 3px rgba(0,255,136,0.06); }
+    .form-note { text-align: center; font-size: 0.7rem; color: var(--muted); margin-top: 10px; }
 
     .contact-side { display: flex; flex-direction: column; gap: 12px; }
-    .info-card { border-radius: 14px; padding: 19px 21px; display: flex; gap: 13px; align-items: flex-start; }
-    .info-icon  { font-size: 1.25rem; flex-shrink: 0; margin-top: 1px; }
-    .info-title { font-size: 0.9rem; font-weight: 700; color: var(--white); margin-bottom: 4px; }
-    .info-body  { font-size: 0.8rem; color: var(--muted); line-height: 1.6; }
-    .direct-box { border-radius: 14px; padding: 19px 21px; background: linear-gradient(135deg, rgba(0,212,255,0.05), rgba(123,47,255,0.05)); border: 1px solid rgba(0,212,255,0.14); }
-    .direct-lbl { font-size: 0.67rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); margin-bottom: 8px; }
-    .direct-em  { color: var(--blue); font-weight: 700; font-size: 0.9rem; text-decoration: none; transition: color 0.2s; }
+    .info-card { border-radius: 10px; padding: 18px 20px; display: flex; gap: 13px; align-items: flex-start; }
+    .info-icon { font-size: 1.2rem; flex-shrink: 0; margin-top: 1px; }
+    .info-ttl  { font-size: 0.88rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; color: var(--white); margin-bottom: 4px; }
+    .info-body { font-size: 0.8rem; color: var(--muted); line-height: 1.6; }
+    .direct-box { border-radius: 10px; padding: 18px 20px; background: rgba(0,255,136,0.04); border: 1px solid rgba(0,255,136,0.12); }
+    .direct-lbl { font-size: 0.62rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.14em; color: var(--muted); margin-bottom: 7px; }
+    .direct-em  { color: var(--green); font-weight: 700; font-size: 0.9rem; text-decoration: none; transition: color 0.2s; }
     .direct-em:hover { color: var(--gold); }
-    .direct-rep { font-size: 0.74rem; color: var(--muted); margin-top: 4px; }
+    .direct-rep { font-size: 0.72rem; color: var(--muted); margin-top: 4px; }
 
-    /* ════════════════════════════════════════════════════
+    /* ════════════════════════════════════
        FOOTER
-       ════════════════════════════════════════════════════ */
+    ════════════════════════════════════ */
     footer {
-      background: var(--bg2);
+      background: var(--bg-dark);
       border-top: 1px solid var(--line);
-      padding: 50px 0;
-      position: relative;
-      z-index: 3;
+      padding: 48px 0; position: relative; z-index: 3;
     }
-    .footer-in { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 20px; margin-bottom: 26px; }
-    .footer-logo { font-family: 'Playfair Display', serif; font-size: 1.14rem; font-weight: 800; letter-spacing: 0.06em; text-decoration: none; color: var(--white); }
+    .footer-row { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 20px; margin-bottom: 24px; }
+    .footer-logo { font-weight: 900; font-size: 1.1rem; letter-spacing: 0.1em; text-decoration: none; color: var(--white); }
     .footer-nav  { display: flex; flex-wrap: wrap; gap: 22px; list-style: none; }
-    .footer-nav a { color: var(--muted); text-decoration: none; font-size: 0.83rem; transition: color 0.2s; }
-    .footer-nav a:hover { color: var(--white); }
-    .footer-email { color: var(--blue); font-size: 0.83rem; text-decoration: none; font-weight: 600; transition: color 0.2s; }
+    .footer-nav a { color: var(--muted); text-decoration: none; font-size: 0.78rem; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; transition: color 0.2s; }
+    .footer-nav a:hover { color: var(--green); }
+    .footer-email { color: var(--green); font-size: 0.82rem; font-weight: 700; text-decoration: none; transition: color 0.2s; }
     .footer-email:hover { color: var(--gold); }
-    .footer-bot  { border-top: 1px solid var(--line); padding-top: 22px; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px; }
-    .footer-copy { font-size: 0.75rem; color: var(--muted); }
+    .footer-bot { border-top: 1px solid var(--line); padding-top: 22px; display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px; }
+    .footer-copy { font-size: 0.72rem; color: var(--muted); }
 
-    /* ════════════════════════════════════════════════════
-       RESPONSIVE — panels go full width on mobile
-       ════════════════════════════════════════════════════ */
-    @media(max-width:1000px) {
-      .panel-left, .panel-right { max-width: 100%; margin-left: 0; padding: 0 32px; }
+    /* ════════════════════════════════════
+       RESPONSIVE PANELS
+    ════════════════════════════════════ */
+    @media(max-width:960px) {
+      .panel-l, .panel-r { max-width: 100%; margin-left: 0; padding: 0 32px; }
     }
 
-    /* Scroll reveal helpers (GSAP will drive these) */
-    .reveal-ready { will-change: opacity, transform; }
+    /* hero-el hidden state */
+    .hero-el { opacity: 0; transform: translateY(24px); }
 
   </style>
 </head>
@@ -579,23 +634,19 @@
 <!-- Fixed background grid -->
 <div class="bg-grid"></div>
 
-<!-- ─── THREE.JS ROBOT (fixed, behind everything) ─── -->
-<div id="robot-stage">
-  <canvas id="robot-canvas"></canvas>
-</div>
+<!-- Three.js robot stage (fixed behind everything) -->
+<div id="robot-stage"><canvas id="robot-canvas"></canvas></div>
 
-<!-- ════════════════════════════════════════════════════
-     PAGE CONTENT
-     ════════════════════════════════════════════════════ -->
-<div class="page-content">
+<!-- ═══════════════════════════════════════
+     PAGE
+═══════════════════════════════════════ -->
+<div class="page">
 
-  <!-- ══════════════ NAVBAR ══════════════ -->
-  <nav id="navbar">
-    <div class="container nav-inner">
+  <!-- ── NAVBAR ── -->
+  <nav id="nav">
+    <div class="wrap nav-row">
       <a href="#" class="logo">
-        <span class="f-blue">FYLTR</span>
-        <span class="f-sep">|</span>
-        <span class="f-media">MEDIA</span>
+        <span class="l-green">FYLTR</span><span class="l-sep">|</span><span class="l-white">MEDIA</span>
       </a>
       <ul class="nav-links">
         <li><a href="#why">Why AI</a></li>
@@ -604,123 +655,248 @@
         <li><a href="#contact">Contact</a></li>
       </ul>
       <div class="nav-cta-wrap">
-        <a href="#contact" class="btn-primary nav-cta magnetic">Book a Call</a>
+        <a href="#contact" class="btn-gold magnetic" style="padding:11px 26px;font-size:0.82rem">Book a Call</a>
       </div>
-      <button class="hamburger" id="ham" aria-label="Toggle menu">
-        <span></span><span></span><span></span>
-      </button>
+      <button class="hamburger" id="ham" aria-label="Menu"><span></span><span></span><span></span></button>
     </div>
-    <div class="mobile-menu" id="mob">
+    <div class="mob-menu" id="mob">
       <a href="#why"      onclick="closeMob()">Why AI</a>
       <a href="#services" onclick="closeMob()">Services</a>
       <a href="#results"  onclick="closeMob()">Results</a>
       <a href="#contact"  onclick="closeMob()">Contact</a>
-      <a href="#contact"  onclick="closeMob()" class="mobile-cta">Book a Call</a>
+      <a href="#contact"  onclick="closeMob()" class="mob-cta">Book a Call →</a>
     </div>
   </nav>
 
-  <!-- ══════════════ HERO ══════════════ -->
+  <!-- ── HERO ── -->
   <section id="hero">
+
+    <!-- Gear cluster top-left -->
+    <div class="gear-cluster gc-tl" aria-hidden="true">
+      <!-- Large gear -->
+      <svg class="g-svg g-a" viewBox="-110 -110 220 220" xmlns="http://www.w3.org/2000/svg">
+        <circle r="88" fill="none" stroke="#00ff88" stroke-width="10" stroke-dasharray="10 24.6" stroke-dashoffset="5" stroke-linecap="butt"/>
+        <circle r="80" fill="rgba(0,255,136,0.025)" stroke="#00ff88" stroke-width="1.2"/>
+        <circle r="52" fill="none" stroke="#00ff88" stroke-width="0.7" opacity="0.4"/>
+        <line x1="0" y1="-79" x2="0" y2="79" stroke="#00ff88" stroke-width="0.8" opacity="0.25"/>
+        <line x1="-79" y1="0" x2="79" y2="0" stroke="#00ff88" stroke-width="0.8" opacity="0.25"/>
+        <line x1="-56" y1="-56" x2="56" y2="56" stroke="#00ff88" stroke-width="0.6" opacity="0.15"/>
+        <line x1="56" y1="-56" x2="-56" y2="56" stroke="#00ff88" stroke-width="0.6" opacity="0.15"/>
+        <circle r="18" fill="rgba(0,255,136,0.05)" stroke="#00ff88" stroke-width="1.2"/>
+        <circle r="5" fill="#00ff88" opacity="0.8"/>
+        <line x1="-16" y1="0" x2="16" y2="0" stroke="#00ff88" stroke-width="1.2" opacity="0.6"/>
+        <line x1="0" y1="-16" x2="0" y2="16" stroke="#00ff88" stroke-width="1.2" opacity="0.6"/>
+      </svg>
+      <!-- Medium gear -->
+      <svg class="g-svg g-b" viewBox="-75 -75 150 150" xmlns="http://www.w3.org/2000/svg">
+        <circle r="62" fill="none" stroke="#00ff88" stroke-width="8" stroke-dasharray="9 23.5" stroke-dashoffset="4"/>
+        <circle r="55" fill="rgba(0,255,136,0.02)" stroke="#00ff88" stroke-width="1"/>
+        <circle r="36" fill="none" stroke="#00ff88" stroke-width="0.6" opacity="0.35"/>
+        <line x1="0" y1="-54" x2="0" y2="54" stroke="#00ff88" stroke-width="0.8" opacity="0.22"/>
+        <line x1="-54" y1="0" x2="54" y2="0" stroke="#00ff88" stroke-width="0.8" opacity="0.22"/>
+        <circle r="13" fill="rgba(0,255,136,0.05)" stroke="#00ff88" stroke-width="1"/>
+        <circle r="4" fill="#00ff88" opacity="0.7"/>
+      </svg>
+      <!-- Small gear -->
+      <svg class="g-svg g-c" viewBox="-50 -50 100 100" xmlns="http://www.w3.org/2000/svg">
+        <circle r="40" fill="none" stroke="#00ff88" stroke-width="7" stroke-dasharray="9 22.4" stroke-dashoffset="4"/>
+        <circle r="34" fill="rgba(0,255,136,0.02)" stroke="#00ff88" stroke-width="1"/>
+        <line x1="0" y1="-32" x2="0" y2="32" stroke="#00ff88" stroke-width="0.7" opacity="0.22"/>
+        <line x1="-32" y1="0" x2="32" y2="0" stroke="#00ff88" stroke-width="0.7" opacity="0.22"/>
+        <circle r="9" fill="rgba(0,255,136,0.05)" stroke="#00ff88" stroke-width="1"/>
+        <circle r="3" fill="#00ff88" opacity="0.7"/>
+      </svg>
+    </div>
+
+    <!-- Gear cluster top-right (mirrored via CSS scaleX) -->
+    <div class="gear-cluster gc-tr" aria-hidden="true">
+      <svg class="g-svg g-a" viewBox="-110 -110 220 220" xmlns="http://www.w3.org/2000/svg">
+        <circle r="88" fill="none" stroke="#00ff88" stroke-width="10" stroke-dasharray="10 24.6" stroke-dashoffset="5"/>
+        <circle r="80" fill="rgba(0,255,136,0.025)" stroke="#00ff88" stroke-width="1.2"/>
+        <circle r="52" fill="none" stroke="#00ff88" stroke-width="0.7" opacity="0.4"/>
+        <line x1="0" y1="-79" x2="0" y2="79" stroke="#00ff88" stroke-width="0.8" opacity="0.25"/>
+        <line x1="-79" y1="0" x2="79" y2="0" stroke="#00ff88" stroke-width="0.8" opacity="0.25"/>
+        <circle r="18" fill="rgba(0,255,136,0.05)" stroke="#00ff88" stroke-width="1.2"/>
+        <circle r="5" fill="#00ff88" opacity="0.8"/>
+        <line x1="-16" y1="0" x2="16" y2="0" stroke="#00ff88" stroke-width="1.2" opacity="0.6"/>
+        <line x1="0" y1="-16" x2="0" y2="16" stroke="#00ff88" stroke-width="1.2" opacity="0.6"/>
+      </svg>
+      <svg class="g-svg g-b" viewBox="-75 -75 150 150" xmlns="http://www.w3.org/2000/svg">
+        <circle r="62" fill="none" stroke="#00d4ff" stroke-width="8" stroke-dasharray="9 23.5" stroke-dashoffset="4"/>
+        <circle r="55" fill="rgba(0,212,255,0.02)" stroke="#00d4ff" stroke-width="1"/>
+        <circle r="36" fill="none" stroke="#00d4ff" stroke-width="0.6" opacity="0.35"/>
+        <line x1="0" y1="-54" x2="0" y2="54" stroke="#00d4ff" stroke-width="0.8" opacity="0.22"/>
+        <line x1="-54" y1="0" x2="54" y2="0" stroke="#00d4ff" stroke-width="0.8" opacity="0.22"/>
+        <circle r="13" fill="rgba(0,212,255,0.05)" stroke="#00d4ff" stroke-width="1"/>
+        <circle r="4" fill="#00d4ff" opacity="0.7"/>
+      </svg>
+      <svg class="g-svg g-c" viewBox="-50 -50 100 100" xmlns="http://www.w3.org/2000/svg">
+        <circle r="40" fill="none" stroke="#00d4ff" stroke-width="7" stroke-dasharray="9 22.4" stroke-dashoffset="4"/>
+        <circle r="34" fill="rgba(0,212,255,0.02)" stroke="#00d4ff" stroke-width="1"/>
+        <line x1="0" y1="-32" x2="0" y2="32" stroke="#00d4ff" stroke-width="0.7" opacity="0.22"/>
+        <line x1="-32" y1="0" x2="32" y2="0" stroke="#00d4ff" stroke-width="0.7" opacity="0.22"/>
+        <circle r="9" fill="rgba(0,212,255,0.05)" stroke="#00d4ff" stroke-width="1"/>
+        <circle r="3" fill="#00d4ff" opacity="0.7"/>
+      </svg>
+    </div>
+
+    <!-- Hero text -->
     <div class="hero-content">
-      <div class="badge hero-el"><span class="dot"></span>AI Automation Agency</div>
-      <h1 class="hero-h1 hero-el">
-        The Future of Your <span class="hero-shimmer">Business</span><br>Starts Here
+      <span class="hero-eyebrow">// AI Automation Agency · Québec</span>
+      <h1 class="hero-h1">
+        The Future of<br>Your Business
+        <span class="accent-line">starts here.</span>
       </h1>
-      <div class="typing-row hero-el">
-        <span class="typing-prefix">We help you</span>
-        <span class="typing-text" id="typing-text"></span>
-        <span class="cursor"></span>
+      <div class="hero-typing">
+        <span class="t-muted">// We help you </span><span class="t-val" id="typing-text"></span><span class="cursor"></span>
       </div>
-      <p class="hero-sub hero-el">
+      <p class="hero-sub">
         FYLTR Media designs and deploys bespoke AI systems for ambitious businesses.
-        Capture more leads, automate the busywork, and scale your operations —
-        all without adding headcount.
+        Capture more leads, automate the busywork, and scale — without adding headcount.
       </p>
-      <div class="hero-btns hero-el">
+      <div class="hero-btns">
         <a href="#contact" class="btn-gold magnetic">Book a Free Strategy Call →</a>
-        <a href="#services" class="btn-ghost magnetic">Explore Services</a>
+        <a href="#services" class="btn-outline magnetic">Explore Services</a>
       </div>
-      <div class="hero-proof hero-el">
+      <div class="proof-strip">
         <div class="proof-item">
           <span class="proof-num">47+</span>
-          <span class="proof-label">Businesses Automated</span>
+          <span class="proof-lbl">Businesses Automated</span>
         </div>
-        <div class="proof-sep"></div>
         <div class="proof-item">
           <span class="proof-num">3,200+</span>
-          <span class="proof-label">Hours Saved</span>
+          <span class="proof-lbl">Hours Saved</span>
         </div>
-        <div class="proof-sep"></div>
         <div class="proof-item">
           <span class="proof-num">3x</span>
-          <span class="proof-label">Average ROI</span>
+          <span class="proof-lbl">Average ROI</span>
         </div>
       </div>
     </div>
+
   </section>
 
-  <!-- ══════════════ WHY AI  (panel LEFT) ══════════════ -->
+  <!-- ── MARQUEE STRIP ── -->
+  <div class="marquee-strip">
+    <div class="marquee-track" aria-hidden="true">
+      <!-- Two copies for seamless loop -->
+      <span class="marquee-item"><span class="marquee-dot"></span>Lead Generation</span>
+      <span class="marquee-item"><span class="marquee-dot"></span>Client Follow-Up</span>
+      <span class="marquee-item"><span class="marquee-dot"></span>AI Chatbots</span>
+      <span class="marquee-item"><span class="marquee-dot"></span>Process Automation</span>
+      <span class="marquee-item"><span class="marquee-dot"></span>Workflow Systems</span>
+      <span class="marquee-item"><span class="marquee-dot"></span>Revenue Automation</span>
+      <span class="marquee-item"><span class="marquee-dot"></span>CRM Integration</span>
+      <span class="marquee-item"><span class="marquee-dot"></span>AI Assistants</span>
+      <span class="marquee-item"><span class="marquee-dot"></span>Lead Generation</span>
+      <span class="marquee-item"><span class="marquee-dot"></span>Client Follow-Up</span>
+      <span class="marquee-item"><span class="marquee-dot"></span>AI Chatbots</span>
+      <span class="marquee-item"><span class="marquee-dot"></span>Process Automation</span>
+      <span class="marquee-item"><span class="marquee-dot"></span>Workflow Systems</span>
+      <span class="marquee-item"><span class="marquee-dot"></span>Revenue Automation</span>
+      <span class="marquee-item"><span class="marquee-dot"></span>CRM Integration</span>
+      <span class="marquee-item"><span class="marquee-dot"></span>AI Assistants</span>
+    </div>
+  </div>
+
+  <!-- ── MANIFESTO ── -->
+  <section id="manifesto">
+    <div class="wrap-sm" style="text-align:center">
+      <span class="manifesto-pre">// The window is open</span>
+      <h2 class="manifesto-h">
+        Your competitors<br>
+        <span class="line2">won't wait.</span>
+      </h2>
+      <p class="manifesto-body">
+        The first business in your market to deploy AI automation controls the category.
+        That advantage is real, it's measurable — and it's available right now.
+      </p>
+      <a href="#services" class="btn-outline">See What We Automate →</a>
+    </div>
+  </section>
+
+  <!-- ── WHY AI  (panel LEFT) ── -->
   <section id="why">
-    <div class="panel-left">
-      <div class="badge"><span class="dot"></span>Why AI, Why Now</div>
-      <div style="height:20px"></div>
-      <div class="rule"></div>
-      <h2 class="section-title">The Shift Is<br><span class="accent">Already Underway</span></h2>
-      <p class="section-body">
-        Across every industry — from law firms to home services to clinics — the businesses that adopt AI first are pulling ahead. The question isn't if. It's how fast.
+    <div class="panel-l">
+      <span class="sec-label">// Why AI, Why Now</span>
+      <div class="rule-green"></div>
+      <h2 class="sec-title">The Shift Is<br><em>Already Underway</em></h2>
+      <p class="sec-body">
+        Across every industry — law firms, home services, clinics — businesses
+        that adopt AI first are pulling ahead. The question isn't if. It's how fast.
       </p>
       <div class="why-cards">
-
         <div class="why-card glass">
-          <div class="why-icon">📈</div>
+          <div class="why-num">3×</div>
           <div>
-            <div class="why-num">3×</div>
             <h3>Early adopters grow faster</h3>
-            <p>Businesses that integrate AI automation consistently outperform peers on revenue, response time, and client retention.</p>
+            <p>Businesses integrating AI automation consistently outperform peers on revenue, response time, and client retention.</p>
           </div>
         </div>
-
         <div class="why-card glass">
-          <div class="why-icon">⚙️</div>
+          <div class="why-num">80%</div>
           <div>
-            <div class="why-num">80%</div>
             <h3>Of routine work is automatable</h3>
-            <p>Lead intake, follow-ups, scheduling, data entry — the repetitive tasks draining your team can now run themselves, 24/7.</p>
+            <p>Lead intake, follow-ups, scheduling, data entry — the tasks draining your team can run themselves, 24/7.</p>
           </div>
         </div>
-
         <div class="why-card glass">
-          <div class="why-icon">🏁</div>
+          <div class="why-num">Now</div>
           <div>
-            <div class="why-num">Now</div>
             <h3>Your competitors are moving</h3>
-            <p>The first-mover advantage in your market is real and shrinking. Companies that automate this year define their category.</p>
+            <p>The first-mover advantage in your market is real and shrinking. The companies that automate this year define their category.</p>
           </div>
         </div>
-
       </div>
     </div>
   </section>
 
-  <!-- ══════════════ SERVICES  (panel RIGHT) ══════════════ -->
+  <!-- ── INDUSTRIES STRIP ── -->
+  <div class="industries-strip">
+    <p class="ind-label">Industries We Serve</p>
+    <div class="ind-track" aria-hidden="true">
+      <span class="ind-item">⬡ Healthcare</span>
+      <span class="ind-item">⬡ Legal</span>
+      <span class="ind-item">⬡ Real Estate</span>
+      <span class="ind-item">⬡ Dental Clinics</span>
+      <span class="ind-item">⬡ Marketing Agencies</span>
+      <span class="ind-item">⬡ Home Services</span>
+      <span class="ind-item">⬡ Retail</span>
+      <span class="ind-item">⬡ Hospitality</span>
+      <span class="ind-item">⬡ Professional Services</span>
+      <span class="ind-item">⬡ E-Commerce</span>
+      <span class="ind-item">⬡ Healthcare</span>
+      <span class="ind-item">⬡ Legal</span>
+      <span class="ind-item">⬡ Real Estate</span>
+      <span class="ind-item">⬡ Dental Clinics</span>
+      <span class="ind-item">⬡ Marketing Agencies</span>
+      <span class="ind-item">⬡ Home Services</span>
+      <span class="ind-item">⬡ Retail</span>
+      <span class="ind-item">⬡ Hospitality</span>
+      <span class="ind-item">⬡ Professional Services</span>
+      <span class="ind-item">⬡ E-Commerce</span>
+    </div>
+  </div>
+
+  <!-- ── SERVICES  (panel RIGHT) ── -->
   <section id="services">
-    <div class="panel-right">
-      <div class="badge"><span class="dot"></span>What We Build</div>
-      <div style="height:20px"></div>
-      <div class="rule"></div>
-      <h2 class="section-title">AI Systems That<br><span class="accent">Run Your Growth</span></h2>
-      <p class="section-body">
-        Every system is custom-built to your business — no templates, no off-the-shelf software. Tap any service to see what's inside.
+    <div class="panel-r">
+      <span class="sec-label">// What We Build</span>
+      <div class="rule-green"></div>
+      <h2 class="sec-title">AI Systems That<br><em>Run Your Growth</em></h2>
+      <p class="sec-body">
+        Every system is custom-built — no templates, no off-the-shelf software.
+        Tap any service to see what's inside.
       </p>
       <div class="svc-list">
 
-        <div class="svc-card glass" onclick="toggleSvc(this)">
+        <div class="svc-card" onclick="toggleSvc(this)">
           <div class="svc-top">
             <div class="svc-head">
               <div class="svc-icon">🎯</div>
               <div>
-                <div class="svc-title">AI Lead Generation &amp; Conversion</div>
-                <div class="svc-tagline">Turn attention into booked revenue</div>
+                <div class="svc-name">AI Lead Generation</div>
+                <div class="svc-sub">Turn attention into booked revenue</div>
               </div>
             </div>
             <div class="svc-plus">+</div>
@@ -735,13 +911,13 @@
           </div>
         </div>
 
-        <div class="svc-card glass" onclick="toggleSvc(this)">
+        <div class="svc-card" onclick="toggleSvc(this)">
           <div class="svc-top">
             <div class="svc-head">
               <div class="svc-icon">🔄</div>
               <div>
-                <div class="svc-title">Automated Client Follow-Up</div>
-                <div class="svc-tagline">Never let a relationship go cold</div>
+                <div class="svc-name">Automated Follow-Up</div>
+                <div class="svc-sub">Never let a relationship go cold</div>
               </div>
             </div>
             <div class="svc-plus">+</div>
@@ -756,19 +932,19 @@
           </div>
         </div>
 
-        <div class="svc-card glass" onclick="toggleSvc(this)">
+        <div class="svc-card" onclick="toggleSvc(this)">
           <div class="svc-top">
             <div class="svc-head">
               <div class="svc-icon">💬</div>
               <div>
-                <div class="svc-title">AI Chatbots &amp; Virtual Assistants</div>
-                <div class="svc-tagline">A tireless team member that never sleeps</div>
+                <div class="svc-name">AI Chatbots &amp; Assistants</div>
+                <div class="svc-sub">A team member that never sleeps</div>
               </div>
             </div>
             <div class="svc-plus">+</div>
           </div>
           <div class="svc-body">
-            <p class="svc-desc">Custom AI assistants trained on your business — answering questions, booking appointments, and handling support 24/7.</p>
+            <p class="svc-desc">Custom AI assistants trained on your business — answering questions, booking appointments, handling support 24/7.</p>
             <ul class="svc-feats">
               <li><span class="df"></span>Web, SMS, voice &amp; social deployment</li>
               <li><span class="df"></span>Books appointments directly</li>
@@ -777,13 +953,13 @@
           </div>
         </div>
 
-        <div class="svc-card glass" onclick="toggleSvc(this)">
+        <div class="svc-card" onclick="toggleSvc(this)">
           <div class="svc-top">
             <div class="svc-head">
               <div class="svc-icon">🧠</div>
               <div>
-                <div class="svc-title">Full Business Process Automation</div>
-                <div class="svc-tagline">Engineer the busywork out of your day</div>
+                <div class="svc-name">Process Automation</div>
+                <div class="svc-sub">Engineer the busywork out of your day</div>
               </div>
             </div>
             <div class="svc-plus">+</div>
@@ -799,130 +975,98 @@
         </div>
 
       </div>
-      <div style="margin-top:26px">
+      <div style="margin-top:24px">
         <a href="#contact" class="btn-gold magnetic">Get a Free Automation Audit →</a>
       </div>
     </div>
   </section>
 
-  <!-- ══════════════ RESULTS  (centered) ══════════════ -->
+  <!-- ── RESULTS ── -->
   <section id="results">
     <div class="results-inner">
-
-      <div class="container-center" style="margin-bottom:48px">
-        <div class="badge badge-gold"><span class="dot"></span>Real Results</div>
-        <div style="height:20px"></div>
-        <div class="rule rule-center"></div>
-        <h2 class="section-title">Numbers Don't <span class="gold">Lie</span></h2>
-        <p class="section-body" style="margin:0 auto">
-          Aggregate metrics from live client systems across industries. No projections — just results.
+      <div class="results-hdr">
+        <span class="sec-label">// Real Results</span>
+        <div class="rule-green" style="margin:0 auto 24px"></div>
+        <h2 class="sec-title" style="font-size:clamp(2rem,4vw,3rem)">Numbers Don't <span style="color:var(--gold)">Lie</span></h2>
+        <p style="font-size:1rem;color:var(--muted);max-width:480px;margin:12px auto 0;line-height:1.7">
+          Aggregate metrics from live client systems. No projections — just results.
         </p>
       </div>
-
-      <div class="stats-bar glass" id="stats-box">
-        <div class="stat-item">
-          <div class="stat-num" id="c1">0</div>
-          <div class="stat-label">Businesses Automated</div>
+      <div class="stats-row glass" id="stats-box">
+        <div class="stat-cell">
+          <span class="stat-n" id="c1">0</span>
+          <div class="stat-lbl">Businesses Automated</div>
           <div class="stat-sub">Clients fully live</div>
         </div>
-        <div class="stat-item">
-          <div class="stat-num" id="c2">0</div>
-          <div class="stat-label">Hours Saved</div>
+        <div class="stat-cell">
+          <span class="stat-n" id="c2">0</span>
+          <div class="stat-lbl">Hours Saved</div>
           <div class="stat-sub">Per year across all clients</div>
         </div>
-        <div class="stat-item">
-          <div class="stat-num" id="c3">0</div>
-          <div class="stat-label">Average ROI</div>
-          <div class="stat-sub">Return on automation investment</div>
+        <div class="stat-cell">
+          <span class="stat-n" id="c3">0</span>
+          <div class="stat-lbl">Average ROI</div>
+          <div class="stat-sub">Return on investment</div>
         </div>
-        <div class="stat-item">
-          <div class="stat-num" id="c4">0</div>
-          <div class="stat-label">Client Retention</div>
+        <div class="stat-cell">
+          <span class="stat-n" id="c4">0</span>
+          <div class="stat-lbl">Client Retention</div>
           <div class="stat-sub">Clients who renew &amp; expand</div>
         </div>
       </div>
-
       <div class="testi-grid">
-
         <div class="testi-card glass">
           <div class="testi-q">"</div>
           <p class="testi-text">We went from drowning in manual follow-ups to a system that runs itself. Our response time dropped to seconds and our close rate climbed within weeks.</p>
           <div class="testi-auth">
             <div class="testi-ava">SC</div>
-            <div>
-              <div class="testi-name">Sarah Côté</div>
-              <div class="testi-role">Founder, MacDowell's</div>
-            </div>
+            <div><div class="testi-name">Sarah Côté</div><div class="testi-role">Founder, MacDowell's</div></div>
           </div>
         </div>
-
         <div class="testi-card glass">
           <div class="testi-q">"</div>
           <p class="testi-text">I didn't think automation could work for a business like mine. Three months in, we've saved thousands in admin costs and freed the team for real work.</p>
           <div class="testi-auth">
             <div class="testi-ava">MB</div>
-            <div>
-              <div class="testi-name">Marc Bouchard</div>
-              <div class="testi-role">CEO, Nikoa</div>
-            </div>
+            <div><div class="testi-name">Marc Bouchard</div><div class="testi-role">CEO, Nikoa</div></div>
           </div>
         </div>
-
         <div class="testi-card glass">
           <div class="testi-q">"</div>
           <p class="testi-text">The AI assistant handles our inbound around the clock and books qualified calls while we sleep. It paid for itself in the first month.</p>
           <div class="testi-auth">
             <div class="testi-ava">KL</div>
-            <div>
-              <div class="testi-name">Kayla Lemieux</div>
-              <div class="testi-role">Director, Spotivox</div>
-            </div>
+            <div><div class="testi-name">Kayla Lemieux</div><div class="testi-role">Director, Spotivox</div></div>
           </div>
         </div>
-
       </div>
     </div>
   </section>
 
-  <!-- ══════════════ CONTACT  (centered) ══════════════ -->
+  <!-- ── CONTACT ── -->
   <section id="contact">
-    <div class="container">
-
-      <div class="container-center" style="margin-bottom:48px">
-        <div class="badge"><span class="dot"></span>Let's Talk</div>
-        <div style="height:20px"></div>
-        <div class="rule rule-center"></div>
-        <h2 class="section-title">Ready to <span class="accent">Automate Your Business?</span></h2>
-        <p class="section-body" style="margin:0 auto">
-          Book a 30-minute strategy call. No pitch — just a clear breakdown of what AI can do for your specific business.
+    <div class="wrap">
+      <div class="contact-hdr">
+        <span class="sec-label">// Let's Talk</span>
+        <div class="rule-green" style="margin:0 auto 24px"></div>
+        <h2 class="sec-title" style="font-size:clamp(2rem,4vw,3rem)">Ready to <em style="font-family:'Playfair Display',serif;font-style:italic;color:var(--green);font-size:0.88em;text-transform:none;letter-spacing:0">Automate?</em></h2>
+        <p style="font-size:1rem;color:var(--muted);max-width:480px;margin:12px auto 0;line-height:1.7">
+          Book a 30-minute strategy call. No pitch — just a clear breakdown of what AI can do for your business.
         </p>
       </div>
-
       <div class="contact-grid">
         <div>
           <div class="form-card glass">
             <div id="form-success" class="form-success">
-              <div class="s-icon">🎉</div>
+              <div class="si">🎉</div>
               <h3>You're In</h3>
               <p>We'll reach out within 24 hours to book your strategy call.</p>
             </div>
             <form id="cform">
-              <div class="fg">
-                <label>Full Name *</label>
-                <input type="text" name="name" placeholder="Your name" required>
-              </div>
-              <div class="fg">
-                <label>Email Address *</label>
-                <input type="email" name="email" placeholder="you@yourcompany.com" required>
-              </div>
-              <div class="fg">
-                <label>Company <span style="font-weight:400;text-transform:none;letter-spacing:0;opacity:0.6">(optional)</span></label>
-                <input type="text" name="company" placeholder="Your company">
-              </div>
-              <div class="fg">
-                <label>What to automate? <span style="font-weight:400;text-transform:none;letter-spacing:0;opacity:0.6">(optional)</span></label>
-                <textarea name="message" rows="3" placeholder="e.g. lead follow-up, scheduling, customer support..."></textarea>
-              </div>
+              <div class="fg"><label>Full Name *</label><input type="text" name="name" placeholder="Your name" required></div>
+              <div class="fg"><label>Email *</label><input type="email" name="email" placeholder="you@yourcompany.com" required></div>
+              <div class="fg"><label>Company</label><input type="text" name="company" placeholder="Your company"></div>
+              <div class="fg"><label>What to automate?</label><textarea name="message" rows="3" placeholder="e.g. lead follow-up, scheduling, customer support..."></textarea></div>
               <div class="form-error" id="ferr">Something went wrong. Please try again or email us directly.</div>
               <button type="submit" class="btn-gold magnetic" id="fsub" style="width:100%">Book My Free Strategy Call →</button>
               <p class="form-note">No spam. No pressure. Just clarity on what's possible.</p>
@@ -930,27 +1074,9 @@
           </div>
         </div>
         <div class="contact-side">
-          <div class="info-card glass">
-            <div class="info-icon">🕐</div>
-            <div>
-              <div class="info-title">30-Minute Call</div>
-              <p class="info-body">No fluff. We arrive with ideas tailored to your industry and business size.</p>
-            </div>
-          </div>
-          <div class="info-card glass">
-            <div class="info-icon">🔍</div>
-            <div>
-              <div class="info-title">Free Automation Audit</div>
-              <p class="info-body">We map your current workflow and show exactly what can be automated and what it saves.</p>
-            </div>
-          </div>
-          <div class="info-card glass">
-            <div class="info-icon">📈</div>
-            <div>
-              <div class="info-title">Custom Roadmap</div>
-              <p class="info-body">You leave with a clear plan — even if you choose not to work with us.</p>
-            </div>
-          </div>
+          <div class="info-card glass"><div class="info-icon">🕐</div><div><div class="info-ttl">30-Minute Call</div><p class="info-body">No fluff. We arrive with ideas tailored to your industry and business size.</p></div></div>
+          <div class="info-card glass"><div class="info-icon">🔍</div><div><div class="info-ttl">Free Automation Audit</div><p class="info-body">We map your workflow and show exactly what can be automated and what it saves.</p></div></div>
+          <div class="info-card glass"><div class="info-icon">📈</div><div><div class="info-ttl">Custom Roadmap</div><p class="info-body">You leave with a clear plan — even if you don't work with us.</p></div></div>
           <div class="direct-box">
             <div class="direct-lbl">Prefer to reach out directly?</div>
             <a href="mailto:info@fyltrmedia.com" class="direct-em">info@fyltrmedia.com</a>
@@ -958,16 +1084,15 @@
           </div>
         </div>
       </div>
-
     </div>
   </section>
 
-  <!-- ══════════════ FOOTER ══════════════ -->
+  <!-- ── FOOTER ── -->
   <footer>
-    <div class="container">
-      <div class="footer-in">
+    <div class="wrap">
+      <div class="footer-row">
         <a href="#" class="footer-logo">
-          <span style="color:var(--blue)">FYLTR</span><span style="color:var(--gold);font-weight:300;margin:0 7px">|</span><span>MEDIA</span>
+          <span style="color:var(--green)">FYLTR</span><span style="color:rgba(255,255,255,0.2);margin:0 7px;font-weight:300">|</span><span>MEDIA</span>
         </a>
         <ul class="footer-nav">
           <li><a href="#why">Why AI</a></li>
@@ -984,42 +1109,33 @@
     </div>
   </footer>
 
-</div><!-- /page-content -->
+</div><!-- /page -->
 
-<!-- CDN Libraries — loaded now, used in Part 2 & 3 -->
+<!-- CDN Libraries -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 
-<!-- ─── BOOTSTRAP (year + nav + services toggle) ─── -->
+<!-- Bootstrap -->
 <script>
   document.getElementById('yr').textContent = new Date().getFullYear();
-
-  /* Navbar scroll effect */
-  const navbar = document.getElementById('navbar');
-  window.addEventListener('scroll', () => navbar.classList.toggle('scrolled', window.scrollY > 40), { passive: true });
-
-  /* Mobile menu */
+  const nav = document.getElementById('nav');
+  window.addEventListener('scroll', () => nav.classList.toggle('scrolled', window.scrollY > 40), { passive: true });
   const ham = document.getElementById('ham'), mob = document.getElementById('mob');
   ham.addEventListener('click', () => { ham.classList.toggle('open'); mob.classList.toggle('open'); });
   function closeMob() { ham.classList.remove('open'); mob.classList.remove('open'); }
-
-  /* Services accordion */
   function toggleSvc(card) {
     const was = card.classList.contains('open');
     document.querySelectorAll('.svc-card.open').forEach(c => c.classList.remove('open'));
     if (!was) card.classList.add('open');
   }
-
-  /* Contact form */
   document.getElementById('cform').addEventListener('submit', async function(e) {
     e.preventDefault();
     const btn = document.getElementById('fsub'), err = document.getElementById('ferr');
     btn.disabled = true; btn.textContent = 'Sending…'; err.style.display = 'none';
     try {
       const res = await fetch('https://formspree.io/f/mdajebpz', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+        method: 'POST', headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
         body: JSON.stringify({ name: this.name.value, email: this.email.value, company: this.company.value, message: this.message.value }),
       });
       if (res.ok) { this.style.display = 'none'; document.getElementById('form-success').style.display = 'block'; }
@@ -1028,490 +1144,273 @@
   });
 </script>
 
-<!-- ══════════════ PART 2: GSAP ANIMATIONS ══════════════ -->
+<!-- GSAP Animations + Gear Engine -->
 <script>
 (function() {
-  'use strict';
   if (typeof gsap === 'undefined') return;
   gsap.registerPlugin(ScrollTrigger);
+  const isMobile = window.innerWidth <= 860;
 
-  const isMobile = window.innerWidth <= 880;
-
-  /* ─── Typing animation ─── */
-  const PHRASES = [
-    'Convert More Clients',
-    'Automate Your Operations',
-    'Scale Without Hiring',
-    'Dominate Your Market'
-  ];
-  let pi = 0, ci = 0, deleting = false, paused = false;
+  /* ── Typing animation ── */
+  const PHRASES = ['Convert More Clients','Automate Your Operations','Scale Without Hiring','Dominate Your Market'];
+  let pi = 0, ci = 0, del = false, paused = false;
   const typEl = document.getElementById('typing-text');
   function type() {
     if (paused) return;
     const ph = PHRASES[pi];
-    if (!deleting && ci === ph.length) {
-      paused = true;
-      setTimeout(() => { deleting = true; paused = false; type(); }, 2000);
-      return;
-    }
-    if (deleting && ci === 0) { deleting = false; pi = (pi + 1) % PHRASES.length; }
-    ci += deleting ? -1 : 1;
+    if (!del && ci === ph.length) { paused = true; setTimeout(() => { del = true; paused = false; type(); }, 2000); return; }
+    if (del && ci === 0) { del = false; pi = (pi + 1) % PHRASES.length; }
+    ci += del ? -1 : 1;
     typEl.textContent = ph.substring(0, ci);
-    setTimeout(type, deleting ? 38 : 82);
+    setTimeout(type, del ? 36 : 78);
   }
 
-  /* ─── Hero entrance ─── */
-  gsap.set('.hero-el', { opacity: 0, y: 28 });
-  gsap.timeline({ delay: 0.3, onStart: type })
-    .to('.hero-el', { opacity: 1, y: 0, duration: 0.75, ease: 'power3.out', stagger: 0.12 });
+  /* ── Hero entrance ── */
+  const heroTl = gsap.timeline({ delay: 0.2, onStart: type });
+  heroTl.to('.hero-eyebrow', { opacity: 1, y: 0, duration: 0.6, ease: 'power3.out' })
+    .to('.hero-h1',    { opacity: 1, y: 0, duration: 0.7, ease: 'power3.out' }, '-=0.3')
+    .to('.hero-typing',{ opacity: 1, y: 0, duration: 0.5, ease: 'power3.out' }, '-=0.4')
+    .to('.hero-sub',   { opacity: 1, y: 0, duration: 0.6, ease: 'power3.out' }, '-=0.3')
+    .to('.hero-btns',  { opacity: 1, y: 0, duration: 0.5, ease: 'power3.out' }, '-=0.3')
+    .to('.proof-strip',{ opacity: 1, y: 0, duration: 0.5, ease: 'power3.out' }, '-=0.2');
 
-  /* ─── Gold shimmer is CSS-only — nothing needed here ─── */
+  /* ── Gear entrance (springs in from corners) ── */
+  const gearsTL = document.querySelectorAll('.gc-tl .g-svg');
+  const gearsTR = document.querySelectorAll('.gc-tr .g-svg');
+  gsap.set([gearsTL, gearsTR], { opacity: 0 });
+  gsap.to(gearsTL, { opacity: 0.9, stagger: 0.15, duration: 1.0, ease: 'power3.out', delay: 0.6 });
+  gsap.to(gearsTR, { opacity: 0.9, stagger: 0.15, duration: 1.0, ease: 'power3.out', delay: 0.75 });
 
-  /* ─── Helper: reveal on scroll ─── */
-  function reveal(targets, trigger, vars) {
-    gsap.from(targets, {
-      scrollTrigger: { trigger, start: 'top 82%', once: true },
-      ...{ y: 45, opacity: 0, duration: 0.8, ease: 'power3.out', stagger: 0.12 },
-      ...vars,
+  /* ── Continuous gear rotation (GSAP ticker) ── */
+  let gearAngle = 0, scrollBoost = 0, lastSY = 0;
+  const gearsAll = [
+    { el: document.querySelector('.gc-tl .g-a'), dir: 1,  speed: 0.9  },
+    { el: document.querySelector('.gc-tl .g-b'), dir: -1, speed: 1.45 },
+    { el: document.querySelector('.gc-tl .g-c'), dir: 1,  speed: 2.36 },
+    { el: document.querySelector('.gc-tr .g-a'), dir: -1, speed: 0.9  },
+    { el: document.querySelector('.gc-tr .g-b'), dir: 1,  speed: 1.45 },
+    { el: document.querySelector('.gc-tr .g-c'), dir: -1, speed: 2.36 },
+  ].filter(g => g.el);
+
+  gsap.ticker.add(() => {
+    gearAngle += (0.18 + scrollBoost) * 0.016 * 60;
+    gearsAll.forEach(g => gsap.set(g.el, { rotation: g.dir * gearAngle * g.speed, transformOrigin: '50% 50%' }));
+    if (scrollBoost > 0) scrollBoost *= 0.94;
+  });
+  window.addEventListener('scroll', () => {
+    const d = Math.abs(window.scrollY - lastSY);
+    scrollBoost = Math.min(scrollBoost + d * 0.08, 4);
+    lastSY = window.scrollY;
+  }, { passive: true });
+
+  /* ── Section scroll reveals ── */
+  function revealFrom(el, from) {
+    gsap.from(el, {
+      scrollTrigger: { trigger: el, start: 'top 82%', once: true },
+      ...from, duration: 0.85, ease: 'power3.out',
     });
   }
+  revealFrom('#manifesto .wrap-sm', { y: 50, opacity: 0 });
+  revealFrom('#why .panel-l',       { x: -50, opacity: 0 });
+  revealFrom('#services .panel-r',  { x: 50, opacity: 0 });
+  gsap.from('#why .why-card',  { scrollTrigger: { trigger: '#why .why-cards', start: 'top 82%', once: true }, y: 30, opacity: 0, stagger: 0.12, duration: 0.7, ease: 'power3.out', delay: 0.2 });
+  gsap.from('#services .svc-card', { scrollTrigger: { trigger: '#services .svc-list', start: 'top 82%', once: true }, y: 24, opacity: 0, stagger: 0.1, duration: 0.65, ease: 'power3.out', delay: 0.2 });
+  revealFrom('#results .results-hdr', { y: 30, opacity: 0 });
+  gsap.from('#stats-box', { scrollTrigger: { trigger: '#stats-box', start: 'top 84%', once: true }, y: 28, opacity: 0, duration: 0.75, ease: 'power3.out', delay: 0.15 });
+  gsap.from('.testi-card', { scrollTrigger: { trigger: '.testi-grid', start: 'top 84%', once: true }, y: 30, opacity: 0, stagger: 0.13, duration: 0.7, ease: 'power3.out' });
+  gsap.from('#contact .form-card',    { scrollTrigger: { trigger: '.contact-grid', start: 'top 82%', once: true }, x: -36, opacity: 0, duration: 0.8, ease: 'power3.out' });
+  gsap.from('#contact .contact-side', { scrollTrigger: { trigger: '.contact-grid', start: 'top 82%', once: true }, x: 36, opacity: 0, duration: 0.8, ease: 'power3.out', delay: 0.1 });
 
-  /* ─── Why AI panel — slide from left ─── */
-  gsap.from('#why .panel-left', {
-    scrollTrigger: { trigger: '#why', start: 'top 78%', once: true },
-    x: -50, opacity: 0, duration: 0.9, ease: 'power3.out',
-  });
-  reveal('#why .why-card', '#why .why-cards', { stagger: 0.14, delay: 0.2 });
-
-  /* ─── Services panel — slide from right ─── */
-  gsap.from('#services .panel-right', {
-    scrollTrigger: { trigger: '#services', start: 'top 78%', once: true },
-    x: 50, opacity: 0, duration: 0.9, ease: 'power3.out',
-  });
-  reveal('#services .svc-card', '#services .svc-list', { stagger: 0.12, delay: 0.2 });
-
-  /* ─── Results section ─── */
-  reveal('#results .container-center', '#results', { y: 30, stagger: 0 });
-  gsap.from('#stats-box', {
-    scrollTrigger: { trigger: '#stats-box', start: 'top 84%', once: true },
-    y: 30, opacity: 0, duration: 0.8, ease: 'power3.out', delay: 0.15,
-  });
-  reveal('#results .testi-card', '#results .testi-grid', { stagger: 0.14, delay: 0.1 });
-
-  /* ─── Contact section ─── */
-  gsap.from('#contact .container-center', {
-    scrollTrigger: { trigger: '#contact', start: 'top 80%', once: true },
-    y: 30, opacity: 0, duration: 0.8, ease: 'power3.out',
-  });
-  gsap.from('#contact .form-card', {
-    scrollTrigger: { trigger: '#contact .contact-grid', start: 'top 82%', once: true },
-    x: -36, opacity: 0, duration: 0.85, ease: 'power3.out', delay: 0.1,
-  });
-  gsap.from('#contact .contact-side', {
-    scrollTrigger: { trigger: '#contact .contact-grid', start: 'top 82%', once: true },
-    x: 36, opacity: 0, duration: 0.85, ease: 'power3.out', delay: 0.18,
-  });
-
-  /* ─── Footer ─── */
-  gsap.from('footer .footer-in', {
-    scrollTrigger: { trigger: 'footer', start: 'top 92%', once: true },
-    y: 24, opacity: 0, duration: 0.7, ease: 'power3.out',
-  });
-
-  /* ─── Animated counters ─── */
+  /* ── Stat counters ── */
   const COUNTERS = [
-    { id: 'c1', target: 47,   suffix: '+',  fmt: null },
-    { id: 'c2', target: 3200, suffix: '+',  fmt: 'comma' },
-    { id: 'c3', target: 3,    suffix: 'x',  fmt: null },
-    { id: 'c4', target: 98,   suffix: '%',  fmt: null },
+    { id:'c1', target:47,   suffix:'+',  fmt:null },
+    { id:'c2', target:3200, suffix:'+',  fmt:'comma' },
+    { id:'c3', target:3,    suffix:'x',  fmt:null },
+    { id:'c4', target:98,   suffix:'%',  fmt:null },
   ];
   ScrollTrigger.create({
     trigger: '#stats-box', start: 'top 84%', once: true,
     onEnter() {
       COUNTERS.forEach(({ id, target, suffix, fmt }) => {
-        const el = document.getElementById(id);
-        const proxy = { v: 0 };
-        gsap.to(proxy, {
-          v: target, duration: 2.0, ease: 'power2.out',
-          onUpdate() {
-            const v = Math.floor(proxy.v);
-            el.textContent = (fmt === 'comma' ? v.toLocaleString() : v) + suffix;
-          },
-          onComplete() {
-            el.textContent = (fmt === 'comma' ? target.toLocaleString() : target) + suffix;
-          }
+        const el = document.getElementById(id), proxy = { v: 0 };
+        gsap.to(proxy, { v: target, duration: 2.0, ease: 'power2.out',
+          onUpdate() { el.textContent = (fmt === 'comma' ? Math.floor(proxy.v).toLocaleString() : Math.floor(proxy.v)) + suffix; },
+          onComplete() { el.textContent = (fmt === 'comma' ? target.toLocaleString() : target) + suffix; }
         });
       });
     }
   });
 
-  /* ─── Glowing rules — sweep in ─── */
-  gsap.utils.toArray('.rule').forEach(r => {
-    gsap.fromTo(r,
-      { scaleX: 0, transformOrigin: 'left center' },
-      { scrollTrigger: { trigger: r, start: 'top 90%', once: true },
-        scaleX: 1, duration: 0.8, ease: 'power3.out' }
-    );
-  });
-
-  /* ─── Desktop-only interactions ─── */
+  /* ── Magnetic buttons ── */
   if (!isMobile) {
-
-    /* Magnetic buttons */
     document.querySelectorAll('.magnetic').forEach(el => {
       el.addEventListener('mousemove', function(ev) {
         const r = this.getBoundingClientRect();
-        gsap.to(this, {
-          x: (ev.clientX - r.left - r.width  / 2) * 0.28,
-          y: (ev.clientY - r.top  - r.height / 2) * 0.28,
-          duration: 0.3, ease: 'power2.out', overwrite: 'auto',
-        });
+        gsap.to(this, { x:(ev.clientX-r.left-r.width/2)*0.25, y:(ev.clientY-r.top-r.height/2)*0.25, duration:0.3, ease:'power2.out', overwrite:'auto' });
       });
       el.addEventListener('mouseleave', function() {
-        gsap.to(this, { x: 0, y: 0, duration: 0.6, ease: 'elastic.out(1,0.5)', overwrite: 'auto' });
+        gsap.to(this, { x:0, y:0, duration:0.6, ease:'elastic.out(1,0.5)', overwrite:'auto' });
       });
     });
-
-    /* 3D tilt on why-cards and testi-cards */
-    document.querySelectorAll('.why-card, .testi-card').forEach(card => {
-      card.addEventListener('mousemove', function(ev) {
-        const r = this.getBoundingClientRect();
-        gsap.to(this, {
-          rotationX: ((ev.clientY - r.top)  / r.height - 0.5) * -8,
-          rotationY: ((ev.clientX - r.left) / r.width  - 0.5) *  8,
-          duration: 0.25, ease: 'power2.out',
-          transformPerspective: 900, overwrite: 'auto',
-        });
-      });
-      card.addEventListener('mouseleave', function() {
-        gsap.to(this, {
-          rotationX: 0, rotationY: 0,
-          duration: 0.55, ease: 'elastic.out(1,0.4)', overwrite: 'auto',
-        });
-      });
-    });
-
-    /* Subtle background parallax on mouse move */
-    document.addEventListener('mousemove', e => {
-      const mx = (e.clientX / window.innerWidth  - 0.5) * 2;
-      const my = (e.clientY / window.innerHeight - 0.5) * 2;
-      gsap.to('.bg-grid', {
-        backgroundPositionX: mx * 12 + 'px',
-        backgroundPositionY: my * 8  + 'px',
-        duration: 1.8, ease: 'power2.out', overwrite: 'auto',
-      });
-    });
-
   }
-
 })();
 </script>
 
-<!-- ══════════════ PART 3: THREE.JS 3D ROBOT ══════════════ -->
+<!-- Three.js Robot (grows on scroll, chest opens) -->
 <script>
 (function() {
-  'use strict';
   if (typeof THREE === 'undefined') return;
-
   const canvas = document.getElementById('robot-canvas');
   if (!canvas) return;
 
-  /* ─── Renderer ─── */
+  const W = window.innerWidth, H = window.innerHeight;
   const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
   renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
-  renderer.setSize(window.innerWidth, window.innerHeight);
+  renderer.setSize(W, H);
   renderer.localClippingEnabled = true;
 
-  /* ─── Scene + Camera ─── */
   const scene  = new THREE.Scene();
-  const camera = new THREE.PerspectiveCamera(42, window.innerWidth / window.innerHeight, 0.1, 100);
-  camera.position.set(0, 0.6, 8);
-  camera.lookAt(0, 0.2, 0);
+  const camera = new THREE.PerspectiveCamera(42, W/H, 0.1, 100);
+  camera.position.set(0, 0.5, 16);
+  camera.lookAt(0, 0.3, 0);
 
-  /* ─── Material helpers ─── */
-  function metalMat(hex, opts) {
-    return new THREE.MeshStandardMaterial(Object.assign(
-      { color: hex, metalness: 0.9, roughness: 0.1 }, opts || {}
-    ));
-  }
-  function glowMat(hex) {
-    return new THREE.MeshStandardMaterial({
-      color: hex, emissive: new THREE.Color(hex), emissiveIntensity: 1.2,
-      metalness: 0.4, roughness: 0.2,
-    });
-  }
+  /* Materials */
+  function mMetal(hex, opts) { return new THREE.MeshStandardMaterial(Object.assign({ color:hex, metalness:0.9, roughness:0.1 }, opts||{})); }
+  function mGlow(hex) { return new THREE.MeshStandardMaterial({ color:hex, emissive:new THREE.Color(hex), emissiveIntensity:1.2, metalness:0.3, roughness:0.2 }); }
 
-  /* ─── Clipping plane (animates chest open) ─── */
-  // Plane normal points backward (-Z). Points where -z + constant > 0 → z < constant are rendered.
-  // constant = 0.5 → whole shell visible.  constant → -0.25 → front half clipped off.
-  const clipPlane = new THREE.Plane(new THREE.Vector3(0, 0, -1), 0.5);
+  const clipPlane = new THREE.Plane(new THREE.Vector3(0,0,-1), 0.5);
+  const shellMat  = new THREE.MeshStandardMaterial({ color:0x0f2a40, metalness:0.8, roughness:0.15, transparent:true, opacity:0.52, clippingPlanes:[clipPlane], side:THREE.DoubleSide });
 
-  const shellMat = new THREE.MeshStandardMaterial({
-    color: 0x1e3a5f, metalness: 0.8, roughness: 0.15,
-    transparent: true, opacity: 0.55,
-    clippingPlanes: [clipPlane], clipShadows: false, side: THREE.DoubleSide,
-  });
+  const darkM  = mMetal(0x0a1828);
+  const midM   = mMetal(0x1a3050);
+  const gearM  = mMetal(0x00ff88, { emissive:new THREE.Color(0x003322), emissiveIntensity:0.5 });
+  const pipeM  = mMetal(0x003a55, { emissive:new THREE.Color(0x001a25), emissiveIntensity:0.4 });
+  const eyeM   = mGlow(0x00d4ff);
 
-  /* ─── Geometry helpers ─── */
-  function mesh(geo, mat) { return new THREE.Mesh(geo, mat); }
-  function box(w,h,d,mat)     { return mesh(new THREE.BoxGeometry(w,h,d), mat); }
-  function cyl(rt,rb,h,s,mat) { return mesh(new THREE.CylinderGeometry(rt,rb,h,s), mat); }
-  function sph(r,mat)          { return mesh(new THREE.SphereGeometry(r,20,16), mat); }
-  function tor(R,r,rs,ts,mat)  { return mesh(new THREE.TorusGeometry(R,r,rs,ts), mat); }
+  /* Helpers */
+  const mk = (geo,mat) => new THREE.Mesh(geo,mat);
+  const box = (w,h,d,m)     => mk(new THREE.BoxGeometry(w,h,d), m);
+  const cyl = (rt,rb,h,s,m) => mk(new THREE.CylinderGeometry(rt,rb,h,s), m);
+  const sph = (r,m)          => mk(new THREE.SphereGeometry(r,20,16), m);
+  const tor = (R,r,rs,ts,m)  => mk(new THREE.TorusGeometry(R,r,rs,ts), m);
 
-  const darkMetal = metalMat(0x0f1e33);
-  const midMetal  = metalMat(0x1e3a60);
-  const gearCol   = metalMat(0x7b2fff, { emissive: new THREE.Color(0x3a1080), emissiveIntensity: 0.4 });
-  const pipeCol   = metalMat(0x003a55, { emissive: new THREE.Color(0x001a2a), emissiveIntensity: 0.3 });
-  const eyeMat    = glowMat(0x00d4ff);
-
-  /* ══════════ BUILD ROBOT ══════════ */
+  /* Robot */
   const robot = new THREE.Group();
   scene.add(robot);
 
-  /* HEAD */
-  const headGroup = new THREE.Group();
-  headGroup.position.y = 1.85;
+  /* Head */
+  const head = new THREE.Group(); head.position.y = 1.85;
+  head.add(sph(0.46, shellMat));
+  const face = box(0.52,0.38,0.06,midM); face.position.set(0,0.02,0.41); head.add(face);
+  const eyeL = sph(0.08,eyeM); eyeL.position.set(-0.16,0.08,0.46);
+  const eyeR = sph(0.08,eyeM); eyeR.position.set( 0.16,0.08,0.46);
+  const epL = new THREE.PointLight(0x00d4ff,0,2.5); epL.position.copy(eyeL.position);
+  const epR = new THREE.PointLight(0x00d4ff,0,2.5); epR.position.copy(eyeR.position);
+  head.add(eyeL,eyeR,epL,epR);
+  const antS = cyl(0.018,0.018,0.28,8,midM); antS.position.y=0.6;
+  const antT = sph(0.055, mGlow(0x7b2fff)); antT.position.y=0.78;
+  head.add(antS,antT);
+  [-1,1].forEach(s=>{ const e=box(0.08,0.28,0.22,midM); e.position.set(s*0.5,0,0); head.add(e); });
+  robot.add(head);
 
-  const headShell = sph(0.46, shellMat);
-  headGroup.add(headShell);
+  /* Neck */
+  const neck = cyl(0.11,0.15,0.22,8,darkM); neck.position.y=1.3; robot.add(neck);
 
-  // Flat face panel
-  const facePlate = box(0.52, 0.38, 0.06, midMetal);
-  facePlate.position.set(0, 0.02, 0.41);
-  headGroup.add(facePlate);
+  /* Torso */
+  const torso = new THREE.Group(); torso.position.y=0.22;
+  torso.add(box(1.15,1.25,0.72,shellMat));
+  const back = box(0.95,1.05,0.08,darkM); back.position.z=-0.32; torso.add(back);
 
-  // Eyes
-  const eyeL = sph(0.08, eyeMat); eyeL.position.set(-0.16, 0.08, 0.46);
-  const eyeR = sph(0.08, eyeMat); eyeR.position.set( 0.16, 0.08, 0.46);
-  headGroup.add(eyeL, eyeR);
-
-  // Eye point-lights (stored for animation)
-  const eyePtL = new THREE.PointLight(0x00d4ff, 0, 2.5); eyePtL.position.copy(eyeL.position);
-  const eyePtR = new THREE.PointLight(0x00d4ff, 0, 2.5); eyePtR.position.copy(eyeR.position);
-  headGroup.add(eyePtL, eyePtR);
-
-  // Antenna
-  const antStalk = cyl(0.018, 0.018, 0.28, 8, midMetal); antStalk.position.y = 0.6;
-  const antTip   = sph(0.055, glowMat(0x7b2fff)); antTip.position.y = 0.78;
-  headGroup.add(antStalk, antTip);
-
-  // Ear plates
-  [-1,1].forEach(s => {
-    const ear = box(0.08, 0.28, 0.22, midMetal); ear.position.set(s * 0.5, 0.0, 0);
-    headGroup.add(ear);
-  });
-
-  robot.add(headGroup);
-
-  /* NECK */
-  const neck = cyl(0.11, 0.15, 0.22, 8, darkMetal);
-  neck.position.y = 1.3;
-  robot.add(neck);
-
-  /* TORSO */
-  const torsoGroup = new THREE.Group();
-  torsoGroup.position.y = 0.22;
-
-  // Outer shell (clipped to open on scroll)
-  const torsoShell = box(1.15, 1.25, 0.72, shellMat);
-  torsoGroup.add(torsoShell);
-
-  // Back plate (solid, always visible)
-  const backPlate = box(0.95, 1.05, 0.08, darkMetal); backPlate.position.z = -0.32;
-  torsoGroup.add(backPlate);
-
-  // ── Gears (stored for spin animation) ──
+  /* Gears */
   const gears = [];
-
-  // Central large gear
-  const gearBig = tor(0.26, 0.07, 8, 14, gearCol);
-  gearBig.position.set(0, 0.22, 0.08);
-  torsoGroup.add(gearBig); gears.push({ mesh: gearBig, dir: 1, speed: 1.0 });
-
-  // Two smaller interlocking gears
-  [[-0.3, -0.1], [0.3, -0.1]].forEach(([x, y], i) => {
-    const g = tor(0.17, 0.055, 8, 12, gearCol);
-    g.position.set(x, y, 0.08);
-    torsoGroup.add(g); gears.push({ mesh: g, dir: -1, speed: 1.55 });
+  const gBig = tor(0.26,0.07,8,14,gearM); gBig.position.set(0,0.22,0.08);
+  torso.add(gBig); gears.push({m:gBig,d:1,s:1.0});
+  [[-0.3,-0.1],[0.3,-0.1]].forEach(([x,y])=>{
+    const g=tor(0.17,0.055,8,12,gearM); g.position.set(x,y,0.08);
+    torso.add(g); gears.push({m:g,d:-1,s:1.55});
   });
+  const gSm = tor(0.10,0.04,6,10, mMetal(0x00d4ff,{emissive:new THREE.Color(0x002233),emissiveIntensity:0.5}));
+  gSm.position.set(0,-0.18,0.08); torso.add(gSm); gears.push({m:gSm,d:1,s:2.4});
 
-  // Fourth accent gear (smaller)
-  const gearSm = tor(0.1, 0.04, 6, 10, metalMat(0x00d4ff, { emissive: new THREE.Color(0x003344), emissiveIntensity: 0.5 }));
-  gearSm.position.set(0, -0.18, 0.08);
-  torsoGroup.add(gearSm); gears.push({ mesh: gearSm, dir: 1, speed: 2.4 });
-
-  // Vertical pistons
-  [-0.38, 0.38].forEach(x => {
-    const piston = cyl(0.048, 0.048, 0.68, 8, pipeCol); piston.position.set(x, 0, 0.05);
-    torsoGroup.add(piston);
-    const cap = cyl(0.07, 0.07, 0.06, 8, pipeCol); cap.position.set(x, 0.37, 0.05);
-    torsoGroup.add(cap);
+  /* Pistons */
+  [-0.38,0.38].forEach(x=>{
+    const p=cyl(0.048,0.048,0.68,8,pipeM); p.position.set(x,0,0.05); torso.add(p);
+    const c=cyl(0.07,0.07,0.06,8,pipeM); c.position.set(x,0.37,0.05); torso.add(c);
   });
+  /* Ribs */
+  for(let i=0;i<5;i++){ const r=cyl(0.025,0.025,0.7,8,darkM); r.rotation.z=Math.PI/2; r.position.set(0,-0.3+i*0.18,-0.1); torso.add(r); }
+  robot.add(torso);
 
-  // Ribcage tubes (horizontal)
-  for (let i = 0; i < 5; i++) {
-    const rib = cyl(0.025, 0.025, 0.7, 8, darkMetal);
-    rib.rotation.z = Math.PI / 2; rib.position.set(0, -0.3 + i * 0.18, -0.1);
-    torsoGroup.add(rib);
-  }
-
-  // Shoulder connector boxes
-  [-1,1].forEach(s => {
-    const sc = box(0.18, 0.22, 0.52, darkMetal); sc.position.set(s * 0.64, 0.44, 0);
-    torsoGroup.add(sc);
-  });
-
-  robot.add(torsoGroup);
-
-  /* ARMS */
-  [-1, 1].forEach(side => {
-    const arm = new THREE.Group();
-    arm.position.set(side * 0.82, 0.44, 0);
-
-    // Shoulder ball
-    const shoulder = sph(0.14, midMetal); shoulder.position.y = 0.0;
-    arm.add(shoulder);
-
-    // Shoulder gear
-    const sGear = tor(0.14, 0.045, 6, 10, gearCol);
-    sGear.rotation.y = Math.PI / 2; sGear.position.y = 0;
-    arm.add(sGear); gears.push({ mesh: sGear, dir: side, speed: 0.7 });
-
-    // Upper arm
-    const upper = cyl(0.1, 0.12, 0.55, 8, darkMetal); upper.position.y = -0.32;
-    arm.add(upper);
-
-    // Elbow ball
-    const elbow = sph(0.11, midMetal); elbow.position.y = -0.63;
-    arm.add(elbow);
-
-    // Forearm
-    const fore = cyl(0.075, 0.095, 0.48, 8, darkMetal); fore.position.y = -0.9;
-    arm.add(fore);
-
+  /* Arms */
+  [-1,1].forEach(side=>{
+    const arm=new THREE.Group(); arm.position.set(side*0.82,0.44,0);
+    const sh=sph(0.14,midM); arm.add(sh);
+    const sg=tor(0.14,0.045,6,10,gearM); sg.rotation.y=Math.PI/2; arm.add(sg); gears.push({m:sg,d:side,s:0.7});
+    const up=cyl(0.1,0.12,0.55,8,darkM); up.position.y=-0.32; arm.add(up);
+    const el=sph(0.11,midM); el.position.y=-0.63; arm.add(el);
+    const fo=cyl(0.075,0.095,0.48,8,darkM); fo.position.y=-0.9; arm.add(fo);
     robot.add(arm);
   });
 
-  /* LEGS */
-  [-0.3, 0.3].forEach(x => {
-    const leg = new THREE.Group();
-    leg.position.set(x, -0.6, 0);
-
-    const upper = cyl(0.13, 0.14, 0.6, 8, darkMetal);  upper.position.y = -0.3;
-    const knee  = sph(0.14, midMetal);                  knee.position.y  = -0.62;
-    const lower = cyl(0.095, 0.12, 0.55, 8, darkMetal); lower.position.y = -0.94;
-    const foot  = box(0.24, 0.11, 0.38, darkMetal);     foot.position.y  = -1.25;
-
-    // Knee gear
-    const kGear = tor(0.12, 0.04, 6, 8, gearCol);
-    kGear.rotation.y = Math.PI / 2; kGear.position.y = -0.62;
-    leg.add(upper, knee, lower, foot, kGear);
-    gears.push({ mesh: kGear, dir: (x < 0 ? 1 : -1), speed: 0.9 });
-
+  /* Legs */
+  [-0.3,0.3].forEach(x=>{
+    const leg=new THREE.Group(); leg.position.set(x,-0.6,0);
+    const up=cyl(0.13,0.14,0.6,8,darkM);  up.position.y=-0.3;
+    const kn=sph(0.14,midM);               kn.position.y=-0.62;
+    const lo=cyl(0.095,0.12,0.55,8,darkM); lo.position.y=-0.94;
+    const ft=box(0.24,0.11,0.38,darkM);    ft.position.y=-1.25;
+    const kg=tor(0.12,0.04,6,8,gearM); kg.rotation.y=Math.PI/2; kg.position.y=-0.62;
+    leg.add(up,kn,lo,ft,kg); gears.push({m:kg,d:(x<0?1:-1),s:0.9});
     robot.add(leg);
   });
 
-  /* ══════════ LIGHTING ══════════ */
-  // Purple ambient
-  const ambLight = new THREE.AmbientLight(0x7b2fff, 0.35);
-  scene.add(ambLight);
+  /* Lighting */
+  scene.add(new THREE.AmbientLight(0x7b2fff, 0.3));
+  const fL = new THREE.PointLight(0x00d4ff,1.5,22); fL.position.set(0,1.5,6); scene.add(fL);
+  const fiL = new THREE.PointLight(0x7b2fff,0.7,18); fiL.position.set(-4,0.5,2); scene.add(fiL);
+  const rL = new THREE.DirectionalLight(0xD4AF37,0.8); rL.position.set(0,3,-6); scene.add(rL);
 
-  // Blue front point light
-  const frontLight = new THREE.PointLight(0x00d4ff, 1.6, 22);
-  frontLight.position.set(0, 1.5, 6);
-  scene.add(frontLight);
-
-  // Purple fill from left
-  const fillLight = new THREE.PointLight(0x7b2fff, 0.8, 18);
-  fillLight.position.set(-4, 0.5, 2);
-  scene.add(fillLight);
-
-  // Gold rim from behind
-  const rimLight = new THREE.DirectionalLight(0xD4AF37, 0.9);
-  rimLight.position.set(0, 3, -6);
-  scene.add(rimLight);
-
-  /* ══════════ SCROLL ANIMATION STATE ══════════ */
-  const state = {
-    chestOpen: 0,   // 0=closed, 1=fully open
-    eyeGlow:   0,   // 0=dark, 1=full glow
-    camZ:      8,
-    camY:      0.6,
-    rotY:      0,
-  };
-
+  /* Scroll state */
+  let scrollAmt = 0, chestOpen = 0, eyeGlow = 0;
   if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
-    const tl = gsap.timeline({
-      scrollTrigger: {
-        trigger: document.body,
-        start: 'top top',
-        end: 'bottom bottom',
-        scrub: 1,
+    const proxy = { s: 0 };
+    gsap.to(proxy, {
+      s: 1, scrollTrigger: { trigger: document.body, start: 'top top', end: 'bottom bottom', scrub: 1 },
+      onUpdate() {
+        scrollAmt = proxy.s;
+        chestOpen = Math.max(0, (scrollAmt - 0.55) / 0.45);
+        eyeGlow   = Math.max(0, (scrollAmt - 0.70) / 0.30);
+        camera.position.z = 16 - scrollAmt * 11.5;
+        camera.position.y = 0.5 + scrollAmt * 0.2;
+        camera.lookAt(0, 0.3, 0);
       }
     });
-
-    // 0% → 25%: silhouette, subtle rotation
-    tl.to(state, { rotY: 0.18, duration: 1 }, 0);
-
-    // 25% → 50%: chest opens, gears glow
-    tl.to(state, { chestOpen: 1, duration: 1 }, 1);
-
-    // 50% → 75%: eyes fully glow, continue
-    tl.to(state, { eyeGlow: 1, duration: 1 }, 2);
-
-    // 75% → 100%: camera zooms into chest cavity
-    tl.to(state, { camZ: 3.8, camY: 0.22, duration: 1 }, 3);
   }
 
-  /* ══════════ RENDER LOOP ══════════ */
+  /* Render loop */
   const clock = new THREE.Clock();
-
-  function animate() {
+  (function animate() {
     requestAnimationFrame(animate);
     const t = clock.getElapsedTime();
-    const sp = 0.4 + state.chestOpen * 1.8;  // gear speed scales with chest opening
-
-    // Spin gears
-    gears.forEach(g => {
-      g.mesh.rotation.z += g.dir * g.speed * sp * 0.016;
-    });
-
-    // Chest clipping: constant 0.5 (closed) → -0.25 (open)
-    clipPlane.constant = 0.5 - state.chestOpen * 0.75;
-
-    // Eye glow pulse
-    const pulse = 0.85 + Math.sin(t * 2.8) * 0.15;
-    eyeMat.emissiveIntensity = 0.3 + state.eyeGlow * 1.8 * pulse;
-    eyePtL.intensity = state.eyeGlow * 1.8 * pulse;
-    eyePtR.intensity = state.eyeGlow * 1.8 * pulse;
-
-    // Camera
-    camera.position.z = state.camZ;
-    camera.position.y = state.camY;
-    camera.lookAt(0, 0.2, 0);
-
-    // Robot: subtle float + rotation
-    robot.position.y  = Math.sin(t * 0.5) * 0.05;
-    robot.rotation.y  = state.rotY + Math.sin(t * 0.28) * 0.04;
-
-    // Light pulse
-    frontLight.intensity = 1.6 + Math.sin(t * 0.9) * 0.25;
-    fillLight.intensity  = 0.8 + Math.sin(t * 0.7 + 1) * 0.15;
-
+    const sp = 0.5 + chestOpen * 2.2;
+    gears.forEach(g => { g.m.rotation.z += g.d * g.s * sp * 0.016; });
+    clipPlane.constant = 0.5 - chestOpen * 0.75;
+    const pulse = 0.85 + Math.sin(t*2.8)*0.15;
+    eyeM.emissiveIntensity = 0.25 + eyeGlow * 1.8 * pulse;
+    epL.intensity = eyeGlow * 1.8 * pulse;
+    epR.intensity = eyeGlow * 1.8 * pulse;
+    robot.position.y = Math.sin(t*0.45)*0.06;
+    robot.rotation.y = Math.sin(t*0.25)*0.05;
+    fL.intensity  = 1.5 + Math.sin(t*0.8)*0.28;
+    fiL.intensity = 0.7 + Math.sin(t*0.65+1)*0.15;
     renderer.render(scene, camera);
-  }
+  })();
 
-  animate();
-
-  /* ─── Resize ─── */
   window.addEventListener('resize', () => {
-    const W = window.innerWidth, H = window.innerHeight;
-    camera.aspect = W / H;
-    camera.updateProjectionMatrix();
-    renderer.setSize(W, H);
+    const W=window.innerWidth, H=window.innerHeight;
+    camera.aspect=W/H; camera.updateProjectionMatrix();
+    renderer.setSize(W,H);
   });
-
 })();
 </script>
 
