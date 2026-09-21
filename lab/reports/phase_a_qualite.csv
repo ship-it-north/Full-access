@@ -1,0 +1,6 @@
+symbole,controle,detail,occurrences,bloquant
+XLE,saut_suspect,variations > 20% entre deux barres (fractionnement non ajusté ?),1,False
+ZSP.TO,volume_nul,barres à volume nul,2,False
+XEG.TO,saut_suspect,variations > 20% entre deux barres (fractionnement non ajusté ?),2,False
+BIL,barres_figees,barres OHLC identiques à la précédente,420,False
+SGOV,barres_figees,barres OHLC identiques à la précédente,42,False
