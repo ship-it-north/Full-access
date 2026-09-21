@@ -215,3 +215,127 @@ def load_universe(
             print(f"[{n}/{len(symbols)}] {symbol} {len(df)} barres, "
                   f"{df.index[0].date()} -> {df.index[-1].date()}", flush=True)
     return dict(sorted(out.items()))
+
+
+# --------------------------------------------------------------------------- #
+# Funding et univers point-in-time (phase ensemble)
+# --------------------------------------------------------------------------- #
+def fetch_funding_history(exchange, symbol: str, since_ms: int) -> pd.Series:
+    """Historique des funding rates, paginé vers l'arrière (100 points par appel)."""
+    rows: list[tuple[int, float]] = []
+    cursor: int | None = None
+    seen: set[int] = set()
+    while True:
+        params = {"after": cursor} if cursor else {}
+        for attempt in range(C.MAX_RETRIES):
+            try:
+                page = exchange.fetch_funding_rate_history(symbol, limit=100, params=params)
+                break
+            except Exception:
+                if attempt == C.MAX_RETRIES - 1:
+                    raise
+                time.sleep(2 ** attempt)
+        if not page:
+            break
+        new = [(p["timestamp"], float(p["fundingRate"])) for p in page if p["timestamp"] not in seen]
+        if not new:
+            break
+        seen.update(ts for ts, _ in new)
+        rows.extend(new)
+        oldest = min(ts for ts, _ in new)
+        if oldest <= since_ms:
+            break
+        cursor = oldest
+        time.sleep(C.RATE_LIMIT_SLEEP)
+    if not rows:
+        return pd.Series(dtype=float)
+    s = pd.Series(dict(rows)).sort_index()
+    s.index = pd.to_datetime(s.index, unit="ms", utc=True)
+    return s[s.index >= pd.Timestamp(since_ms, unit="ms", tz="UTC")]
+
+
+def load_funding(symbols: list[str], since: str = C.START_DATE, workers: int = 4) -> dict[str, pd.Series]:
+    """Funding par paire, mis en cache en parquet."""
+    C.DATA_DIR.mkdir(parents=True, exist_ok=True)
+    since_ms = int(pd.Timestamp(since).timestamp() * 1000)
+    local = threading.local()
+
+    def worker(symbol: str) -> tuple[str, pd.Series]:
+        safe = symbol.replace("/", "_").replace(":", "_")
+        path = C.DATA_DIR / f"{C.EXCHANGE_ID}_{safe}_funding.parquet"
+        if path.exists():
+            return symbol, pd.read_parquet(path)["funding"]
+        if not hasattr(local, "exchange"):
+            local.exchange = get_exchange()
+        s = fetch_funding_history(local.exchange, symbol, since_ms)
+        if not s.empty:
+            s.rename("funding").to_frame().to_parquet(path)
+        return symbol, s
+
+    out: dict[str, pd.Series] = {}
+    with ThreadPoolExecutor(max_workers=workers) as pool:
+        for future in as_completed([pool.submit(worker, s) for s in symbols]):
+            try:
+                symbol, s = future.result()
+            except Exception as exc:
+                print(f"  funding ECHEC : {type(exc).__name__}: {exc}")
+                continue
+            if not s.empty:
+                out[symbol] = s
+                print(f"  funding {symbol}: {len(s)} points", flush=True)
+    return out
+
+
+def load_daily_panel(symbols: list[str], since: str = C.START_DATE, workers: int = 4) -> pd.DataFrame:
+    """Volume quote quotidien par paire — sert à reconstruire l'univers point-in-time."""
+    C.DATA_DIR.mkdir(parents=True, exist_ok=True)
+    cache = C.DATA_DIR / f"{C.EXCHANGE_ID}_daily_quote_volume.parquet"
+    if cache.exists():
+        return pd.read_parquet(cache)
+    since_ms = int(pd.Timestamp(since).timestamp() * 1000)
+    now_ms = int(time.time() * 1000)
+    local = threading.local()
+    saved_tf = C.TIMEFRAME
+
+    def worker(symbol: str) -> tuple[str, pd.Series]:
+        if not hasattr(local, "exchange"):
+            local.exchange = get_exchange()
+        rows: list[list] = []
+        cursor, last_seen = since_ms, -1
+        while cursor < now_ms:
+            page = local.exchange.fetch_ohlcv(symbol, "1d", since=cursor, limit=300)
+            if not page:
+                cursor += 90 * 24 * C.BAR_MS
+                if rows:
+                    break
+                continue
+            rows.extend(page)
+            last = page[-1][0]
+            if last <= last_seen:
+                break
+            last_seen, cursor = last, last + 24 * C.BAR_MS
+            time.sleep(C.RATE_LIMIT_SLEEP)
+        if not rows:
+            return symbol, pd.Series(dtype=float)
+        df = pd.DataFrame(rows, columns=["ts", "o", "h", "l", "c", "v"])
+        idx = pd.to_datetime(df["ts"], unit="ms", utc=True)
+        # volume quote ≈ volume base × close (comparable entre paires)
+        return symbol, pd.Series((df["v"] * df["c"]).values, index=idx).groupby(level=0).last()
+
+    series: dict[str, pd.Series] = {}
+    done = 0
+    with ThreadPoolExecutor(max_workers=workers) as pool:
+        for future in as_completed([pool.submit(worker, s) for s in symbols]):
+            done += 1
+            try:
+                symbol, s = future.result()
+            except Exception:
+                continue
+            if not s.empty:
+                series[symbol] = s
+            if done % 50 == 0:
+                print(f"  daily {done}/{len(symbols)}", flush=True)
+    C.TIMEFRAME = saved_tf
+    panel = pd.DataFrame(series).sort_index()
+    panel.to_parquet(cache)
+    return panel

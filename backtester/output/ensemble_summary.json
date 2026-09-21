@@ -1,0 +1,16 @@
+{
+  "configurations": 1760,
+  "kept": [],
+  "dsr": {
+    "sharpe_annualise": 0.5163933061646944,
+    "sharpe_quotidien": 0.027029260991205353,
+    "sharpe_seuil_hasard_annualise": 2.295770150315084,
+    "n_configurations": 1688,
+    "variance_essais": 0.0012482801665258496,
+    "skewness": 1.5819209299064598,
+    "kurtosis": 29.931937883481243,
+    "observations": 994,
+    "deflated_sharpe_ratio": 0.0013880258864144407,
+    "comptage": "toutes configurations \u00e9valu\u00e9es"
+  }
+}

@@ -151,3 +151,65 @@ défaut, comme demandé. Les perps d'actifs tokenisés non-crypto présents chez
   capital certaines tailles seraient sous le minimum d'échange réel.
 - Stratégie 100% long : les 5 positions simultanées sont fortement corrélées, ce
   que montre le décrochage groupé de mai 2025.
+
+---
+
+# Partie 2 — système de signaux par ensemble
+
+Construction et validation d'un **système** de signaux (pas d'une stratégie unique),
+en 3 phases. Tout le code réutilise les contrôles de look-ahead de la partie 1.
+
+```bat
+python main_ensemble.py --offline          :: rejoue depuis le cache parquet
+python main_ensemble.py --skip-sensitivity :: sans les 1600 runs de sensibilité
+python -m pytest tests -q                  :: 96 tests
+```
+
+| Fichier | Rôle |
+|---|---|
+| `signals.py` | S1 TSMOM, S2 cross-sectional, S3 Donchian, S4 mean-reversion ; filtres F1 ER, F2 régime de vol, F3 funding |
+| `ensemble.py` | moteur de portefeuille : score composite, stop ATR + trailing, sizing vol-target, contraintes de corrélation et d'exposition |
+| `validation.py` | walk-forward, benchmark, Monte Carlo, Deflated Sharpe Ratio, sensibilités |
+| `report_ensemble.py` | graphiques et tableaux |
+| `main_ensemble.py` | orchestration des 3 phases + verdict |
+
+## Univers point-in-time
+
+Le top 30 par volume quote sur 30 jours est **reconstruit à chaque 1er du mois**
+à partir des volumes quotidiens réels des 435 perps USDT d'OKX (churn moyen :
+8 paires par mois, 187 paires dans l'union sur la période). Une paire ne peut
+être ouverte que pendant les mois où elle appartient au top 30 ; une position
+déjà ouverte reste gérée jusqu'à sa sortie.
+
+Limite : les paires **délistées** depuis ne figurent pas dans le catalogue actuel
+de l'exchange, donc le biais de survivance est réduit mais pas éliminé.
+
+## Résultats
+
+**Phase 1 — aucune composante ne passe la règle de sélection.** Sur 2025-2026,
+les Sharpe out-of-sample sont de −0.35 (S1), −0.94 (S3), −0.98 (S2) et −1.61 (S4).
+Les trois signaux directionnels sont par ailleurs corrélés entre 0.83 et 0.85 :
+même si leurs Sharpe passaient, deux des trois seraient éliminés par la règle
+de corrélation < 0.6. **Phase 2 arrêtée** conformément à la consigne.
+
+**Phase 3 — walk-forward** (sélection refaite dans chaque fenêtre de train) :
+
+| | Sharpe | Rendement | Max DD | Trades |
+|---|---:|---:|---:|---:|
+| Ensemble (test uniquement) | 0.52 | +45.0% | −28.9% | 44 |
+| BTC buy & hold | 0.71 | +92.3% | −53.8% | — |
+| Univers figé 10 majors | −0.07 | −21.5% | −49.2% | — |
+
+- **Temps en position : 20.2%.** Le meilleur mois fait **56% du P&L total**.
+- **Deflated Sharpe Ratio : 0.031** (N = 72 configurations de sélection),
+  **0.001** (N = 1688 configurations au total). Le Sharpe attendu par pur hasard
+  avec ce nombre d'essais est de 1.63 à 2.30, contre 0.52 observé.
+- **Monte Carlo** (1000 rééchantillonnages) : 5e percentile à **−20.9%**,
+  probabilité de perte 18%.
+- **Sensibilité ±30%** : le Sharpe va de −0.21 à 0.80 selon les perturbations.
+  `max_corr` et `atr_trail_mult` font basculer le résultat à eux seuls.
+- **Coûts doublés** : impact faible (0.52 → 0.50), parce que le système trade peu.
+
+**Recommandation : NE PAS DÉPLOYER** — 0 critère sur 6 rempli. Le rapport complet,
+avec le détail par fold et les réserves méthodologiques, est dans
+`output/report_ensemble.md`.
