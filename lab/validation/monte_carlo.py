@@ -57,8 +57,8 @@ def monte_carlo_permutations(trades: list[float] | np.ndarray,
         # Permuter l'ordre des trades
         perm = np.random.permutation(trades)
 
-        # Simuler l'équité
-        equity_path = np.insert(np.cumsum(perm), 0, initial_equity)
+        # Simuler l'équité: initial + cumulative trades
+        equity_path = np.insert(initial_equity + np.cumsum(perm), 0, initial_equity)
 
         # Équité finale
         final_equities.append(equity_path[-1])
@@ -68,14 +68,14 @@ def monte_carlo_permutations(trades: list[float] | np.ndarray,
         drawdown = (equity_path - running_max) / running_max
         max_drawdowns.append(np.abs(drawdown.min()) * 100)  # en %
 
-        # Probabilité d'être positif après N trades
-        cumsum = np.cumsum(perm)
+        # Probabilité d'être positif après N trades (relative à initial_equity)
+        cumsum = initial_equity + np.cumsum(perm)
         if len(cumsum) >= 50:
-            trades_to_50.append(cumsum[49] > 0)
+            trades_to_50.append(cumsum[49] > initial_equity)
         if len(cumsum) >= 100:
-            trades_to_100.append(cumsum[99] > 0)
+            trades_to_100.append(cumsum[99] > initial_equity)
         if len(cumsum) >= 200:
-            trades_to_200.append(cumsum[199] > 0)
+            trades_to_200.append(cumsum[199] > initial_equity)
 
     final_equities = np.array(final_equities)
     max_drawdowns = np.array(max_drawdowns)
