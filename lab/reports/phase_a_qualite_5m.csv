@@ -1,0 +1,25 @@
+symbole,controle,detail,occurrences,bloquant
+SPY,seances_incompletes,séances avec moins de 78 barres en séance régulière (demi-journées de bourse incluses),1476,True
+QQQ,seances_incompletes,séances avec moins de 78 barres en séance régulière (demi-journées de bourse incluses),1287,True
+IWM,seances_incompletes,séances avec moins de 78 barres en séance régulière (demi-journées de bourse incluses),2246,True
+DIA,seances_incompletes,séances avec moins de 78 barres en séance régulière (demi-journées de bourse incluses),2689,True
+XLF,saut_suspect,variations > 20% entre deux barres (fractionnement non ajusté ?),1,False
+XLF,barres_figees,barres OHLC identiques à la précédente,13336,False
+XLF,seances_incompletes,séances avec moins de 78 barres en séance régulière (demi-journées de bourse incluses),2681,True
+XLE,saut_suspect,variations > 20% entre deux barres (fractionnement non ajusté ?),1,False
+XLE,barres_figees,barres OHLC identiques à la précédente,6113,False
+XLE,seances_incompletes,séances avec moins de 78 barres en séance régulière (demi-journées de bourse incluses),2659,True
+XLK,saut_suspect,variations > 20% entre deux barres (fractionnement non ajusté ?),1,False
+XLK,seances_incompletes,séances avec moins de 78 barres en séance régulière (demi-journées de bourse incluses),2692,True
+XLV,seances_incompletes,séances avec moins de 78 barres en séance régulière (demi-journées de bourse incluses),2694,True
+XLI,seances_incompletes,séances avec moins de 78 barres en séance régulière (demi-journées de bourse incluses),2694,True
+GLD,seances_incompletes,séances avec moins de 78 barres en séance régulière (demi-journées de bourse incluses),2545,True
+TLT,barres_figees,barres OHLC identiques à la précédente,4276,False
+TLT,seances_incompletes,séances avec moins de 78 barres en séance régulière (demi-journées de bourse incluses),2445,True
+EFA,seances_incompletes,séances avec moins de 78 barres en séance régulière (demi-journées de bourse incluses),2694,True
+BIL,saut_suspect,variations > 20% entre deux barres (fractionnement non ajusté ?),1,False
+BIL,barres_figees,barres OHLC identiques à la précédente,29033,False
+BIL,seances_incompletes,séances avec moins de 78 barres en séance régulière (demi-journées de bourse incluses),2693,True
+SGOV,barres_figees,barres OHLC identiques à la précédente,24169,False
+SGOV,seances_manquantes,"2.58% des séances absentes (ex. 2020-05-29, 2020-06-03, 2020-06-05)",41,True
+SGOV,seances_incompletes,séances avec moins de 78 barres en séance régulière (demi-journées de bourse incluses),1400,True

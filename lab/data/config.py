@@ -17,7 +17,7 @@ TZ_NY = "America/New_York"
 
 # Périodes visées (brief §5 phase A).
 DAILY_START = "2013-01-01"      # 10 ans et plus
-INTRADAY_START = "2022-09-01"   # au moins 3 ans de barres 5 minutes pour l'ORB
+INTRADAY_START = "2016-01-04"   # profondeur réelle du flux SIP d'Alpaca (le brief en exige 3 ans)
 INTRADAY_BAR = "5m"
 DAILY_BAR = "1d"
 
@@ -36,6 +36,7 @@ CURRENCY = {s: "CAD" if s.endswith(".TO") else "USD" for s in CANDIDATE_UNIVERSE
 MAX_DAILY_MOVE = 0.20           # au-delà : saut à vérifier (hors fractionnement connu)
 MAX_MISSING_SESSION_RATE = 0.01  # 1 % de séances manquantes tolérées
 MIN_DAILY_DOLLAR_VOLUME = 1_000_000  # liquidité minimale pour l'éligibilité
+EXPECTED_RTH_BARS_5M = 78            # 6h30 de séance régulière / 5 min
 
 # Contrainte de compte
 STARTING_CASH_CAD = 200.0

@@ -287,3 +287,161 @@ def test_bls_parse_une_ligne_de_calendrier():
     assert (pd.Timestamp("2024-05-15"), "IPC") in got
     assert (pd.Timestamp("2024-05-03"), "EMPLOI") in got
     assert len(got) == 2  # l'IPP n'est pas retenu
+
+
+# --------------------------------------------------------------------------- #
+# Alpaca : choix du flux et ajustement
+# --------------------------------------------------------------------------- #
+class _FakeResponse:
+    def __init__(self, status, payload=None):
+        self.status_code = status
+        self._payload = payload or {}
+        self.text = "" if status == 200 else "erreur simulée"
+
+    def json(self):
+        return self._payload
+
+
+def _bars(n=3, close=100.0, offset=0):
+    return [{"t": f"2024-01-{offset + k + 1:02d}T14:30:00Z", "o": close, "h": close + 1,
+             "l": close - 1, "c": close, "v": 1000.0} for k in range(n)]
+
+
+def test_alpaca_prefere_le_flux_consolide(monkeypatch):
+    """SIP d'abord : IEX ne porte qu'une fraction du volume, inutilisable pour l'ORB."""
+    monkeypatch.setenv("ALPACA_KEY_ID", "k")
+    monkeypatch.setenv("ALPACA_SECRET_KEY", "s")
+    vus = []
+
+    def fake_get(url, headers=None, params=None, timeout=None):
+        vus.append(params["feed"])
+        return _FakeResponse(200, {"bars": _bars(), "next_page_token": None})
+
+    monkeypatch.setattr("data.providers.alpaca.requests.get", fake_get)
+    provider = AlpacaProvider()
+    provider.fetch("SPY", "5m", "2024-01-01")
+    assert vus[0] == "sip"
+    assert provider.last_feed == "sip"
+
+
+def test_alpaca_bascule_sur_iex_si_sip_refuse(monkeypatch):
+    monkeypatch.setenv("ALPACA_KEY_ID", "k")
+    monkeypatch.setenv("ALPACA_SECRET_KEY", "s")
+    vus = []
+
+    def fake_get(url, headers=None, params=None, timeout=None):
+        vus.append(params["feed"])
+        if params["feed"] == "sip":
+            return _FakeResponse(403)
+        return _FakeResponse(200, {"bars": _bars(), "next_page_token": None})
+
+    monkeypatch.setattr("data.providers.alpaca.requests.get", fake_get)
+    provider = AlpacaProvider()
+    provider.fetch("SPY", "5m", "2024-01-01")
+    assert vus == ["sip", "iex"]
+    assert provider.last_feed == "iex"
+
+
+def test_alpaca_leve_si_aucun_flux_ne_repond(monkeypatch):
+    monkeypatch.setenv("ALPACA_KEY_ID", "k")
+    monkeypatch.setenv("ALPACA_SECRET_KEY", "s")
+    monkeypatch.setattr("data.providers.alpaca.requests.get",
+                        lambda *a, **k: _FakeResponse(403))
+    with pytest.raises(ProviderUnavailable, match="sip.*iex"):
+        AlpacaProvider().fetch("SPY", "5m", "2024-01-01")
+
+
+def test_alpaca_quotidien_garde_le_prix_brut_et_ajoute_lajuste(monkeypatch):
+    """L'OHLC reste brut (il détermine le nombre d'actions et la commission) ;
+    seul `adj_close` porte l'ajustement."""
+    monkeypatch.setenv("ALPACA_KEY_ID", "k")
+    monkeypatch.setenv("ALPACA_SECRET_KEY", "s")
+
+    def fake_get(url, headers=None, params=None, timeout=None):
+        close = 100.0 if params["adjustment"] == "raw" else 96.0
+        return _FakeResponse(200, {"bars": _bars(close=close), "next_page_token": None})
+
+    monkeypatch.setattr("data.providers.alpaca.requests.get", fake_get)
+    df = AlpacaProvider().fetch("SPY", "1d", "2024-01-01")
+    assert (df["close"] == 100.0).all()
+    assert (df["adj_close"] == 96.0).all()
+
+
+def test_alpaca_intraday_ne_demande_pas_lajustement(monkeypatch):
+    """En intraday, une seule requête : l'ajustement n'a pas de sens dans la journée."""
+    monkeypatch.setenv("ALPACA_KEY_ID", "k")
+    monkeypatch.setenv("ALPACA_SECRET_KEY", "s")
+    ajustements = []
+
+    def fake_get(url, headers=None, params=None, timeout=None):
+        ajustements.append(params["adjustment"])
+        return _FakeResponse(200, {"bars": _bars(), "next_page_token": None})
+
+    monkeypatch.setattr("data.providers.alpaca.requests.get", fake_get)
+    AlpacaProvider().fetch("SPY", "5m", "2024-01-01")
+    assert ajustements == ["raw"]
+
+
+def test_alpaca_pagine_jusqua_epuisement(monkeypatch):
+    monkeypatch.setenv("ALPACA_KEY_ID", "k")
+    monkeypatch.setenv("ALPACA_SECRET_KEY", "s")
+    appels = {"n": 0}
+
+    def fake_get(url, headers=None, params=None, timeout=None):
+        appels["n"] += 1
+        token = "suite" if appels["n"] < 3 else None
+        # chaque page couvre des horodatages distincts, comme la vraie API
+        return _FakeResponse(200, {"bars": _bars(offset=3 * (appels["n"] - 1)),
+                                   "next_page_token": token})
+
+    monkeypatch.setattr("data.providers.alpaca.requests.get", fake_get)
+    df = AlpacaProvider().fetch("SPY", "5m", "2024-01-01")
+    assert appels["n"] == 3
+    assert len(df) == 9 and df.index.is_unique
+
+
+def test_intraday_est_horodate_en_heure_de_new_york(monkeypatch):
+    """Régression : `DatetimeIndex(series.values)` perd le fuseau et laisse
+    des horodatages UTC déguisés en heure locale."""
+    monkeypatch.setenv("ALPACA_KEY_ID", "k")
+    monkeypatch.setenv("ALPACA_SECRET_KEY", "s")
+    # 14:30 UTC = 09:30 à New York (heure d'été), l'ouverture de la séance.
+    bars = [{"t": "2024-06-03T13:30:00Z", "o": 1.0, "h": 1.0, "l": 1.0, "c": 1.0, "v": 1.0}]
+    monkeypatch.setattr("data.providers.alpaca.requests.get",
+                        lambda *a, **k: _FakeResponse(200, {"bars": bars, "next_page_token": None}))
+    df = AlpacaProvider().fetch("SPY", "5m", "2024-06-03")
+    assert df.index.tz is not None, "l'index intraday doit porter un fuseau"
+    assert str(df.index.tz) == C.TZ_NY
+    assert df.index[0].strftime("%H:%M") == "09:30"
+
+
+def test_quotidien_reste_sans_fuseau_et_normalise(monkeypatch):
+    monkeypatch.setenv("ALPACA_KEY_ID", "k")
+    monkeypatch.setenv("ALPACA_SECRET_KEY", "s")
+    bars = [{"t": "2024-06-03T04:00:00Z", "o": 1.0, "h": 1.0, "l": 1.0, "c": 1.0, "v": 1.0}]
+    monkeypatch.setattr("data.providers.alpaca.requests.get",
+                        lambda *a, **k: _FakeResponse(200, {"bars": bars, "next_page_token": None}))
+    df = AlpacaProvider().fetch("SPY", "1d", "2024-06-03")
+    assert df.index.tz is None
+    assert str(df.index[0]) == "2024-06-03 00:00:00"
+
+
+def test_qc_intraday_compte_les_barres_selon_lhoraire_reel():
+    """Une séance complète fait 78 barres ; une demi-journée en fait 42 et ne
+    doit pas être signalée comme incomplète."""
+    pleine = pd.date_range("2024-06-03 09:30", "2024-06-03 15:55", freq="5min", tz=C.TZ_NY)
+    demi = pd.date_range("2024-07-03 09:30", "2024-07-03 12:55", freq="5min", tz=C.TZ_NY)
+    idx = pleine.append(demi)
+    df = pd.DataFrame({"open": 1.0, "high": 1.0, "low": 1.0, "close": 1.0,
+                       "adj_close": 1.0, "volume": 1000.0}, index=idx)
+    found = {f.check: f for f in quality.check_symbol(df, "SPY", "5m")}
+    assert "seances_incompletes" not in found, found
+
+
+def test_qc_intraday_signale_une_vraie_seance_trouee():
+    pleine = pd.date_range("2024-06-03 09:30", "2024-06-03 15:55", freq="5min", tz=C.TZ_NY)
+    trouee = pleine.delete(range(10, 40))   # 30 barres arrachées en pleine séance
+    df = pd.DataFrame({"open": 1.0, "high": 1.0, "low": 1.0, "close": 1.0,
+                       "adj_close": 1.0, "volume": 1000.0}, index=trouee)
+    found = {f.check: f for f in quality.check_symbol(df, "SPY", "5m")}
+    assert "seances_incompletes" in found and found["seances_incompletes"].blocking

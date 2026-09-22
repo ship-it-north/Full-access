@@ -24,13 +24,19 @@ class Finding:
     blocking: bool
 
 
-def _sessions(symbol: str, start, end) -> pd.DatetimeIndex:
-    """Séances attendues selon le calendrier de la bourse du symbole."""
+def _schedule(symbol: str, start, end) -> pd.DataFrame:
+    """Horaire officiel des séances (ouverture et clôture réelles)."""
     import pandas_market_calendars as mcal
 
     cal = mcal.get_calendar(C.EXCHANGE_CALENDAR.get(symbol, "NYSE"))
     schedule = cal.schedule(start_date=start, end_date=end)
-    return pd.DatetimeIndex(schedule.index).tz_localize(None).normalize()
+    schedule.index = pd.DatetimeIndex(schedule.index).tz_localize(None).normalize()
+    return schedule
+
+
+def _sessions(symbol: str, start, end) -> pd.DatetimeIndex:
+    """Séances attendues selon le calendrier de la bourse du symbole."""
+    return _schedule(symbol, start, end).index
 
 
 def check_symbol(df: pd.DataFrame, symbol: str, timeframe: str) -> list[Finding]:
@@ -74,6 +80,37 @@ def check_symbol(df: pd.DataFrame, symbol: str, timeframe: str) -> list[Finding]
     stale = int((df[["open", "high", "low", "close"]].diff().abs().sum(axis=1) == 0).sum())
     if stale > 0.01 * len(df):
         add("barres_figees", "barres OHLC identiques à la précédente", stale, False)
+
+    if timeframe == "5m":
+        rth = df.between_time("09:30", "15:55")
+        if rth.empty:
+            add("aucune_seance_reguliere", "aucune barre entre 9h30 et 16h00", 0, True)
+            return findings
+        by_day = rth.groupby(rth.index.normalize()).size()
+        expected_days = _sessions(symbol, df.index[0].date(), df.index[-1].date())
+        got_days = pd.DatetimeIndex(by_day.index).tz_localize(None).normalize()
+        missing_days = expected_days.difference(got_days)
+        if len(missing_days):
+            rate = len(missing_days) / max(len(expected_days), 1)
+            add("seances_manquantes",
+                f"{rate:.2%} des séances absentes "
+                f"(ex. {', '.join(str(d.date()) for d in missing_days[:3])})",
+                len(missing_days), rate > C.MAX_MISSING_SESSION_RATE)
+        # Le nombre de barres attendu vient de l'horaire réel de la séance :
+        # une demi-journée de bourse en compte 42, pas 78.
+        schedule = _schedule(symbol, df.index[0].date(), df.index[-1].date())
+        minutes = (schedule["market_close"] - schedule["market_open"]).dt.total_seconds() / 60
+        expected_bars = (minutes / 5).round().astype(int)
+        counts = pd.Series(by_day.values, index=got_days)
+        common = counts.index.intersection(expected_bars.index)
+        short = counts.loc[common] < expected_bars.loc[common]
+        if short.any():
+            worst = (expected_bars.loc[common] - counts.loc[common]).max()
+            add("seances_incompletes",
+                f"séances plus courtes que l'horaire officiel (jusqu'à {int(worst)} barres "
+                "manquantes) : le fournisseur n'émet pas de barre sans transaction",
+                int(short.sum()), float(short.mean()) > 0.05)
+        return findings
 
     if timeframe == "1d":
         expected = _sessions(symbol, df.index[0], df.index[-1])

@@ -42,9 +42,13 @@ def fetch_symbol(symbol: str, timeframe: str, start: str, order: list[str]) -> t
         except (ProviderUnavailable, Exception) as exc:  # noqa: BLE001
             attempts.append(f"{name}: {type(exc).__name__}: {exc}")
             continue
+        feed = getattr(provider, "last_feed", None)
+        note = " | ".join(attempts)
+        if feed:
+            note = f"flux={feed}" + (f" | {note}" if note else "")
         cache.save(df, symbol, timeframe, provider.name, C.CURRENCY.get(symbol, "USD"),
-                   provider.adjusted, note=" | ".join(attempts))
-        return name, f"{len(df)} barres"
+                   provider.adjusted, note=note)
+        return name, f"{len(df)} barres" + (f" (flux {feed})" if feed else "")
     return "", " | ".join(attempts)
 
 
@@ -91,6 +95,8 @@ def report(fetch_results: dict, events_df: pd.DataFrame, event_problems: list[st
 
     cov = quality.coverage(daily, "1d")
     qc = quality.quality_report(daily, "1d")
+    cov_intra = quality.coverage(intraday, "5m")
+    qc_intra = quality.quality_report(intraday, "5m")
     afford = universe.affordability(daily)
     inv = cache.inventory()
 
@@ -131,6 +137,20 @@ def report(fetch_results: dict, events_df: pd.DataFrame, event_problems: list[st
          "respectivement TWS papier et une clé API. L'ORB ne peut pas être évalué "
          "tant que cette source n'est pas branchée."),
         "",
+        cov_intra.to_markdown(index=False) if not cov_intra.empty else "",
+        "",
+        ("Flux **SIP** (ruban consolidé) et non IEX. Mesuré sur SPY en 2024 : IEX ne "
+         "porte que 1,5 % du volume consolidé, tandis que SIP correspond aux prix "
+         "Yahoo sur 100 % des séances à 1 point de base près. Une plage d'ouverture "
+         "calculée sur IEX ne serait pas celle du marché." if intraday else ""),
+        "",
+        (qc_intra.to_markdown(index=False) if not qc_intra.empty else
+         ("Aucun constat sur l'intraday." if intraday else "")),
+        "",
+        ("Les barres couvrent aussi la pré-séance et l'après-séance (4h00 à 20h00 ET) ; "
+         "le moteur filtrera la séance régulière. Les contrôles ci-dessus ne portent "
+         "que sur 9h30-16h00." if intraday else ""),
+        "",
         "## 6. Événements macro",
         "",
         (f"{len(events_df)} événements écrits dans `events.csv`." if len(events_df)
@@ -161,6 +181,8 @@ def report(fetch_results: dict, events_df: pd.DataFrame, event_problems: list[st
         qc.to_csv(C.REPORTS_DIR / "phase_a_qualite.csv", index=False)
     if not afford.empty:
         afford.to_csv(C.REPORTS_DIR / "phase_a_eligibilite.csv", index=False)
+    if not qc_intra.empty:
+        qc_intra.to_csv(C.REPORTS_DIR / "phase_a_qualite_5m.csv", index=False)
     return path
 
 

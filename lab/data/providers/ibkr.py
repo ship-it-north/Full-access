@@ -141,15 +141,19 @@ class IBKRProvider(Provider):
             raise ProviderUnavailable(f"IBKR n'a renvoyé aucune barre pour {symbol}")
 
         raw = pd.concat(frames).drop_duplicates(subset="date").sort_values("date")
-        index = pd.to_datetime(raw["date"])
+        index = pd.DatetimeIndex(pd.to_datetime(raw["date"]))
         if timeframe == "1d":
-            index = index.dt.tz_localize(None).dt.normalize()
+            index = index.tz_localize(None) if index.tz is not None else index
+            index = index.normalize()
+            index.name = "date"
         else:
-            index = (index.dt.tz_convert("America/New_York")
-                     if index.dt.tz is not None else index.dt.tz_localize("America/New_York"))
+            # `.values` perdrait le fuseau : on garde un index conscient du fuseau.
+            index = (index.tz_convert("America/New_York") if index.tz is not None
+                     else index.tz_localize("America/New_York"))
+            index.name = "timestamp"
         df = pd.DataFrame({
             "open": raw["open"].values, "high": raw["high"].values, "low": raw["low"].values,
             "close": raw["close"].values, "adj_close": raw["close"].values,
             "volume": raw["volume"].values,
-        }, index=pd.DatetimeIndex(index.values, name="date" if timeframe == "1d" else "timestamp"))
+        }, index=index)
         return df.astype(float)
