@@ -27,8 +27,14 @@ refusée au chargement.
 Pour utiliser IBKR : lancer TWS ou IB Gateway en **mode papier**, activer l'API
 (port 7497 pour TWS, 4002 pour Gateway), puis `pip install ib_insync`.
 
-Pour Alpaca : mettre `ALPACA_KEY_ID` et `ALPACA_SECRET_KEY` dans `.env`
-(déjà dans `.gitignore`).
+Pour Alpaca : copier `.env.example` en `.env` et remplir `ALPACA_KEY_ID` et
+`ALPACA_SECRET_KEY` (`.env` est dans `.gitignore`). Le fournisseur demande le
+flux **SIP** (ruban consolidé) et ne retombe sur IEX que si le compte n'y a pas
+droit ; le flux retenu est écrit dans les métadonnées du cache. L'écart est
+majeur : sur SPY en 2024, IEX ne porte que 1,5 % du volume consolidé.
+
+Alpaca ne couvre pas les FNB canadiens (`.TO`) : leurs barres 5 minutes
+demandent IBKR.
 
 ## Structure
 

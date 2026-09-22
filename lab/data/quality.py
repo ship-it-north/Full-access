@@ -103,13 +103,36 @@ def check_symbol(df: pd.DataFrame, symbol: str, timeframe: str) -> list[Finding]
         expected_bars = (minutes / 5).round().astype(int)
         counts = pd.Series(by_day.values, index=got_days)
         common = counts.index.intersection(expected_bars.index)
-        short = counts.loc[common] < expected_bars.loc[common]
-        if short.any():
-            worst = (expected_bars.loc[common] - counts.loc[common]).max()
+        ratio = counts.loc[common] / expected_bars.loc[common]
+
+        # Une séance très amputée peut être un trou d'historique ou, pour un titre
+        # peu traité, sa normale. On tranche en la comparant à son voisinage :
+        # entourée de séances pleines, c'est un trou ; entourée de séances aussi
+        # creuses, c'est de l'illiquidité.
+        voisinage = ratio.rolling(21, center=True, min_periods=5).median()
+        creuses = ratio < C.MIN_SESSION_BAR_RATIO
+        trous = creuses & (voisinage > C.NEIGHBOURHOOD_FULL_RATIO)
+        if trous.any():
+            dates = ", ".join(str(d.date()) for d in ratio.index[trous][:5])
+            add("seances_tronquees",
+                f"séances amputées de plus de {100 * (1 - C.MIN_SESSION_BAR_RATIO):.0f} % "
+                f"de leurs barres alors que les séances voisines sont pleines — "
+                f"trou d'historique ({dates})",
+                int(trous.sum()), True)
+        illiquides = creuses & ~trous
+        if illiquides.any():
+            add("seances_creuses",
+                "séances à très peu de barres, comme leur voisinage : titre peu traité "
+                "sur cette période, pas un trou de données",
+                int(illiquides.sum()), False)
+
+        partielles = ratio[(ratio >= C.MIN_SESSION_BAR_RATIO) & (ratio < 1.0)]
+        if len(partielles):
+            worst = int((expected_bars.loc[partielles.index] - counts.loc[partielles.index]).max())
             add("seances_incompletes",
-                f"séances plus courtes que l'horaire officiel (jusqu'à {int(worst)} barres "
-                "manquantes) : le fournisseur n'émet pas de barre sans transaction",
-                int(short.sum()), float(short.mean()) > 0.05)
+                f"séances à quelques barres près de l'horaire officiel (au plus {worst}) : "
+                "arrêts de cotation ou créneaux sans transaction",
+                len(partielles), False)
         return findings
 
     if timeframe == "1d":

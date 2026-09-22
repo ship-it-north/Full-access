@@ -1,25 +1,28 @@
 symbole,controle,detail,occurrences,bloquant
-SPY,seances_incompletes,séances avec moins de 78 barres en séance régulière (demi-journées de bourse incluses),1476,True
-QQQ,seances_incompletes,séances avec moins de 78 barres en séance régulière (demi-journées de bourse incluses),1287,True
-IWM,seances_incompletes,séances avec moins de 78 barres en séance régulière (demi-journées de bourse incluses),2246,True
-DIA,seances_incompletes,séances avec moins de 78 barres en séance régulière (demi-journées de bourse incluses),2689,True
+SPY,seances_incompletes,séances à quelques barres près de l'horaire officiel (au plus 5) : arrêts de cotation ou créneaux sans transaction,6,False
+QQQ,seances_tronquees,"séances amputées de plus de 50 % de leurs barres alors que les séances voisines sont pleines — trou d'historique (2018-05-02, 2018-05-03)",2,True
+QQQ,seances_incompletes,séances à quelques barres près de l'horaire officiel (au plus 8) : arrêts de cotation ou créneaux sans transaction,6,False
+IWM,seances_incompletes,séances à quelques barres près de l'horaire officiel (au plus 5) : arrêts de cotation ou créneaux sans transaction,6,False
+DIA,seances_incompletes,séances à quelques barres près de l'horaire officiel (au plus 7) : arrêts de cotation ou créneaux sans transaction,6,False
 XLF,saut_suspect,variations > 20% entre deux barres (fractionnement non ajusté ?),1,False
 XLF,barres_figees,barres OHLC identiques à la précédente,13336,False
-XLF,seances_incompletes,séances avec moins de 78 barres en séance régulière (demi-journées de bourse incluses),2681,True
+XLF,seances_incompletes,séances à quelques barres près de l'horaire officiel (au plus 6) : arrêts de cotation ou créneaux sans transaction,6,False
 XLE,saut_suspect,variations > 20% entre deux barres (fractionnement non ajusté ?),1,False
 XLE,barres_figees,barres OHLC identiques à la précédente,6113,False
-XLE,seances_incompletes,séances avec moins de 78 barres en séance régulière (demi-journées de bourse incluses),2659,True
+XLE,seances_incompletes,séances à quelques barres près de l'horaire officiel (au plus 5) : arrêts de cotation ou créneaux sans transaction,7,False
 XLK,saut_suspect,variations > 20% entre deux barres (fractionnement non ajusté ?),1,False
-XLK,seances_incompletes,séances avec moins de 78 barres en séance régulière (demi-journées de bourse incluses),2692,True
-XLV,seances_incompletes,séances avec moins de 78 barres en séance régulière (demi-journées de bourse incluses),2694,True
-XLI,seances_incompletes,séances avec moins de 78 barres en séance régulière (demi-journées de bourse incluses),2694,True
-GLD,seances_incompletes,séances avec moins de 78 barres en séance régulière (demi-journées de bourse incluses),2545,True
+XLK,seances_incompletes,séances à quelques barres près de l'horaire officiel (au plus 6) : arrêts de cotation ou créneaux sans transaction,6,False
+XLV,seances_incompletes,séances à quelques barres près de l'horaire officiel (au plus 6) : arrêts de cotation ou créneaux sans transaction,6,False
+XLI,seances_incompletes,séances à quelques barres près de l'horaire officiel (au plus 6) : arrêts de cotation ou créneaux sans transaction,6,False
+GLD,seances_incompletes,séances à quelques barres près de l'horaire officiel (au plus 6) : arrêts de cotation ou créneaux sans transaction,6,False
 TLT,barres_figees,barres OHLC identiques à la précédente,4276,False
-TLT,seances_incompletes,séances avec moins de 78 barres en séance régulière (demi-journées de bourse incluses),2445,True
-EFA,seances_incompletes,séances avec moins de 78 barres en séance régulière (demi-journées de bourse incluses),2694,True
+TLT,seances_tronquees,"séances amputées de plus de 50 % de leurs barres alors que les séances voisines sont pleines — trou d'historique (2018-05-02, 2018-05-03)",2,True
+TLT,seances_incompletes,séances à quelques barres près de l'horaire officiel (au plus 8) : arrêts de cotation ou créneaux sans transaction,6,False
+EFA,seances_incompletes,séances à quelques barres près de l'horaire officiel (au plus 5) : arrêts de cotation ou créneaux sans transaction,6,False
 BIL,saut_suspect,variations > 20% entre deux barres (fractionnement non ajusté ?),1,False
 BIL,barres_figees,barres OHLC identiques à la précédente,29033,False
-BIL,seances_incompletes,séances avec moins de 78 barres en séance régulière (demi-journées de bourse incluses),2693,True
+BIL,seances_incompletes,séances à quelques barres près de l'horaire officiel (au plus 35) : arrêts de cotation ou créneaux sans transaction,869,False
 SGOV,barres_figees,barres OHLC identiques à la précédente,24169,False
-SGOV,seances_manquantes,"2.58% des séances absentes (ex. 2020-05-29, 2020-06-03, 2020-06-05)",41,True
-SGOV,seances_incompletes,séances avec moins de 78 barres en séance régulière (demi-journées de bourse incluses),1400,True
+SGOV,seances_manquantes,"0.32% des séances absentes (ex. 2020-06-03, 2020-06-08, 2020-06-09)",5,False
+SGOV,seances_creuses,"séances à très peu de barres, comme leur voisinage : titre peu traité sur cette période, pas un trou de données",417,False
+SGOV,seances_incompletes,séances à quelques barres près de l'horaire officiel (au plus 39) : arrêts de cotation ou créneaux sans transaction,177,False

@@ -37,6 +37,8 @@ MAX_DAILY_MOVE = 0.20           # au-delà : saut à vérifier (hors fractionnem
 MAX_MISSING_SESSION_RATE = 0.01  # 1 % de séances manquantes tolérées
 MIN_DAILY_DOLLAR_VOLUME = 1_000_000  # liquidité minimale pour l'éligibilité
 EXPECTED_RTH_BARS_5M = 78            # 6h30 de séance régulière / 5 min
+MIN_SESSION_BAR_RATIO = 0.50         # séance jugée très amputée en deçà de ce ratio
+NEIGHBOURHOOD_FULL_RATIO = 0.90      # voisinage jugé plein au-delà : la séance creuse est alors un trou
 
 # Contrainte de compte
 STARTING_CASH_CAD = 200.0

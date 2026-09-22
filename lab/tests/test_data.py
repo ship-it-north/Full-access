@@ -438,10 +438,42 @@ def test_qc_intraday_compte_les_barres_selon_lhoraire_reel():
     assert "seances_incompletes" not in found, found
 
 
-def test_qc_intraday_signale_une_vraie_seance_trouee():
+def _seances_5m(jours, barres_par_jour):
+    """Construit un intraday synthétique : une liste (date, nombre de barres)."""
+    idx = pd.DatetimeIndex([], tz=C.TZ_NY)
+    for jour, n in zip(jours, barres_par_jour):
+        pleine = pd.date_range(f"{jour} 09:30", f"{jour} 15:55", freq="5min", tz=C.TZ_NY)
+        idx = idx.append(pleine[:n])
+    return pd.DataFrame({"open": 1.0, "high": 1.0, "low": 1.0, "close": 1.0,
+                         "adj_close": 1.0, "volume": 1000.0}, index=idx)
+
+
+def test_qc_intraday_bloque_sur_un_trou_entoure_de_seances_pleines():
+    """QQQ les 2 et 3 mai 2018 : une séance vide au milieu de séances pleines est
+    un trou d'historique, et une plage d'ouverture calculée dessus serait fausse."""
+    jours = pd.bdate_range("2024-06-03", periods=21).strftime("%Y-%m-%d")
+    barres = [78] * 21
+    barres[10] = 2
+    found = {f.check: f for f in quality.check_symbol(_seances_5m(jours, barres), "SPY", "5m")}
+    assert "seances_tronquees" in found and found["seances_tronquees"].blocking
+
+
+def test_qc_intraday_ne_bloque_pas_sur_un_titre_peu_traite():
+    """SGOV à son lancement : toutes les séances sont creuses. C'est de
+    l'illiquidité, pas un trou de données."""
+    jours = pd.bdate_range("2024-06-03", periods=21).strftime("%Y-%m-%d")
+    found = {f.check: f for f in quality.check_symbol(_seances_5m(jours, [6] * 21), "SPY", "5m")}
+    assert "seances_tronquees" not in found
+    assert "seances_creuses" in found and not found["seances_creuses"].blocking
+
+
+def test_qc_intraday_tolere_un_arret_de_cotation():
+    """Mars 2020 : les coupe-circuits retirent deux ou trois barres. C'est réel,
+    donc signalé sans bloquer."""
     pleine = pd.date_range("2024-06-03 09:30", "2024-06-03 15:55", freq="5min", tz=C.TZ_NY)
-    trouee = pleine.delete(range(10, 40))   # 30 barres arrachées en pleine séance
+    avec_halte = pleine.delete(range(20, 23))
     df = pd.DataFrame({"open": 1.0, "high": 1.0, "low": 1.0, "close": 1.0,
-                       "adj_close": 1.0, "volume": 1000.0}, index=trouee)
+                       "adj_close": 1.0, "volume": 1000.0}, index=avec_halte)
     found = {f.check: f for f in quality.check_symbol(df, "SPY", "5m")}
-    assert "seances_incompletes" in found and found["seances_incompletes"].blocking
+    assert "seances_incompletes" in found and not found["seances_incompletes"].blocking
+    assert "seances_tronquees" not in found
