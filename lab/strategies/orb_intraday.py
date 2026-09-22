@@ -55,7 +55,10 @@ class ORBIntraday(Strategy):
         Vérifier si Philippe peut approuver un signal maintenant.
         Par défaut : 9:30-16:00 ET semaine = signal bloqué.
         """
-        ny_time = timestamp.tz_localize("UTC").tz_convert("America/New_York")
+        if timestamp.tz is not None:
+            ny_time = timestamp.tz_convert("America/New_York")
+        else:
+            ny_time = timestamp.tz_localize("UTC").tz_convert("America/New_York")
         hour = ny_time.hour
         minute = ny_time.minute
         weekday = ny_time.weekday()  # 0=lundi, 4=vendredi, 5-6=week-end

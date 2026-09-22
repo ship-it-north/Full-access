@@ -36,8 +36,21 @@ def walk_forward_split(data_index: pd.DatetimeIndex,
     if len(data_index) == 0:
         return []
 
-    start = data_index[0].to_period("M")
-    end = data_index[-1].to_period("M")
+    # Ensure DatetimeIndex
+    if not isinstance(data_index, pd.DatetimeIndex):
+        data_index = pd.DatetimeIndex(data_index)
+
+    # Preserve timezone info
+    original_tz = data_index.tz
+
+    # Convert to tz-naive for period conversion
+    if original_tz is not None:
+        data_index_naive = data_index.tz_localize(None)
+    else:
+        data_index_naive = data_index
+
+    start = data_index_naive[0].to_period("M")
+    end = data_index_naive[-1].to_period("M")
 
     windows = []
     train_start = start
@@ -50,22 +63,21 @@ def walk_forward_split(data_index: pd.DatetimeIndex,
         if test_end_period >= end:
             break
 
-        # Convertir les périodes en timestamps
-        train_start_ts = (train_start.start_time
-                         if hasattr(train_start, 'start_time')
-                         else train_start.to_timestamp())
-        train_end_ts = (train_end_period.end_time
-                       if hasattr(train_end_period, 'end_time')
-                       else train_end_period.to_timestamp() + pd.offsets.MonthEnd())
+        # Convert periods to timestamps
+        train_start_ts = train_start.start_time
+        train_end_ts = train_end_period.end_time
 
-        test_start_ts = (test_start_period.start_time
-                        if hasattr(test_start_period, 'start_time')
-                        else test_start_period.to_timestamp())
-        test_end_ts = (test_end_period.end_time
-                      if hasattr(test_end_period, 'end_time')
-                      else test_end_period.to_timestamp() + pd.offsets.MonthEnd())
+        test_start_ts = test_start_period.start_time
+        test_end_ts = test_end_period.end_time
 
-        # Limiter aux données disponibles
+        # Reattach timezone if needed
+        if original_tz is not None:
+            train_start_ts = train_start_ts.tz_localize(original_tz)
+            train_end_ts = train_end_ts.tz_localize(original_tz)
+            test_start_ts = test_start_ts.tz_localize(original_tz)
+            test_end_ts = test_end_ts.tz_localize(original_tz)
+
+        # Limit to available data
         train_start_ts = max(train_start_ts, data_index[0])
         train_end_ts = min(train_end_ts, data_index[-1])
         test_start_ts = max(test_start_ts, data_index[0])

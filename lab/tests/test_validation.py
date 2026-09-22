@@ -8,6 +8,7 @@ from lab.validation.bootstrap import bootstrap_ci, bootstrap_ci_ratio
 from lab.validation.monte_carlo import monte_carlo_permutations
 from lab.validation.tournament import evaluate_strategy, TournamentVerdict
 from lab.validation.walk_forward import walk_forward_split, WalkForwardWindow
+from lab.backtest.engine import _is_market_hours
 
 
 class TestWalkForward:
@@ -177,3 +178,47 @@ class TestTournament:
 
         result = evaluate_strategy("test", "1d", wf, bc, mc)
         assert result.verdict == TournamentVerdict.PASS
+
+
+class TestMarketHours:
+    """Tests pour le filtrage des heures de marché."""
+
+    def test_rejects_pre_market_5min(self):
+        """Rejette les barres avant 9:30 ET pour intraday."""
+        ts = pd.Timestamp("2023-06-15 09:25:00", tz="America/New_York")
+        assert not _is_market_hours(ts, "5m")
+
+    def test_accepts_market_hours_5min(self):
+        """Accepte les barres entre 9:30 et 16:00 ET pour intraday."""
+        ts = pd.Timestamp("2023-06-15 10:00:00", tz="America/New_York")
+        assert _is_market_hours(ts, "5m")
+
+    def test_rejects_post_market_5min(self):
+        """Rejette les barres après 16:00 ET pour intraday."""
+        ts = pd.Timestamp("2023-06-15 16:05:00", tz="America/New_York")
+        assert not _is_market_hours(ts, "5m")
+
+    def test_accepts_market_close_5min(self):
+        """Accepte la barre de 16:00 ET pour intraday."""
+        ts = pd.Timestamp("2023-06-15 16:00:00", tz="America/New_York")
+        assert _is_market_hours(ts, "5m")
+
+    def test_rejects_pre_market_daily(self):
+        """Rejette les barres quotidiennes avant 16:00 ET."""
+        ts = pd.Timestamp("2023-06-15 15:59:00", tz="America/New_York")
+        assert not _is_market_hours(ts, "1d")
+
+    def test_accepts_market_close_daily(self):
+        """Accepte les barres quotidiennes à/après 16:00 ET."""
+        ts = pd.Timestamp("2023-06-15 16:00:00", tz="America/New_York")
+        assert _is_market_hours(ts, "1d")
+
+    def test_handles_utc_timestamps(self):
+        """Convertit correctement les timestamps UTC."""
+        # 14:00 UTC = 10:00 ET (EDT)
+        ts = pd.Timestamp("2023-06-15 14:00:00", tz="UTC")
+        assert _is_market_hours(ts, "5m")
+
+        # 20:05 UTC = 16:05 ET (EDT) - après marché
+        ts = pd.Timestamp("2023-06-15 20:05:00", tz="UTC")
+        assert not _is_market_hours(ts, "5m")
