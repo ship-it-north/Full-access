@@ -103,7 +103,29 @@
   .side + .side{padding-left:44px;border-left:1px solid var(--smoke)}
   .side p{margin-top:14px;color:var(--mist)}
   .tag{display:inline-block;margin-top:20px;font-size:14px;color:var(--gray);border:1px solid var(--graphite);border-radius:999px;padding:5px 13px}
-  .team-svg{margin-top:30px;width:100%;max-width:440px;height:auto;display:block}
+  .team{margin-top:30px;max-width:440px}
+  .team-svg{width:100%;height:auto;display:block;overflow:visible}
+  .team-svg .links line{stroke:#2c2c2c;transition:stroke .3s}
+  .team-svg .links line.on{stroke:#ffffff}
+  .team-svg .flows line{stroke:#ffffff;stroke-width:1.5;stroke-dasharray:3 160;stroke-linecap:round;opacity:.55;animation:flow 3.2s linear infinite}
+  .team-svg .flows line:nth-child(2){animation-delay:-.8s}.team-svg .flows line:nth-child(3){animation-delay:-1.6s}.team-svg .flows line:nth-child(4){animation-delay:-2.4s}
+  @keyframes flow{from{stroke-dashoffset:163}to{stroke-dashoffset:0}}
+  .team-svg .tn{cursor:pointer;outline:none}
+  .team-svg .tn .hit{fill:transparent}
+  .team-svg .tn .dot{fill:#000;stroke:#9c9c9c;transition:fill .3s, stroke .3s, r .3s}
+  .team-svg .tn text{fill:#9c9c9c;font:14px 'Instrument Sans',sans-serif;transition:fill .3s}
+  .team-svg .tn.on .dot{fill:#fff;stroke:#fff;r:12px}
+  .team-svg .tn.on text{fill:#fff}
+  .team-svg .core .dot{fill:#fff;stroke:none}
+  .team-svg .core .halo{fill:none;stroke:#5e5e5e;transform-origin:220px 125px;animation:breathe 3s ease-in-out infinite}
+  .team-svg .core.on .halo{stroke:#fff}
+  @keyframes breathe{50%{transform:scale(1.12);opacity:.35}}
+  .team-svg .tn:focus-visible .dot{stroke:#fff;stroke-width:2}
+  .team-peek{margin-top:18px;min-height:76px;border-left:1px solid #5e5e5e;padding:2px 0 2px 16px;transition:border-color .3s}
+  .team-peek.on{border-color:#fff}
+  .team-peek b{display:block;font-weight:600;font-size:16px}
+  .team-peek span{display:block;margin-top:4px;color:#d6d6d6;font-size:15px;line-height:1.5}
+  @media (prefers-reduced-motion:reduce){.team-svg .flows{display:none}.team-svg .core .halo{animation:none}}
   @media (max-width:860px){.offer-side{grid-template-columns:1fr}.side,.side + .side{padding:40px 0;border-left:0;border-bottom:1px solid var(--smoke)}}
 
   /* Contact */
@@ -250,19 +272,26 @@
     <div class="offer-side">
       <div class="side">
         <h3><span data-fr>Équipe IA</span><span data-en>AI team</span></h3>
-        <p><span data-fr>Pour l'entrepreneur seul. Un agent général coordonne 3 à 4 agents spécialisés : ventes, prospection, finance et opérations. Vous gardez les décisions : rien qui touche l'argent ou vos clients ne part sans votre accord.</span><span data-en>For the solo entrepreneur. One general agent coordinates 3 to 4 specialist agents: sales, prospecting, finance and operations. You keep the decisions: nothing that touches money or your customers goes out without your approval.</span></p>
+        <p><span data-fr>Pour l'entrepreneur seul. Un agent général coordonne 3 à 4 agents spécialisés : ventes, marketing, finance et opérations. Vous gardez les décisions : rien qui touche l'argent ou vos clients ne part sans votre accord.</span><span data-en>For the solo entrepreneur. One general agent coordinates 3 to 4 specialist agents: sales, marketing, finance and operations. You keep the decisions: nothing that touches money or your customers goes out without your approval.</span></p>
         <span class="tag"><span data-fr>Sur mesure</span><span data-en>Custom build</span></span>
-        <svg class="team-svg" viewBox="0 0 440 250" role="img" aria-label="Un agent général relié à quatre agents : ventes, prospection, finance, opérations">
-          <g stroke="#2c2c2c"><line x1="220" y1="125" x2="70" y2="45"/><line x1="220" y1="125" x2="370" y2="45"/><line x1="220" y1="125" x2="70" y2="205"/><line x1="220" y1="125" x2="370" y2="205"/></g>
-          <circle cx="220" cy="125" r="30" fill="#fff"/>
-          <g fill="#000" stroke="#9c9c9c"><circle cx="70" cy="45" r="9"/><circle cx="370" cy="45" r="9"/><circle cx="70" cy="205" r="9"/><circle cx="370" cy="205" r="9"/></g>
-          <g fill="#9c9c9c" font-family="Instrument Sans, sans-serif" font-size="14">
-            <text x="88" y="50" data-fr>Ventes</text><text x="352" y="50" text-anchor="end" data-fr>Prospection</text>
-            <text x="88" y="210" data-fr>Finance</text><text x="352" y="210" text-anchor="end" data-fr>Opérations</text>
-            <text x="88" y="50" data-en>Sales</text><text x="352" y="50" text-anchor="end" data-en>Prospecting</text>
-            <text x="88" y="210" data-en>Finance</text><text x="352" y="210" text-anchor="end" data-en>Operations</text>
-          </g>
-        </svg>
+        <div class="team" id="team">
+          <svg class="team-svg" viewBox="0 0 440 250" role="group" aria-label="Agent général relié à quatre agents">
+            <g class="links">
+              <line data-k="sales" x1="220" y1="125" x2="70" y2="45"/><line data-k="marketing" x1="220" y1="125" x2="370" y2="45"/>
+              <line data-k="finance" x1="220" y1="125" x2="70" y2="205"/><line data-k="ops" x1="220" y1="125" x2="370" y2="205"/>
+            </g>
+            <g class="flows">
+              <line x1="70" y1="45" x2="220" y2="125"/><line x1="370" y1="45" x2="220" y2="125"/>
+              <line x1="70" y1="205" x2="220" y2="125"/><line x1="370" y1="205" x2="220" y2="125"/>
+            </g>
+            <g class="tn core" data-k="core" tabindex="0"><circle class="halo" cx="220" cy="125" r="44"/><circle class="dot" cx="220" cy="125" r="30"/></g>
+            <g class="tn" data-k="sales" tabindex="0"><circle class="hit" cx="80" cy="45" r="34"/><circle class="dot" cx="70" cy="45" r="9"/><text x="88" y="50"><tspan data-fr>Ventes</tspan><tspan data-en>Sales</tspan></text></g>
+            <g class="tn" data-k="marketing" tabindex="0"><circle class="hit" cx="350" cy="45" r="34"/><circle class="dot" cx="370" cy="45" r="9"/><text x="352" y="50" text-anchor="end">Marketing</text></g>
+            <g class="tn" data-k="finance" tabindex="0"><circle class="hit" cx="80" cy="205" r="34"/><circle class="dot" cx="70" cy="205" r="9"/><text x="88" y="210">Finance</text></g>
+            <g class="tn" data-k="ops" tabindex="0"><circle class="hit" cx="350" cy="205" r="34"/><circle class="dot" cx="370" cy="205" r="9"/><text x="352" y="210" text-anchor="end"><tspan data-fr>Opérations</tspan><tspan data-en>Operations</tspan></text></g>
+          </svg>
+          <div class="team-peek" id="peek" aria-live="polite"><b></b><span></span></div>
+        </div>
       </div>
       <div class="side">
         <h3><span data-fr>Automatisation de systèmes</span><span data-en>System automation</span></h3>
@@ -312,6 +341,35 @@
   window.addEventListener('scroll', onScroll, {passive:true}); onScroll();
 })();
 
+/* Équipe IA graph: hover / focus preview */
+(function(){
+  const T = {
+    core:{fr:['Agent général',"Coordonne l'équipe et vous demande votre accord pour les décisions importantes."], en:['General agent','Coordinates the team and asks for your approval on important decisions.']},
+    sales:{fr:['Ventes','Relance vos prospects par courriel, prépare vos appels et fait le suivi jusqu’à la signature.'], en:['Sales','Follows up with your prospects by email, prepares your calls and follows through to the signature.']},
+    marketing:{fr:['Marketing','Publicités, campagnes et listes de prospects. Nourrit l’équipe de ventes.'], en:['Marketing','Ads, campaigns and lead lists. Keeps the sales team fed.']},
+    finance:{fr:['Finance','Combien vous dépensez, combien vous gagnez, combien il vous reste dans les poches.'], en:['Finance','How much you spend, how much you earn, how much stays in your pocket.']},
+    ops:{fr:['Opérations','Qualité, règles et conformité. S’assure que tout roule, du premier appel à la facture.'], en:['Operations','Quality, rules and compliance. Makes sure everything runs, from the first call to the invoice.']}
+  };
+  const svg = document.querySelector('.team-svg'); if (!svg) return;
+  const peek = document.getElementById('peek'); const nodes = svg.querySelectorAll('.tn'); const links = svg.querySelectorAll('.links line');
+  function show(k, active){
+    const l = document.documentElement.lang === 'en' ? 'en' : 'fr'; const t = T[k][l];
+    peek.querySelector('b').textContent = t[0]; peek.querySelector('span').textContent = t[1];
+    peek.classList.toggle('on', active);
+    nodes.forEach(n => n.classList.toggle('on', active && n.dataset.k === k));
+    links.forEach(x => x.classList.toggle('on', active && (x.dataset.k === k || k === 'core')));
+  }
+  nodes.forEach(n => {
+    n.addEventListener('mouseenter', () => show(n.dataset.k, true));
+    n.addEventListener('focus', () => show(n.dataset.k, true));
+    n.addEventListener('click', () => show(n.dataset.k, true));
+    n.addEventListener('mouseleave', () => show('core', false));
+    n.addEventListener('blur', () => show('core', false));
+  });
+  show('core', false);
+  document.getElementById('lang').addEventListener('click', () => show('core', false));
+})();
+
 /* Orb: loads three.js only after first paint; SVG stays for reduced motion, low-power or no WebGL */
 (function(){
   const box = document.getElementById('orbBox');
@@ -346,7 +404,7 @@
     const ringPts = []; for (let i=0;i<=120;i++){ const a=i/120*Math.PI*2; ringPts.push(new T.Vector3(Math.cos(a)*4.6,0,Math.sin(a)*4.6)); }
     scene.add(new T.Line(new T.BufferGeometry().setFromPoints(ringPts), new T.LineBasicMaterial({color:0x3a3a3a})));
     const fr = document.documentElement.lang !== 'en';
-    const NAMES = [['Réception','Reception'],['Ventes','Sales'],['Prospection','Prospecting'],['Opérations','Operations']];
+    const NAMES = [['Ventes','Sales'],['Marketing','Marketing'],['Finance','Finance'],['Opérations','Operations']];
     const tip = document.createElement('div'); tip.className = 'orb-tip'; box.appendChild(tip);
     const nodes = [0,1,2,3].map(i => {
       const m = new T.Mesh(new T.OctahedronGeometry(.3,0), new T.MeshBasicMaterial({color:0xffffff, wireframe:true}));
